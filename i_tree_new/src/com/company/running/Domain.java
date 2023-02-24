@@ -119,7 +119,7 @@ public class Domain {
         int numPos = 0;
         int numNeg = 0;
         for (Point p : d.point) {
-            double result = c[c.length - 1];
+            double result = -c[c.length - 1];
             for (int i = 0; i < p.point.length; i++) {
                 result += c[i] * p.point[i];
             }

@@ -6,6 +6,7 @@ public class NodeRecord {
     Function f;
     int leftID;
     int rightID;
+    int ID = 0;
 
     public NodeRecord (Domain d, Function f, int leftID, int rightID) {
         this.d = d;
@@ -35,7 +36,8 @@ public class NodeRecord {
         }
     }
 
-    public void insertToMySql() {
+    public int insertToMySql() {
+        int returnId = 0;
         try {
             Connection connection = DriverManager.getConnection(Constants.MYSQL_URL, Constants.MYSQL_USER, Constants.MYSQL_PASSWORD);
             Statement stmt = connection.createStatement();
@@ -74,9 +76,11 @@ public class NodeRecord {
 
             System.out.println("Record inserted successfully");
             connection.close();
+            returnId = newId;
         } catch (SQLException e) {
             e.printStackTrace();
         }
+        return returnId;
     }
 
     public static NodeRecord getRecordById(int id) {
@@ -104,6 +108,7 @@ public class NodeRecord {
                 int rightID = rs.getInt("RightID");
 
                 nodeRecord = new NodeRecord(domain, function, leftID, rightID);
+                nodeRecord.ID = id;
             }
 
             // Clean up resources

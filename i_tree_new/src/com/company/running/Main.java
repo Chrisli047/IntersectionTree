@@ -6,7 +6,13 @@ import java.util.*;
 public class Main {
 
     public static void main(String[] args) {
-        Test.testFindBoundaryLines();
+//        Test.testGetRecordById(1);
+//        Test.testGetRecordById(2);
+//        Test.testGetRecordById(3);
+//        Test.testGetRecordById(4);
+//        Test.testGetRecordById(5);
+        Test.testConstructTree();
+//        Test.testFindBoundaryLines();
     }
 
 }

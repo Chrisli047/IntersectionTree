@@ -45,8 +45,8 @@ public class Test {
         nodeRecord.insertToMySql();
     }
 
-    public static void testGetRecordById() {
-        NodeRecord nodeRecord = NodeRecord.getRecordById(1);
+    public static void testGetRecordById(int id) {
+        NodeRecord nodeRecord = NodeRecord.getRecordById(id);
         nodeRecord.d.printDomain();
         System.out.println(nodeRecord.f);
         System.out.println(nodeRecord.leftID);
@@ -98,9 +98,105 @@ public class Test {
     }
 
     public static void testConstructTree() {
-        Function f = new Function(new double[] {-1, 1, -1});
+//        construct function array
+        Function f = new Function(new double[] {1, 1, 1});
+        Function f2 = new Function(new double[] {1, 1, 2});
+        Function[] fs  = new Function[2];
+        fs[0] = f;
+        fs[1] = f2;
+
+        double[][] range = {{0, 10}, {0, 10}};
+
+        List<double[]> points = Domain.findCornerPoints(range);
+        for (double[] arr : points) {
+            for (double d : arr) {
+                System.out.print(d + " ");
+            }
+            System.out.println();
+        }
+        //        construct point array for domain
+        Point[] pA = new Point[points.size()];
+        for (int i = 0; i < pA.length; i++) {
+            pA[i] = new Point(points.get(i));
+        }
+
+        List<int[]> res = Domain.findBoundaryLines(points);
+
+        for (int i = 0; i < res.size(); i++) {
+            int[] arr = res.get(i);
+            for (int j = 0; j < arr.length; j++) {
+                System.out.print(arr[j] + " ");
+            }
+            System.out.println();
+        }
+        //        construct segment array for domain
+        Segment[] sA = new Segment[res.size()];
+        for(int i = 0; i < sA.length; i++) {
+            sA[i] = new Segment(res.get(i)[0], res.get(i)[1]);
+        }
+
+//        construct domain
+        Domain d = new Domain(pA, sA);
+        d.printDomain();
+//        call constructTree method
+        Tree.constructTree(fs, d);
+//        construct segment array for domain
+
+//        unfinished
+    }
+
+    public static void testFindIntersectionPoints(){
+        double[][] range = {{0, 10}, {0, 10}};
+
+        List<double[]> points = Domain.findCornerPoints(range);
+        for (double[] arr : points) {
+            for (double d : arr) {
+                System.out.print(d + " ");
+            }
+            System.out.println();
+        }
+        //        construct point array for domain
+        Point[] pA = new Point[points.size()];
+        for (int i = 0; i < pA.length; i++) {
+            pA[i] = new Point(points.get(i));
+        }
+
+        List<int[]> res = Domain.findBoundaryLines(points);
+
+        for (int i = 0; i < res.size(); i++) {
+            int[] arr = res.get(i);
+            for (int j = 0; j < arr.length; j++) {
+                System.out.print(arr[j] + " ");
+            }
+            System.out.println();
+        }
+        //        construct segment array for domain
+        Segment[] sA = new Segment[res.size()];
+        for(int i = 0; i < sA.length; i++) {
+            sA[i] = new Segment(res.get(i)[0], res.get(i)[1]);
+        }
+
+        //        construct function array
+        Function f = new Function(new double[] {1, 1, 1});
         Function[] fs  = new Function[1];
         fs[0] = f;
-//        unfinished
+
+//        construct point array for domain
+//        Point[] pA = new Point[] {new Point(new double[]{0.0, 0.0}),
+//                new Point(new double[]{5.0, 0.0}),
+//                new Point(new double[]{5.0, 5.0}),
+//                new Point(new double[]{0.0, 5.0})};
+//        construct segment array for domain
+//        Segment[] sA = new Segment[] {new Segment(0, 1), new Segment(1, 2), new Segment(2, 3), new Segment(3, 0)};
+
+//        construct domain
+        Domain d = new Domain(pA, sA);
+        d.printDomain();
+
+        Domain[] partitionedDomain = Partition.partitionDomain(d, f);
+        for (Domain pd :partitionedDomain
+             ) {
+            pd.printDomain();
+        }
     }
 }
