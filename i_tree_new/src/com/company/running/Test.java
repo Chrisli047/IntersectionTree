@@ -1,6 +1,9 @@
 package com.company.running;
 
+import java.io.IOException;
+import java.util.LinkedList;
 import java.util.List;
+import java.util.Queue;
 
 public class Test {
     public static void testBuffer() {
@@ -97,13 +100,17 @@ public class Test {
 
     }
 
-    public static void testConstructTree() {
-//        construct function array
-        Function f = new Function(new double[] {1, 1, 1});
-        Function f2 = new Function(new double[] {1, 1, 2});
-        Function[] fs  = new Function[2];
-        fs[0] = f;
-        fs[1] = f2;
+    public static void testConstructTree() throws IOException {
+
+        DataReader dataReader = new DataReader("/Users/xiyaoli/Desktop/Study/research_program/information_element/i_tree_data/data/initDomains/initDomains_d_2.json",
+                "/Users/xiyaoli/Desktop/Study/research_program/information_element/i_tree_data/data/input/data_d_2_records_5_initDomainID_1.json");
+        //      Get coefficients
+        double[][] coefficientSet = dataReader.coefficientSet();
+//        Queue<Function> functions = new LinkedList<Function>();
+        Function[] functions = new Function[coefficientSet.length];
+        for (int i = 0; i < coefficientSet.length; i++) {
+            functions[i] = (new Function(coefficientSet[i]));
+        }
 
         double[][] range = {{0, 10}, {0, 10}};
 
@@ -139,7 +146,7 @@ public class Test {
         Domain d = new Domain(pA, sA);
         d.printDomain();
 //        call constructTree method
-        Tree.constructTree(fs, d);
+        Tree.constructTree(functions, d);
 //        construct segment array for domain
 
 //        unfinished

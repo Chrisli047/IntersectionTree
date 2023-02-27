@@ -5,7 +5,7 @@ import java.util.*;
 
 public class Main {
 
-    public static void main(String[] args) {
+    public static void main(String[] args) throws IOException {
 //        Test.testGetRecordById(1);
 //        Test.testGetRecordById(2);
 //        Test.testGetRecordById(3);

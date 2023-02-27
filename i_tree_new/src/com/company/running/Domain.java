@@ -114,6 +114,8 @@ public class Domain {
 
     public static boolean ifPartitionsDomain(Domain d, double[] c) {
         if (d.point[0].point.length != c.length - 1) {
+            System.out.println(d.point[0].point.length);
+            System.out.println(c.length - 1);
             throw new IllegalArgumentException("Dimensionality of domain and coefficient vector must match");
         }
         int numPos = 0;
