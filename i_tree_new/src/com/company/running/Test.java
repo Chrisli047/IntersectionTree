@@ -103,8 +103,7 @@ public class Test {
     public static void testConstructTree() throws IOException {
 
         DataReader dataReader = new DataReader("/Users/xiyaoli/Desktop/Study/research_program/information_element/i_tree_data/data/initDomains/initDomains_d_2.json",
-                "/Users/xiyaoli/Desktop/Study/research_program/information_element/i_tree_data/data/input/data_d_2_records_5_initDomainID_1.json");
-        //      Get coefficients
+                "/Users/maximpopov/Documents/data_d_2_records_5_initDomainID_1.json");        //      Get coefficients
         double[][] coefficientSet = dataReader.coefficientSet();
 //        Queue<Function> functions = new LinkedList<Function>();
         Function[] functions = new Function[coefficientSet.length];
@@ -147,6 +146,33 @@ public class Test {
         d.printDomain();
 //        call constructTree method
         Tree.constructTree(functions, d);
+//        construct segment array for domain
+
+//        unfinished
+    }
+
+    public static void testConstructTreeSimplex() throws IOException {
+        //TODO: implement testConstructTree for Simplex
+
+        DataReader dataReader = new DataReader("/Users/xiyaoli/Desktop/Study/research_program/information_element/i_tree_data/data/initDomains/initDomains_d_2.json",
+                "/Users/maximpopov/Documents/data_d_2_records_5_initDomainID_1.json");
+        //      Get coefficients
+        double[][] coefficientSet = dataReader.coefficientSet();
+//        Queue<Function> functions = new LinkedList<Function>();
+        Function[] functions = new Function[coefficientSet.length];
+        for (int i = 0; i < coefficientSet.length; i++) {
+            functions[i] = (new Function(coefficientSet[i]));
+        }
+
+        double[][] range = {{0, 10}, {0, 10}};
+
+        Function function = new Function(new double[]{0, 0, 1});
+
+//        construct domain
+        DomainSignChangingSimplex d = new DomainSignChangingSimplex(function, true);
+        d.printDomain();
+//        call constructTree method
+        Tree.constructTreeSimplex(functions, d);
 //        construct segment array for domain
 
 //        unfinished

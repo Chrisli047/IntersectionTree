@@ -2,13 +2,13 @@ package com.company.running;
 import java.sql.*;
 
 public class NodeRecord {
-    Domain d;
+    DomainType d;
     Function f;
     int leftID;
     int rightID;
     int ID = 0;
 
-    public NodeRecord (Domain d, Function f, int leftID, int rightID) {
+    public NodeRecord (DomainType d, Function f, int leftID, int rightID) {
         this.d = d;
         this.f = f;
         this.leftID = leftID;
