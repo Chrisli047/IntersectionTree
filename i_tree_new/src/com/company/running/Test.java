@@ -157,7 +157,8 @@ public class Test {
         //TODO: implement testConstructTree for Simplex
 
         DataReader dataReader = new DataReader("/Users/xiyaoli/Desktop/Study/research_program/information_element/i_tree_data/data/initDomains/initDomains_d_2.json",
-                "/Users/maximpopov/Documents/data_d_2_records_5_initDomainID_1.json");
+                "/Users/xiyaoli/Desktop/Study/research_program/information_element/i_tree_data/data/input/data_d_2_records_5_initDomainID_1.json");
+//                "/Users/maximpopov/Documents/data_d_2_records_5_initDomainID_1.json");
         // Get coefficients
         double[][] coefficientSet = dataReader.coefficientSet();
         // Queue<Function> functions = new LinkedList<Function>();
