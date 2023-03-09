@@ -12,6 +12,7 @@ public class Main {
 //        Test.testGetRecordById(4);
 //        Test.testGetRecordById(5);
         Test.testConstructTree();
+        Test.testConstructTreeSimplex();
 //        Test.testFindBoundaryLines();
     }
 

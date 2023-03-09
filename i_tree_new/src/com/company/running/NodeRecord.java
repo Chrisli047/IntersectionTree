@@ -83,7 +83,7 @@ public class NodeRecord {
         return returnId;
     }
 
-    public static NodeRecord getRecordById(int id) {
+    public static NodeRecord getRecordById(int id, boolean simplex) {
         NodeRecord nodeRecord = null;
         try {
             Connection connection = DriverManager.getConnection(Constants.MYSQL_URL, Constants.MYSQL_USER, Constants.MYSQL_PASSWORD);
@@ -101,7 +101,12 @@ public class NodeRecord {
             ResultSet rs = pstmt.executeQuery();
             if (rs.next()) {
                 byte[] domainBytes = rs.getBytes("Domain");
-                Domain domain = Domain.toDomain(domainBytes);
+                DomainType domain;
+                if (!simplex) {
+                    domain = Domain.toDomain(domainBytes);
+                } else {
+                    domain = DomainSignChangingSimplex.toDomain(domainBytes);
+                }
                 byte[] functionBytes = rs.getBytes("LinearFunction");
                 Function function = Function.toFunction(functionBytes);
                 int leftID = rs.getInt("LeftID");
@@ -123,7 +128,7 @@ public class NodeRecord {
         return nodeRecord;
     }
 
-    public static NodeRecord updateRecord(int recordId, int newLeftId, int newRightId) {
+    public static NodeRecord updateRecord(int recordId, int newLeftId, int newRightId, boolean simplex) {
         NodeRecord updatedRecord = null;
 
         try {
@@ -141,7 +146,7 @@ public class NodeRecord {
             int rowsUpdated = pstmt.executeUpdate();
             if (rowsUpdated > 0) {
                 System.out.println("Record with ID " + recordId + " updated successfully");
-                updatedRecord = getRecordById(recordId);
+                updatedRecord = getRecordById(recordId, simplex);
             } else {
                 System.out.println("No record found with ID " + recordId);
             }

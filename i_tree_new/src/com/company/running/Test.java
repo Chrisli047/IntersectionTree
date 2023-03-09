@@ -1,6 +1,7 @@
 package com.company.running;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Queue;
@@ -49,7 +50,7 @@ public class Test {
     }
 
     public static void testGetRecordById(int id) {
-        NodeRecord nodeRecord = NodeRecord.getRecordById(id);
+        NodeRecord nodeRecord = NodeRecord.getRecordById(id, false);
         nodeRecord.d.printDomain();
         System.out.println(nodeRecord.f);
         System.out.println(nodeRecord.leftID);
@@ -57,7 +58,7 @@ public class Test {
     }
 
     public static void testUpdateRecord() {
-        NodeRecord nodeRecord = NodeRecord.updateRecord(1, 2,2);
+        NodeRecord nodeRecord = NodeRecord.updateRecord(1, 2,2, false);
         nodeRecord.d.printDomain();
         System.out.println(nodeRecord.f);
         System.out.println(nodeRecord.leftID);
@@ -156,26 +157,41 @@ public class Test {
 
         DataReader dataReader = new DataReader("/Users/xiyaoli/Desktop/Study/research_program/information_element/i_tree_data/data/initDomains/initDomains_d_2.json",
                 "/Users/maximpopov/Documents/data_d_2_records_5_initDomainID_1.json");
-        //      Get coefficients
+        // Get coefficients
         double[][] coefficientSet = dataReader.coefficientSet();
-//        Queue<Function> functions = new LinkedList<Function>();
+        // Queue<Function> functions = new LinkedList<Function>();
         Function[] functions = new Function[coefficientSet.length];
         for (int i = 0; i < coefficientSet.length; i++) {
             functions[i] = (new Function(coefficientSet[i]));
         }
 
-        double[][] range = {{0, 10}, {0, 10}};
+        // define initial domain
+        ArrayList<double[]> allConstraintCoefficients = new ArrayList<>();
+        ArrayList<Double> allConstraintConstants = new ArrayList<>();
+        // x1 >= 0 --> -x1 <= 0
+        allConstraintCoefficients.add(new double[]{-1, 0});
+        allConstraintConstants.add(0.0);
+        // x1 <= 10
+        allConstraintCoefficients.add(new double[]{1, 0});
+        allConstraintConstants.add(10.0);
+        // x2 >= 0 --> -x2 <= 0
+        allConstraintCoefficients.add(new double[]{0, -1});
+        allConstraintConstants.add(0.0);
+        // x2 <= 10
+        allConstraintCoefficients.add(new double[]{0, 1});
+        allConstraintConstants.add(10.0);
 
         Function function = new Function(new double[]{0, 0, 1});
 
-//        construct domain
+        // construct domain
         DomainSignChangingSimplex d = new DomainSignChangingSimplex(function, true);
         d.printDomain();
-//        call constructTree method
-        Tree.constructTreeSimplex(functions, d);
-//        construct segment array for domain
 
-//        unfinished
+        // call constructTree method
+        Tree.constructTreeSimplex(functions, d, allConstraintCoefficients, allConstraintConstants);
+        // construct segment array for domain
+
+        // unfinished
     }
 
     public static void testFindIntersectionPoints(){

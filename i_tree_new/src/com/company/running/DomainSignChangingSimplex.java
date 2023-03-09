@@ -27,7 +27,7 @@ public class DomainSignChangingSimplex implements DomainType {
 
     public byte[] toByte() {
         ByteBuffer buffer = ByteBuffer.allocate(
-                constraintCoefficients.length * Double.BYTES + Integer.BYTES);
+                constraintCoefficients.length * Double.BYTES + Double.BYTES);
 
         for (double c : constraintCoefficients) {
             buffer.putDouble(c);
@@ -76,14 +76,22 @@ public class DomainSignChangingSimplex implements DomainType {
             objectiveFunctionVariableCoefficientsMin[i] = -objectiveFunctionVariableCoefficients[i];
         }
 
-        SimplexMarker max = new TwoPhaseSignChangingSimplex(constraintVariableCoefficients, constraintConstants,
-                objectiveFunctionVariableCoefficients, true);
-        SimplexMarker min = new TwoPhaseSignChangingSimplex(constraintVariableCoefficients, constraintConstants,
-                objectiveFunctionVariableCoefficientsMin, false);
+        SimplexMarker max;
+        SimplexMarker min;
+        try {
+            max = new TwoPhaseSignChangingSimplex(constraintVariableCoefficients, constraintConstants,
+                    objectiveFunctionVariableCoefficients, true);
+            min = new TwoPhaseSignChangingSimplex(constraintVariableCoefficients, constraintConstants,
+                    objectiveFunctionVariableCoefficientsMin, false);
+        } catch (ArithmeticException e) {
+            // program is unbounded (should not be allowed in input) or infeasible (no partition)
+            System.out.println(e.getMessage());
+            return false;
+        }
 
         double minValue = -min.value();
         double maxValue = max.value();
-        return minValue < objectiveFunctionConstant && maxValue > objectiveFunctionConstant;
+        return minValue < -objectiveFunctionConstant && maxValue > objectiveFunctionConstant;
     }
 
 
