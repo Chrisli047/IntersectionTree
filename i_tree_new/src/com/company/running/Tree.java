@@ -97,7 +97,8 @@ public class Tree {
     // Pass allConstraintCoefficients and allConstraintConstants with initial domain
     public static void constructTreeSimplex(Function[] intersections, DomainSignChangingSimplex domain,
                                             ArrayList<double[]> allConstraintCoefficients,
-                                            ArrayList<Double> allConstraintConstants) {
+                                            ArrayList<Double> allConstraintConstants,
+                                            SimplexType simplexType) {
         // create a table IntersectionTree in MySQL
         NodeRecord.createTable();
 
@@ -105,7 +106,8 @@ public class Tree {
         Function rootPartitionFunction = null;
         for (Function f:
                 intersections) {
-            if (DomainSignChangingSimplex.ifPartitionsDomain(allConstraintCoefficients, allConstraintConstants, f)) {
+            if (DomainSignChangingSimplex.ifPartitionsDomain(allConstraintCoefficients, allConstraintConstants, f,
+                    simplexType)) {
                 rootPartitionFunction = f;
                 System.out.println("yes");
                 break;
@@ -142,7 +144,7 @@ public class Tree {
 
                 // check if I partition N.domain
                 if (!DomainSignChangingSimplex.ifPartitionsDomain(allConstraintCoefficients, allConstraintConstants,
-                        intersection)) {
+                        intersection, simplexType)) {
                     // if no, exit
                     continue;
                 } else {

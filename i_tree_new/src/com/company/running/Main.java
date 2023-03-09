@@ -12,7 +12,8 @@ public class Main {
 //        Test.testGetRecordById(4);
 //        Test.testGetRecordById(5);
         Test.testConstructTree();
-        Test.testConstructTreeSimplex();
+        Test.testConstructTreeSimplex(SimplexType.SIMPLEX);
+        Test.testConstructTreeSimplex(SimplexType.SIGN_CHANGING_SIMPLEX);
 //        Test.testFindBoundaryLines();
     }
 

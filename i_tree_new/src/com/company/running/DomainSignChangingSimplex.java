@@ -4,7 +4,6 @@ import java.nio.ByteBuffer;
 import java.util.ArrayList;
 
 public class DomainSignChangingSimplex implements DomainType {
-    //TODO: initial domain should be constrained by initial domain boundary
     double[] constraintCoefficients;
     double constraintConstant;
 
@@ -56,7 +55,8 @@ public class DomainSignChangingSimplex implements DomainType {
 
     public static boolean ifPartitionsDomain(ArrayList<double[]> allConstraintCoefficients,
                                              ArrayList<Double> allConstraintConstants,
-                                             Function function) {
+                                             Function function,
+                                             SimplexType simplexType) {
         double[] objectiveFunctionVariableCoefficients = functionToConstraintCoefficients(function);
         double objectiveFunctionConstant = function.coefficients[function.coefficients.length-1];
 
@@ -79,10 +79,23 @@ public class DomainSignChangingSimplex implements DomainType {
         SimplexMarker max;
         SimplexMarker min;
         try {
-            max = new TwoPhaseSignChangingSimplex(constraintVariableCoefficients, constraintConstants,
-                    objectiveFunctionVariableCoefficients, true);
-            min = new TwoPhaseSignChangingSimplex(constraintVariableCoefficients, constraintConstants,
-                    objectiveFunctionVariableCoefficientsMin, false);
+            switch (simplexType) {
+                case SIMPLEX:
+                    max = new TwoPhaseSimplex(constraintVariableCoefficients, constraintConstants,
+                            objectiveFunctionVariableCoefficients);
+                    min = new TwoPhaseSimplex(constraintVariableCoefficients, constraintConstants,
+                            objectiveFunctionVariableCoefficientsMin);
+                    break;
+                case SIGN_CHANGING_SIMPLEX:
+                    max = new TwoPhaseSignChangingSimplex(constraintVariableCoefficients, constraintConstants,
+                            objectiveFunctionVariableCoefficients, true);
+                    min = new TwoPhaseSignChangingSimplex(constraintVariableCoefficients, constraintConstants,
+                            objectiveFunctionVariableCoefficientsMin, false);
+                    break;
+                default:
+                    throw new IllegalArgumentException("Simplex type argument is invalid. Inputted argument: " +
+                            simplexType);
+            }
         } catch (ArithmeticException e) {
             // program is unbounded (should not be allowed in input) or infeasible (no partition)
             System.out.println(e.getMessage());

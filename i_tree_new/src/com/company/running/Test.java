@@ -153,9 +153,7 @@ public class Test {
 //        unfinished
     }
 
-    public static void testConstructTreeSimplex() throws IOException {
-        //TODO: implement testConstructTree for Simplex
-
+    public static void testConstructTreeSimplex(SimplexType simplexType) throws IOException {
         DataReader dataReader = new DataReader("/Users/xiyaoli/Desktop/Study/research_program/information_element/i_tree_data/data/initDomains/initDomains_d_2.json",
                 "/Users/xiyaoli/Desktop/Study/research_program/information_element/i_tree_data/data/input/data_d_2_records_5_initDomainID_1.json");
 //                "/Users/maximpopov/Documents/data_d_2_records_5_initDomainID_1.json");
@@ -190,7 +188,7 @@ public class Test {
         d.printDomain();
 
         // call constructTree method
-        Tree.constructTreeSimplex(functions, d, allConstraintCoefficients, allConstraintConstants);
+        Tree.constructTreeSimplex(functions, d, allConstraintCoefficients, allConstraintConstants, simplexType);
         // construct segment array for domain
 
         // unfinished
