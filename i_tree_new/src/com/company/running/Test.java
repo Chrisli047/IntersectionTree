@@ -282,7 +282,7 @@ public class Test {
 
         for (int i = 0; i < unique_runs; i++) {
             // Equations defining subdomain
-            ArrayList<double[]> equations = generate_inequalities(num_inequality, num_dimension, coefficient_scale);
+            ArrayList<double[]> inequalities = generate_inequalities(num_inequality, num_dimension, coefficient_scale);
             // Equation of line for feasibility checking. Hijacks generate_inequalities().
             Function function = new Function(generate_equation(num_dimension, coefficient_scale));
 
@@ -291,14 +291,14 @@ public class Test {
             ArrayList<double[]> constraintCoefficients = new ArrayList<>();
             // Separate constraint constants
             ArrayList<Double> constraintConstants = new ArrayList<>();
-            for (double[] equation : equations) {
+            for (double[] inequality : inequalities) {
                 // ignore constant at the end
-                double[] slackenedEquation = new double[equation.length * 2 - 2];
-                for (int j = 0; j < equation.length - 1; j++) {
-                    slackenedEquation[j * 2] = equation[j];
-                    slackenedEquation[j * 2 + 1] = -equation[j];
+                double[] slackenedEquation = new double[inequality.length * 2 - 2];
+                for (int j = 0; j < inequality.length - 1; j++) {
+                    slackenedEquation[j * 2] = inequality[j];
+                    slackenedEquation[j * 2 + 1] = -inequality[j];
                 }
-                constraintConstants.add(equation[equation.length - 1]);
+                constraintConstants.add(inequality[inequality.length - 1]);
                 constraintCoefficients.add(slackenedEquation);
             }
 
