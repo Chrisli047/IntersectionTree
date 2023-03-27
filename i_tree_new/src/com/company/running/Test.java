@@ -2,6 +2,7 @@ package com.company.running;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 public class Test {
@@ -267,7 +268,7 @@ public class Test {
         // store results for input (technique, #inequality, #dimension)/output (time) in respective file (param var)
     }
 
-    // Generated equations are in the form: a1x1 + a2x1 + b1x2 + b2x2 ≤ d (boundary_length) where double[] = {a, b, d}.
+    // Generated equations are in the form: a1x1 + a2x1 + b1x2 + b2x2 + ... ≤ c where double[] = {a, b, c}.
     private static ArrayList<double[]> generate_inequalities(int num_inequality, int num_dimension) {
         int boundary_length = 1;
         // Scale + 1 = maximum coefficient value. Larger values allow for lines to be more similar to an axis line.
@@ -292,8 +293,10 @@ public class Test {
         // where a^2 + b^2 + c^2 + ... > 1 and d > 0. Thus, we generate a subset of this set where the absolute value of
         // all coefficients |a|, |b|, |c|, ... > 1.
         for (int i = 0; i < num_inequality; i++) {
-            double[] inequality = new double[num_dimension];
-            for (int j = 0; j < inequality.length; j++) {
+            double[] inequality = new double[num_dimension+1];
+
+            // Set a, b, c, ...
+            for (int j = 0; j < num_dimension; j++) {
                 // 1 ≤ |coefficient| ≤ coefficient_scale + 1
                 double coefficient = coefficient_scale * Math.random() + 1;
                 // 50% chance to be negative
@@ -302,6 +305,25 @@ public class Test {
                 }
                 inequality[j] = coefficient;
             }
+            // Set d. Varying d is equivalent to varying each of a, b, c, ... so we can always keep it as 1.
+            inequality[num_dimension] = 1;
+
+            // The inequalities are very likely to be infeasible (contradictory), so we can force them to all accept one
+            // point to ensure there is no contradiction. The center-most point in the domain boundary is likely to
+            // result in the most complex subdomain, so we will choose that point.
+            double point_value = 0;
+            for (int j = 0; j < num_dimension; j++) {
+                // point value = boundary_length/2
+                point_value += inequality[j] * boundary_length/2;
+            }
+
+            // if not legal (legal is ≤), invert inequality
+            if (point_value > inequality[num_dimension]) {
+                for (int j = 0; j < inequality.length; j++) {
+                    inequality[j] *= -1;
+                }
+            }
+
             inequalities.add(inequality);
         }
 
