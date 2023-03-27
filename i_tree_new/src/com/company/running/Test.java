@@ -2,9 +2,7 @@ package com.company.running;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.LinkedList;
 import java.util.List;
-import java.util.Queue;
 
 public class Test {
     public static void testBuffer() {
@@ -184,7 +182,7 @@ public class Test {
         Function function = new Function(new double[]{0, 0, 1});
 
         // construct domain
-        DomainSignChangingSimplex d = new DomainSignChangingSimplex(function, true);
+        DomainSimplex d = new DomainSimplex(function, true);
         d.printDomain();
 
         // call constructTree method
@@ -247,5 +245,66 @@ public class Test {
              ) {
             pd.printDomain();
         }
+    }
+
+    public static void test_individual_feasibility_checks() {
+        // Does not include boundary inequalities
+        int num_inequality_default = 50;
+        int num_dimension_default = 5;
+        for (int num_inequality = 3; num_inequality <= 100; num_inequality++) {
+            ArrayList<double[]> equations = generate_inequalities(num_inequality, num_dimension_default);
+        }
+        for (int num_dimension = 2; num_dimension <= 10; num_dimension++) {
+            ArrayList<double[]> equations = generate_inequalities(num_inequality_default, num_dimension);
+            // DRY num_inequality var
+        }
+        // iterate over #inequality (3-100: 50) and #dimenstion (2-10: 5)
+        // 10 times: average the 10 time results
+        //  generate inequalities
+        //  per technique:
+        //   if simplex: introduce slack variables (- version of each coefficient)
+        //   run 10 times and average time
+        // store results for input (technique, #inequality, #dimension)/output (time) in respective file (param var)
+    }
+
+    // Generated equations are in the form: a1x1 + a2x1 + b1x2 + b2x2 ≤ d (boundary_length) where double[] = {a, b, d}.
+    private static ArrayList<double[]> generate_inequalities(int num_inequality, int num_dimension) {
+        int boundary_length = 1;
+        // Scale + 1 = maximum coefficient value. Larger values allow for lines to be more similar to an axis line.
+        int coefficient_scale = 100;
+        ArrayList<double[]> inequalities = new ArrayList<>();
+
+        // Generate boundaries
+        for (int i = 0; i < num_dimension; i++) {
+            // 1x ≥ 0 --> -1x ≤ 0
+            double[] lower_bound = new double[num_dimension + 1];
+            lower_bound[i] = -1;
+            // 1x ≤ boundary_length
+            double[] upper_bound = new double[num_dimension + 1];
+            upper_bound[i] = 1;
+            upper_bound[upper_bound.length - 1] = boundary_length;
+            inequalities.add(lower_bound);
+            inequalities.add(upper_bound);
+        }
+
+        // We can prove that the set of all equations that intersect the circle (or higher dimensional figure) inscribed
+        // by the domain boundary is equal to the set of all equations ax1 + bx2 + cx3 + ... = d for all a, b, c, ..., d
+        // where a^2 + b^2 + c^2 + ... > 1 and d > 0. Thus, we generate a subset of this set where the absolute value of
+        // all coefficients |a|, |b|, |c|, ... > 1.
+        for (int i = 0; i < num_inequality; i++) {
+            double[] inequality = new double[num_dimension];
+            for (int j = 0; j < inequality.length; j++) {
+                // 1 ≤ |coefficient| ≤ coefficient_scale + 1
+                double coefficient = coefficient_scale * Math.random() + 1;
+                // 50% chance to be negative
+                if (Math.random() < 0.5) {
+                    coefficient *= -1;
+                }
+                inequality[j] = coefficient;
+            }
+            inequalities.add(inequality);
+        }
+
+        return inequalities;
     }
 }

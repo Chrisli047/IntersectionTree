@@ -95,7 +95,7 @@ public class Tree {
     }
 
     // Pass allConstraintCoefficients and allConstraintConstants with initial domain
-    public static void constructTreeSimplex(Function[] intersections, DomainSignChangingSimplex domain,
+    public static void constructTreeSimplex(Function[] intersections, DomainSimplex domain,
                                             ArrayList<double[]> allConstraintCoefficients,
                                             ArrayList<Double> allConstraintConstants,
                                             SimplexType simplexType) {
@@ -106,7 +106,7 @@ public class Tree {
         Function rootPartitionFunction = null;
         for (Function f:
                 intersections) {
-            if (DomainSignChangingSimplex.ifPartitionsDomain(allConstraintCoefficients, allConstraintConstants, f,
+            if (DomainSimplex.ifPartitionsDomain(allConstraintCoefficients, allConstraintConstants, f,
                     simplexType)) {
                 rootPartitionFunction = f;
                 System.out.println("yes");
@@ -136,14 +136,14 @@ public class Tree {
                 NodeRecord fetchedRecord = Q.poll();
 
                 // add constraints to define subdomain
-                allConstraintCoefficients.add(((DomainSignChangingSimplex) fetchedRecord.d).constraintCoefficients);
-                allConstraintConstants.add(((DomainSignChangingSimplex) fetchedRecord.d).constraintConstant);
+                allConstraintCoefficients.add(((DomainSimplex) fetchedRecord.d).constraintCoefficients);
+                allConstraintConstants.add(((DomainSimplex) fetchedRecord.d).constraintConstant);
 
                 // construct a NodeRecord N with the record
 //                NodeRecord N = new NodeRecord(fetchedRecord);
 
                 // check if I partition N.domain
-                if (!DomainSignChangingSimplex.ifPartitionsDomain(allConstraintCoefficients, allConstraintConstants,
+                if (!DomainSimplex.ifPartitionsDomain(allConstraintCoefficients, allConstraintConstants,
                         intersection, simplexType)) {
                     // if no, exit
                     continue;
@@ -156,8 +156,8 @@ public class Tree {
                         fetchedRecord.f = intersection;
 
                         // partition the domain
-                        DomainSignChangingSimplex leftDomain = new DomainSignChangingSimplex(intersection, true);
-                        DomainSignChangingSimplex rightDomain = new DomainSignChangingSimplex(intersection, false);
+                        DomainSimplex leftDomain = new DomainSimplex(intersection, true);
+                        DomainSimplex rightDomain = new DomainSimplex(intersection, false);
 
                         // create two child nodes leftNode and rightNode
                         NodeRecord leftNode = new NodeRecord(leftDomain, intersection, -1, -1);

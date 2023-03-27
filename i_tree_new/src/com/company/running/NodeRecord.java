@@ -105,7 +105,7 @@ public class NodeRecord {
                 if (!simplex) {
                     domain = Domain.toDomain(domainBytes);
                 } else {
-                    domain = DomainSignChangingSimplex.toDomain(domainBytes);
+                    domain = DomainSimplex.toDomain(domainBytes);
                 }
                 byte[] functionBytes = rs.getBytes("LinearFunction");
                 Function function = Function.toFunction(functionBytes);

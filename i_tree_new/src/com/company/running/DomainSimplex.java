@@ -3,11 +3,11 @@ package com.company.running;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
 
-public class DomainSignChangingSimplex implements DomainType {
+public class DomainSimplex implements DomainType {
     double[] constraintCoefficients;
     double constraintConstant;
 
-    public DomainSignChangingSimplex(Function function, boolean lessThan) {
+    public DomainSimplex(Function function, boolean lessThan) {
         this.constraintCoefficients = functionToConstraintCoefficients(function);
         this.constraintConstant = function.coefficients[function.coefficients.length-1];
         if (!lessThan) {
@@ -38,7 +38,7 @@ public class DomainSignChangingSimplex implements DomainType {
         return bytes;
     }
 
-    public static DomainSignChangingSimplex toDomain(byte[] bytes) {
+    public static DomainSimplex toDomain(byte[] bytes) {
         ByteBuffer buffer = ByteBuffer.wrap(bytes);
 
         double[] coefficients = new double[Constants.DIMENSION + 1];
@@ -49,7 +49,7 @@ public class DomainSignChangingSimplex implements DomainType {
         Function function = new Function(coefficients);
 
         //lessThan has already been accounted for when initially created and then encoded
-        DomainSignChangingSimplex d = new DomainSignChangingSimplex(function, false);
+        DomainSimplex d = new DomainSimplex(function, false);
         return d;
     }
 

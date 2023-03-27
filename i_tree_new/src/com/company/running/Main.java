@@ -11,10 +11,11 @@ public class Main {
 //        Test.testGetRecordById(3);
 //        Test.testGetRecordById(4);
 //        Test.testGetRecordById(5);
-        Test.testConstructTree();
-        Test.testConstructTreeSimplex(SimplexType.SIMPLEX);
-        Test.testConstructTreeSimplex(SimplexType.SIGN_CHANGING_SIMPLEX);
+//        Test.testConstructTree();
+//        Test.testConstructTreeSimplex(SimplexType.SIMPLEX);
+//        Test.testConstructTreeSimplex(SimplexType.SIGN_CHANGING_SIMPLEX);
 //        Test.testFindBoundaryLines();
+        Test.test_individual_feasibility_checks();
     }
 
 }
