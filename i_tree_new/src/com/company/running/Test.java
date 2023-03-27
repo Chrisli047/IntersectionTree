@@ -249,14 +249,58 @@ public class Test {
     }
 
     public static void test_individual_feasibility_checks() {
+        int unique_runs = 10;
+        int repeat_runs = 10;
         // Does not include boundary inequalities
         int num_inequality_default = 50;
+        // Scale + 1 = maximum coefficient value. Larger values allow for lines to be more similar to an axis line.
+        int coefficient_scale = 100;
         int num_dimension_default = 5;
         for (int num_inequality = 3; num_inequality <= 100; num_inequality++) {
-            ArrayList<double[]> equations = generate_inequalities(num_inequality, num_dimension_default);
+            long average_time_unique = 0;
+            for (int i = 0; i < unique_runs; i++) {
+                // Equations defining subdomain
+                ArrayList<double[]> equations = generate_inequalities(num_inequality, num_dimension_default,
+                        coefficient_scale);
+                // Equation of line for feasibility checking. Hijacks generate_inequalities().
+                Function function = new Function(generate_equation(num_dimension_default, coefficient_scale));
+
+                // Modifications for Simplex:
+                // Introduce slack variables
+                ArrayList<double[]> constraintCoefficients = new ArrayList<>();
+                // Separate constraint constants
+                ArrayList<Double> constraintConstants = new ArrayList<>();
+                for (double[] equation : equations) {
+                    // ignore constant at the end
+                    double[] slackenedEquation = new double[equation.length * 2 - 2];
+                    for (int j = 0; j < equation.length - 1; j++) {
+                        slackenedEquation[j * 2] = equation[j];
+                        slackenedEquation[j * 2 + 1] = -equation[j];
+                    }
+                    constraintConstants.add(equation[equation.length - 1]);
+                    constraintCoefficients.add(slackenedEquation);
+                }
+
+                // Simplex
+                long average_time_repeat = 0;
+                for (int j = 0; j < repeat_runs; j++) {
+                    long start_time = System.nanoTime();
+                    DomainSimplex.ifPartitionsDomain(constraintCoefficients, constraintConstants, function,
+                            SimplexType.SIMPLEX);
+                    long stop_time = System.nanoTime();
+                    average_time_repeat += (stop_time - start_time) / repeat_runs;
+                }
+                average_time_unique += average_time_repeat / unique_runs;
+
+                // Sign-Changing Simplex
+
+
+                // Parametric Equation
+
+            }
         }
         for (int num_dimension = 2; num_dimension <= 10; num_dimension++) {
-            ArrayList<double[]> equations = generate_inequalities(num_inequality_default, num_dimension);
+            ArrayList<double[]> equations = generate_inequalities(num_inequality_default, num_dimension, coefficient_scale);
             // DRY num_inequality var
         }
         // iterate over #inequality (3-100: 50) and #dimenstion (2-10: 5)
@@ -268,11 +312,21 @@ public class Test {
         // store results for input (technique, #inequality, #dimension)/output (time) in respective file (param var)
     }
 
+    private static double[] generate_equation(int num_dimension, int coefficient_scale) {
+        double[] equation = new double[num_dimension + 1];
+        for (int i = 0; i < num_dimension; i++) {
+            // 50% chance to be negative
+            // No scaling required, only relevant to other coefficients in the same equation.
+            equation[i] = coefficient_scale * Math.random() + 1;
+        }
+        equation[num_dimension] = 1;
+        return equation;
+    }
+
     // Generated equations are in the form: a1x1 + a2x1 + b1x2 + b2x2 + ... ≤ c where double[] = {a, b, c}.
-    private static ArrayList<double[]> generate_inequalities(int num_inequality, int num_dimension) {
+    private static ArrayList<double[]> generate_inequalities(int num_inequality, int num_dimension,
+                                                             int coefficient_scale) {
         int boundary_length = 1;
-        // Scale + 1 = maximum coefficient value. Larger values allow for lines to be more similar to an axis line.
-        int coefficient_scale = 100;
         ArrayList<double[]> inequalities = new ArrayList<>();
 
         // Generate boundaries

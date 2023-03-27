@@ -36,6 +36,11 @@ public class Function {
 
     @Override
     public String toString() {
-        return "c1: " + this.coefficients[0] + " " + "c2: " + this.coefficients[1] + " " + "constant: " + this.coefficients[2];
+        String toString = "";
+        for (int i = 0; i < this.coefficients.length - 1; i++) {
+            toString += "c" + i + ": " + this.coefficients[i] + " ";
+        }
+        toString += "constant: " + this.coefficients[this.coefficients.length - 1];
+        return toString;
     }
 }

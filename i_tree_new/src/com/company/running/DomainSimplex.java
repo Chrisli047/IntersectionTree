@@ -97,6 +97,7 @@ public class DomainSimplex implements DomainType {
                             simplexType);
             }
         } catch (ArithmeticException e) {
+            // TODO: Try returning true if unbounded. Does that match the parametric equation method?
             // program is unbounded (should not be allowed in input) or infeasible (no partition)
             System.out.println(e.getMessage());
             return false;
