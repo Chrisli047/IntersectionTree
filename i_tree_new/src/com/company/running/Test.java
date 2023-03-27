@@ -1,6 +1,9 @@
 package com.company.running;
 
+import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.PrintWriter;
+import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -249,67 +252,85 @@ public class Test {
     }
 
     public static void test_individual_feasibility_checks() {
-        int unique_runs = 10;
-        int repeat_runs = 10;
         // Does not include boundary inequalities
         int num_inequality_default = 50;
+        int num_dimension_default = 5;
+
+        System.out.println("Variable #Inequalities\n");
+        for (int num_inequality = 3; num_inequality <= 100; num_inequality++) {
+            System.out.println("#Inequalities = " + num_inequality);
+            time_individual_feasibility_checks(num_dimension_default, num_inequality);
+        }
+
+        System.out.println("\n\nVariable #Dimensions\n");
+        for (int num_dimension = 2; num_dimension <= 10; num_dimension++) {
+            System.out.println("#Dimensions = " + num_dimension);
+            time_individual_feasibility_checks(num_dimension, num_inequality_default);
+        }
+    }
+
+    private static void time_individual_feasibility_checks(int num_dimension, int num_inequality) {
         // Scale + 1 = maximum coefficient value. Larger values allow for lines to be more similar to an axis line.
         int coefficient_scale = 100;
-        int num_dimension_default = 5;
-        for (int num_inequality = 3; num_inequality <= 100; num_inequality++) {
-            long average_time_unique = 0;
-            for (int i = 0; i < unique_runs; i++) {
-                // Equations defining subdomain
-                ArrayList<double[]> equations = generate_inequalities(num_inequality, num_dimension_default,
-                        coefficient_scale);
-                // Equation of line for feasibility checking. Hijacks generate_inequalities().
-                Function function = new Function(generate_equation(num_dimension_default, coefficient_scale));
 
-                // Modifications for Simplex:
-                // Introduce slack variables
-                ArrayList<double[]> constraintCoefficients = new ArrayList<>();
-                // Separate constraint constants
-                ArrayList<Double> constraintConstants = new ArrayList<>();
-                for (double[] equation : equations) {
-                    // ignore constant at the end
-                    double[] slackenedEquation = new double[equation.length * 2 - 2];
-                    for (int j = 0; j < equation.length - 1; j++) {
-                        slackenedEquation[j * 2] = equation[j];
-                        slackenedEquation[j * 2 + 1] = -equation[j];
-                    }
-                    constraintConstants.add(equation[equation.length - 1]);
-                    constraintCoefficients.add(slackenedEquation);
+        int unique_runs = 10;
+        int repeat_runs = 10;
+        long average_time_simplex = 0;
+        long average_time_sign_changing_simplex = 0;
+        long average_time_parametric_equation = 0;
+        long average_time_repeat, start_time, stop_time;
+
+        for (int i = 0; i < unique_runs; i++) {
+            // Equations defining subdomain
+            ArrayList<double[]> equations = generate_inequalities(num_inequality, num_dimension, coefficient_scale);
+            // Equation of line for feasibility checking. Hijacks generate_inequalities().
+            Function function = new Function(generate_equation(num_dimension, coefficient_scale));
+
+            // Modifications for Simplex:
+            // Introduce slack variables
+            ArrayList<double[]> constraintCoefficients = new ArrayList<>();
+            // Separate constraint constants
+            ArrayList<Double> constraintConstants = new ArrayList<>();
+            for (double[] equation : equations) {
+                // ignore constant at the end
+                double[] slackenedEquation = new double[equation.length * 2 - 2];
+                for (int j = 0; j < equation.length - 1; j++) {
+                    slackenedEquation[j * 2] = equation[j];
+                    slackenedEquation[j * 2 + 1] = -equation[j];
                 }
-
-                // Simplex
-                long average_time_repeat = 0;
-                for (int j = 0; j < repeat_runs; j++) {
-                    long start_time = System.nanoTime();
-                    DomainSimplex.ifPartitionsDomain(constraintCoefficients, constraintConstants, function,
-                            SimplexType.SIMPLEX);
-                    long stop_time = System.nanoTime();
-                    average_time_repeat += (stop_time - start_time) / repeat_runs;
-                }
-                average_time_unique += average_time_repeat / unique_runs;
-
-                // Sign-Changing Simplex
-
-
-                // Parametric Equation
-
+                constraintConstants.add(equation[equation.length - 1]);
+                constraintCoefficients.add(slackenedEquation);
             }
+
+            // Simplex
+            average_time_repeat = 0;
+            for (int j = 0; j < repeat_runs; j++) {
+                start_time = System.nanoTime();
+                DomainSimplex.ifPartitionsDomain(constraintCoefficients, constraintConstants, function,
+                        SimplexType.SIMPLEX);
+                stop_time = System.nanoTime();
+                average_time_repeat += (stop_time - start_time) / repeat_runs;
+            }
+            average_time_simplex += average_time_repeat / unique_runs;
+
+            // Sign-Changing Simplex
+            average_time_repeat = 0;
+            for (int j = 0; j < repeat_runs; j++) {
+                start_time = System.nanoTime();
+                DomainSimplex.ifPartitionsDomain(constraintCoefficients, constraintConstants, function,
+                        SimplexType.SIGN_CHANGING_SIMPLEX);
+                stop_time = System.nanoTime();
+                average_time_repeat += (stop_time - start_time) / repeat_runs;
+            }
+            average_time_sign_changing_simplex += average_time_repeat / unique_runs;
+
+            // Parametric Equation
+            // TODO: Xiyao: get average_time_parametric_equation here
         }
-        for (int num_dimension = 2; num_dimension <= 10; num_dimension++) {
-            ArrayList<double[]> equations = generate_inequalities(num_inequality_default, num_dimension, coefficient_scale);
-            // DRY num_inequality var
-        }
-        // iterate over #inequality (3-100: 50) and #dimenstion (2-10: 5)
-        // 10 times: average the 10 time results
-        //  generate inequalities
-        //  per technique:
-        //   if simplex: introduce slack variables (- version of each coefficient)
-        //   run 10 times and average time
-        // store results for input (technique, #inequality, #dimension)/output (time) in respective file (param var)
+
+        System.out.println("Simplex: " + average_time_simplex);
+        System.out.println("Sign-Changing Simplex: " + average_time_sign_changing_simplex);
+        System.out.println("Parametric Equation: " + average_time_parametric_equation);
     }
 
     private static double[] generate_equation(int num_dimension, int coefficient_scale) {
