@@ -104,7 +104,7 @@ public class DomainSimplex implements DomainType {
 
         double minValue = -min.value();
         double maxValue = max.value();
-        return minValue < -objectiveFunctionConstant && maxValue > objectiveFunctionConstant;
+        return minValue < objectiveFunctionConstant && maxValue > objectiveFunctionConstant;
     }
 
 

@@ -283,18 +283,31 @@ public class Test {
             // Equation of line for feasibility checking. Hijacks generate_inequalities().
             Function function = new Function(generate_equation(num_dimension));
 
+            // Uncomment if slack variables required
+//            // Modifications for Simplex:
+//            // Introduce slack variables
+//            ArrayList<double[]> constraintCoefficients = new ArrayList<>();
+//            // Separate constraint constants
+//            ArrayList<Double> constraintConstants = new ArrayList<>();
+//            for (double[] inequality : inequalities) {
+//                // ignore constant at the end
+//                double[] slackenedEquation = new double[inequality.length * 2 - 2];
+//                for (int j = 0; j < inequality.length - 1; j++) {
+//                    slackenedEquation[j * 2] = inequality[j];
+//                    slackenedEquation[j * 2 + 1] = -inequality[j];
+//                }
+//                constraintConstants.add(inequality[inequality.length - 1]);
+//                constraintCoefficients.add(slackenedEquation);
+//            }
+
             // Modifications for Simplex:
-            // Introduce slack variables
             ArrayList<double[]> constraintCoefficients = new ArrayList<>();
             // Separate constraint constants
             ArrayList<Double> constraintConstants = new ArrayList<>();
             for (double[] inequality : inequalities) {
                 // ignore constant at the end
-                double[] slackenedEquation = new double[inequality.length * 2 - 2];
-                for (int j = 0; j < inequality.length - 1; j++) {
-                    slackenedEquation[j * 2] = inequality[j];
-                    slackenedEquation[j * 2 + 1] = -inequality[j];
-                }
+                double[] slackenedEquation = new double[inequality.length - 1];
+                System.arraycopy(inequality, 0, slackenedEquation, 0, inequality.length - 1);
                 constraintConstants.add(inequality[inequality.length - 1]);
                 constraintCoefficients.add(slackenedEquation);
             }
