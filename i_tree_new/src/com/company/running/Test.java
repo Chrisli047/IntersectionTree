@@ -270,9 +270,6 @@ public class Test {
     }
 
     private static void time_individual_feasibility_checks(int num_dimension, int num_inequality) {
-        // Scale + 1 = maximum coefficient value. Larger values allow for lines to be more similar to an axis line.
-        int coefficient_scale = 100;
-
         int unique_runs = 10;
         int repeat_runs = 10;
         long average_time_simplex = 0;
@@ -282,9 +279,9 @@ public class Test {
 
         for (int i = 0; i < unique_runs; i++) {
             // Equations defining subdomain
-            ArrayList<double[]> inequalities = generate_inequalities(num_inequality, num_dimension, coefficient_scale);
+            ArrayList<double[]> inequalities = generate_inequalities(num_inequality, num_dimension);
             // Equation of line for feasibility checking. Hijacks generate_inequalities().
-            Function function = new Function(generate_equation(num_dimension, coefficient_scale));
+            Function function = new Function(generate_equation(num_dimension));
 
             // Modifications for Simplex:
             // Introduce slack variables
@@ -333,20 +330,16 @@ public class Test {
         System.out.println("Parametric Equation: " + average_time_parametric_equation);
     }
 
-    private static double[] generate_equation(int num_dimension, int coefficient_scale) {
+    private static double[] generate_equation(int num_dimension) {
         double[] equation = new double[num_dimension + 1];
-        for (int i = 0; i < num_dimension; i++) {
-            // 50% chance to be negative
-            // No scaling required, only relevant to other coefficients in the same equation.
-            equation[i] = coefficient_scale * Math.random() + 1;
+        for (int i = 0; i < equation.length; i++) {
+            equation[i] = Math.random();
         }
-        equation[num_dimension] = 1;
         return equation;
     }
 
-    // Generated equations are in the form: a1x1 + a2x1 + b1x2 + b2x2 + ... ≤ c where double[] = {a, b, c}.
-    private static ArrayList<double[]> generate_inequalities(int num_inequality, int num_dimension,
-                                                             int coefficient_scale) {
+    // Generated equations are in the form: ax1 + bx2 + cx3 + ... = d where double[] = {a, b, c, d}.
+    private static ArrayList<double[]> generate_inequalities(int num_inequality, int num_dimension) {
         int boundary_length = 1;
         ArrayList<double[]> inequalities = new ArrayList<>();
 
@@ -363,25 +356,17 @@ public class Test {
             inequalities.add(upper_bound);
         }
 
-        // We can prove that the set of all equations that intersect the circle (or higher dimensional figure) inscribed
-        // by the domain boundary is equal to the set of all equations ax1 + bx2 + cx3 + ... = d for all a, b, c, ..., d
-        // where a^2 + b^2 + c^2 + ... > 1 and d > 0. Thus, we generate a subset of this set where the absolute value of
-        // all coefficients |a|, |b|, |c|, ... > 1.
+        // Given the equation ax1 + bx2 + cx3 + ... = d, with positive coefficients and constant, we can prove that the
+        // defined line will partition a square (or higher dimensional figure) of a given side length s whose bottom
+        // left corner is at the origin if and only if a + b + c + ... > d. We thus randomly generate each value between
+        // 0 and 1. It becomes extremely likely that the line partitions the domain. The probability is 0.5^n that the
+        // line is in the domain if there are n dimensions.
         for (int i = 0; i < num_inequality; i++) {
             double[] inequality = new double[num_dimension+1];
-
-            // Set a, b, c, ...
-            for (int j = 0; j < num_dimension; j++) {
-                // 1 ≤ |coefficient| ≤ coefficient_scale + 1
-                double coefficient = coefficient_scale * Math.random() + 1;
-                // 50% chance to be negative
-                if (Math.random() < 0.5) {
-                    coefficient *= -1;
-                }
-                inequality[j] = coefficient;
+            // Set a, b, c, ..., d
+            for (int j = 0; j < inequality.length; j++) {
+                inequality[j] = Math.random();
             }
-            // Set d. Varying d is equivalent to varying each of a, b, c, ... so we can always keep it as 1.
-            inequality[num_dimension] = 1;
 
             // The inequalities are very likely to be infeasible (contradictory), so we can force them to all accept one
             // point to ensure there is no contradiction. The center-most point in the domain boundary is likely to
