@@ -1,11 +1,7 @@
 package com.company.running;
 
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.PrintWriter;
-import java.io.UnsupportedEncodingException;
+import java.io.*;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 public class Test {
@@ -251,25 +247,49 @@ public class Test {
         }
     }
 
-    public static void test_individual_feasibility_checks() {
+    public static void collect_data() throws IOException {
         // Does not include boundary inequalities
         int num_inequality_default = 50;
         int num_dimension_default = 5;
 
-        System.out.println("Variable #Inequalities\n");
-        for (int num_inequality = 3; num_inequality <= 100; num_inequality++) {
-            System.out.println("#Inequalities = " + num_inequality);
-            time_individual_feasibility_checks(num_dimension_default, num_inequality);
-        }
-
-        System.out.println("\n\nVariable #Dimensions\n");
-        for (int num_dimension = 2; num_dimension <= 10; num_dimension++) {
-            System.out.println("#Dimensions = " + num_dimension);
-            time_individual_feasibility_checks(num_dimension, num_inequality_default);
-        }
+        collect_data_individual_feasibility_checks(num_inequality_default, num_dimension_default);
+        collect_data_tree_path(num_inequality_default, num_dimension_default);
+        collect_data_tree_construction(num_inequality_default, num_dimension_default);
     }
 
-    private static void time_individual_feasibility_checks(int num_dimension, int num_inequality) {
+    public static void collect_data_tree_construction(int num_inequality_default, int num_dimension_default)
+            throws IOException {
+        BufferedWriter writer = new BufferedWriter(new FileWriter("tree_construction.txt"));
+    }
+
+    public static void collect_data_tree_path(int num_inequality_default, int num_dimension_default)
+            throws IOException {
+
+    }
+
+    public static void collect_data_individual_feasibility_checks(int num_inequality_default, int num_dimension_default)
+            throws IOException {
+        BufferedWriter writer = new BufferedWriter(new FileWriter("individual_feasibility_checks.txt"));
+
+        writer.write("Variable #Inequalities\n");
+        writer.write("#Inequalities\tSimplex\t\tSign-Changing Simplex\tParametric Equation\n");
+        for (int num_inequality = 3; num_inequality <= 100; num_inequality++) {
+            writer.write(num_inequality + "\t\t\t\t");
+            time_individual_feasibility_checks(num_dimension_default, num_inequality, writer);
+        }
+
+        writer.write("\nVariable #Dimensions\n");
+        writer.write("#Inequalities\tSimplex\t\tSign-Changing Simplex\tParametric Equation\n");
+        for (int num_dimension = 2; num_dimension <= 10; num_dimension++) {
+            writer.write(num_dimension + "\t\t\t\t");
+            time_individual_feasibility_checks(num_dimension, num_inequality_default, writer);
+        }
+
+        writer.close();
+    }
+
+    private static void time_individual_feasibility_checks(int num_dimension, int num_inequality,
+                                                           BufferedWriter writer) throws IOException {
         int unique_runs = 10;
         int repeat_runs = 10;
         long average_time_simplex = 0;
@@ -335,12 +355,13 @@ public class Test {
             average_time_sign_changing_simplex += average_time_repeat / unique_runs;
 
             // Parametric Equation
-            // TODO: Xiyao: get average_time_parametric_equation here
+            // TODO: Xiyao: get average_time_parametric_equation here by timing Domain.ifPartitionsDomain() on
+            //  inequalities and function
         }
 
-        System.out.println("Simplex: " + average_time_simplex);
-        System.out.println("Sign-Changing Simplex: " + average_time_sign_changing_simplex);
-        System.out.println("Parametric Equation: " + average_time_parametric_equation);
+        writer.write(average_time_simplex + "\t\t");
+        writer.write(average_time_sign_changing_simplex + "\t\t\t\t\t");
+        writer.write(average_time_parametric_equation + "\n");
     }
 
     private static double[] generate_equation(int num_dimension) {

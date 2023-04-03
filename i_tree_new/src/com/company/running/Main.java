@@ -1,7 +1,6 @@
 package com.company.running;
 
 import java.io.IOException;
-import java.util.*;
 
 public class Main {
 
@@ -15,7 +14,7 @@ public class Main {
 //        Test.testConstructTreeSimplex(SimplexType.SIMPLEX);
 //        Test.testConstructTreeSimplex(SimplexType.SIGN_CHANGING_SIMPLEX);
 //        Test.testFindBoundaryLines();
-        Test.test_individual_feasibility_checks();
+        Test.collect_data();
     }
 
 }
