@@ -129,6 +129,10 @@ public class Tree {
             NodeRecord record = NodeRecord.getRecordById(1, true, dimension);
 
             // put the record in a queue Q
+            // TODO: We get out something different from what we put in.
+            //  In: our first partitioning function
+            //  Out: the first test function from the OTHER tree construction test
+            //  The buffer already contains that data for some reason? This is the case from the very beginning of the run.
             Queue<NodeRecord> Q = new LinkedList<NodeRecord>();
             Q.add(record);
 

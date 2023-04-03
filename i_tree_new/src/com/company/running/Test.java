@@ -102,8 +102,9 @@ public class Test {
     public static void testConstructTree() throws IOException {
 
         DataReader dataReader = new DataReader("/Users/xiyaoli/Desktop/Study/research_program/information_element/i_tree_data/data/initDomains/initDomains_d_2.json",
-                "/Users/xiyaoli/Desktop/Study/research_program/information_element/i_tree_data/data/input/data_d_2_records_5_initDomainID_1.json");
-//                "/Users/maximpopov/Documents/data_d_2_records_5_initDomainID_1.json");        //      Get coefficients
+        // TODO: Change comment
+//                "/Users/xiyaoli/Desktop/Study/research_program/information_element/i_tree_data/data/input/data_d_2_records_5_initDomainID_1.json");
+                "/Users/maximpopov/Documents/data_d_2_records_5_initDomainID_1.json");        //      Get coefficients
         double[][] coefficientSet = dataReader.coefficientSet();
 //        Queue<Function> functions = new LinkedList<Function>();
         Function[] functions = new Function[coefficientSet.length];
@@ -153,8 +154,9 @@ public class Test {
 
     public static void testConstructTreeSimplex(SimplexType simplexType) throws IOException {
         DataReader dataReader = new DataReader("/Users/xiyaoli/Desktop/Study/research_program/information_element/i_tree_data/data/initDomains/initDomains_d_2.json",
-                "/Users/xiyaoli/Desktop/Study/research_program/information_element/i_tree_data/data/input/data_d_2_records_5_initDomainID_1.json");
-//                "/Users/maximpopov/Documents/data_d_2_records_5_initDomainID_1.json");
+        // TODO: change comment
+//                "/Users/xiyaoli/Desktop/Study/research_program/information_element/i_tree_data/data/input/data_d_2_records_5_initDomainID_1.json");
+                "/Users/maximpopov/Documents/data_d_2_records_5_initDomainID_1.json");
         // Get coefficients
         double[][] coefficientSet = dataReader.coefficientSet();
         // Queue<Function> functions = new LinkedList<Function>();
@@ -261,9 +263,9 @@ public class Test {
 
     public static void collect_data() throws IOException {
         // TODO: uncomment below
-        collect_data_individual_feasibility_checks();
+//        collect_data_individual_feasibility_checks();
 //        collect_data_tree_path();
-//        collect_data_tree_construction();
+        collect_data_tree_construction();
     }
 
     public static void collect_data_tree_construction()
