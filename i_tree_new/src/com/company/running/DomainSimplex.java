@@ -24,7 +24,7 @@ public class DomainSimplex implements DomainType {
         return constraintCoefficients;
     }
 
-    public byte[] toByte() {
+    public byte[] toByte(int dimension) {
         ByteBuffer buffer = ByteBuffer.allocate(
                 constraintCoefficients.length * Double.BYTES + Double.BYTES);
 
@@ -38,11 +38,11 @@ public class DomainSimplex implements DomainType {
         return bytes;
     }
 
-    public static DomainSimplex toDomain(byte[] bytes) {
+    public static DomainSimplex toDomain(byte[] bytes, int dimension) {
         ByteBuffer buffer = ByteBuffer.wrap(bytes);
 
-        double[] coefficients = new double[Constants.DIMENSION + 1];
-        for (int i = 0; i < Constants.DIMENSION; i++) {
+        double[] coefficients = new double[dimension + 1];
+        for (int i = 0; i < dimension; i++) {
             coefficients[i] = buffer.getDouble();
         }
         coefficients[coefficients.length - 1] = buffer.getInt();
@@ -56,12 +56,13 @@ public class DomainSimplex implements DomainType {
     public static boolean ifPartitionsDomain(ArrayList<double[]> allConstraintCoefficients,
                                              ArrayList<Double> allConstraintConstants,
                                              Function function,
-                                             SimplexType simplexType) {
+                                             SimplexType simplexType,
+                                             int dimension) {
         double[] objectiveFunctionVariableCoefficients = functionToConstraintCoefficients(function);
         double objectiveFunctionConstant = function.coefficients[function.coefficients.length-1];
 
         double[][] constraintVariableCoefficients =
-                new double[allConstraintCoefficients.size()][Constants.DIMENSION];
+                new double[allConstraintCoefficients.size()][dimension];
         for (int i = 0; i < constraintVariableCoefficients.length; i++) {
             constraintVariableCoefficients[i] = allConstraintCoefficients.get(i);
         }

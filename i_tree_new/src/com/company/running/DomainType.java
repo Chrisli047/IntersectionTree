@@ -1,9 +1,9 @@
 package com.company.running;
 
 public interface DomainType {
-    public byte[] toByte();
+    public byte[] toByte(int dimension);
 
-    public static DomainType toDomain(byte[] bytes) {
+    public static DomainType toDomain(byte[] bytes, int dimension) {
         return null;
     }
 

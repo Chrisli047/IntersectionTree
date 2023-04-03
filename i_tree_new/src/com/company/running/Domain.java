@@ -13,9 +13,9 @@ public class Domain implements DomainType {
         this.segment = segment;
     }
 
-    public byte[] toByte() {
+    public byte[] toByte(int dimension) {
         ByteBuffer buffer = ByteBuffer.allocate(
-                4 + point.length * Constants.DIMENSION * Double.BYTES
+                4 + point.length * dimension * Double.BYTES
                         + 4 + segment.length * 2 * Integer.BYTES);
 
         buffer.putInt(point.length);
@@ -35,7 +35,7 @@ public class Domain implements DomainType {
         return bytes;
     }
 
-    public static Domain toDomain(byte[] bytes) {
+    public static Domain toDomain(byte[] bytes, int dimension) {
         ByteBuffer buffer = ByteBuffer.wrap(bytes);
 
         int numOfPoint = buffer.getInt();
@@ -43,8 +43,8 @@ public class Domain implements DomainType {
 
         Point[] pArray = new Point[numOfPoint];
         for (int i = 0; i < numOfPoint; i++) {
-            double[] p = new double[Constants.DIMENSION];
-            for (int j = 0; j < Constants.DIMENSION; j++) {
+            double[] p = new double[dimension];
+            for (int j = 0; j < dimension; j++) {
                 p[j] = buffer.getDouble();
             }
             Point newPoint = new Point(p);

@@ -6,7 +6,7 @@ import java.util.Queue;
 
 public class Tree {
 
-    public static void constructTree(Function[] intersections, Domain domain) {
+    public static void constructTree(Function[] intersections, Domain domain, int dimension) {
         // create a table IntersectionTree in MySQL
         NodeRecord.createTable();
 
@@ -25,14 +25,14 @@ public class Tree {
         }
 
         NodeRecord nodeRecord = new NodeRecord(domain, rootPartitionFunction, -1, -1);
-        nodeRecord.insertToMySql();
+        nodeRecord.insertToMySql(dimension);
 
         // compute the intersections, Function intersection[]
 
 //         for each intersection I, do the followings
         for (Function intersection : intersections) {
             // get record 0 from the TABLE
-            NodeRecord record = NodeRecord.getRecordById(1, false);
+            NodeRecord record = NodeRecord.getRecordById(1, false, dimension);
 
             // put the record in a queue Q
             Queue<NodeRecord> Q = new LinkedList<NodeRecord>();
@@ -70,20 +70,20 @@ public class Tree {
 
                         // store the two child nodes to the table
                         // get the IDs for the two nodes
-                        int leftID = leftNode.insertToMySql();
-                        int rightID = rightNode.insertToMySql();
+                        int leftID = leftNode.insertToMySql(dimension);
+                        int rightID = rightNode.insertToMySql(dimension);
 
                         System.out.println(leftID + " " + rightID);
 
                         // update N.leftID and N.rightID with the IDs
                         // update N to the table;
-                        NodeRecord.updateRecord(fetchedRecord.ID, leftID, rightID, false);
+                        NodeRecord.updateRecord(fetchedRecord.ID, leftID, rightID, false, dimension);
                     }
                     // case 2: N is NOT a subdomain node
                     else {
                         // retrieve N.left and N.right from the table`
-                        NodeRecord leftRecord = NodeRecord.getRecordById(fetchedRecord.leftID, false);
-                        NodeRecord rightRecord = NodeRecord.getRecordById(fetchedRecord.rightID, false);
+                        NodeRecord leftRecord = NodeRecord.getRecordById(fetchedRecord.leftID, false, dimension);
+                        NodeRecord rightRecord = NodeRecord.getRecordById(fetchedRecord.rightID, false, dimension);
 
                         // insert the two records in Q
                         Q.add(leftRecord);
@@ -98,7 +98,8 @@ public class Tree {
     public static void constructTreeSimplex(Function[] intersections, DomainSimplex domain,
                                             ArrayList<double[]> allConstraintCoefficients,
                                             ArrayList<Double> allConstraintConstants,
-                                            SimplexType simplexType) {
+                                            SimplexType simplexType,
+                                            int dimension) {
         // create a table IntersectionTree in MySQL
         NodeRecord.createTable();
 
@@ -107,7 +108,7 @@ public class Tree {
         for (Function f:
                 intersections) {
             if (DomainSimplex.ifPartitionsDomain(allConstraintCoefficients, allConstraintConstants, f,
-                    simplexType)) {
+                    simplexType, dimension)) {
                 rootPartitionFunction = f;
                 System.out.println("yes");
                 break;
@@ -118,14 +119,14 @@ public class Tree {
         }
 
         NodeRecord nodeRecord = new NodeRecord(domain, rootPartitionFunction, -1, -1);
-        nodeRecord.insertToMySql();
+        nodeRecord.insertToMySql(dimension);
 
         // compute the intersections, Function intersection[]
 
 //         for each intersection I, do the followings
         for (Function intersection : intersections) {
             // get record 0 from the TABLE
-            NodeRecord record = NodeRecord.getRecordById(1, true);
+            NodeRecord record = NodeRecord.getRecordById(1, true, dimension);
 
             // put the record in a queue Q
             Queue<NodeRecord> Q = new LinkedList<NodeRecord>();
@@ -144,7 +145,7 @@ public class Tree {
 
                 // check if I partition N.domain
                 if (!DomainSimplex.ifPartitionsDomain(allConstraintCoefficients, allConstraintConstants,
-                        intersection, simplexType)) {
+                        intersection, simplexType, dimension)) {
                     // if no, exit
                     continue;
                 } else {
@@ -169,20 +170,20 @@ public class Tree {
 
                         // store the two child nodes to the table
                         // get the IDs for the two nodes
-                        int leftID = leftNode.insertToMySql();
-                        int rightID = rightNode.insertToMySql();
+                        int leftID = leftNode.insertToMySql(dimension);
+                        int rightID = rightNode.insertToMySql(dimension);
 
                         System.out.println(leftID + " " + rightID);
 
                         // update N.leftID and N.rightID with the IDs
                         // update N to the table;
-                        NodeRecord.updateRecord(fetchedRecord.ID, leftID, rightID, true);
+                        NodeRecord.updateRecord(fetchedRecord.ID, leftID, rightID, true, dimension);
                     }
                     // case 2: N is NOT a subdomain node
                     else {
                         // retrieve N.left and N.right from the table`
-                        NodeRecord leftRecord = NodeRecord.getRecordById(fetchedRecord.leftID, true);
-                        NodeRecord rightRecord = NodeRecord.getRecordById(fetchedRecord.rightID, true);
+                        NodeRecord leftRecord = NodeRecord.getRecordById(fetchedRecord.leftID, true, dimension);
+                        NodeRecord rightRecord = NodeRecord.getRecordById(fetchedRecord.rightID, true, dimension);
 
                         // insert the two records in Q
                         Q.add(leftRecord);

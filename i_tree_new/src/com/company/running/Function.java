@@ -9,8 +9,8 @@ public class Function {
         this.coefficients = coefficients;
     }
 
-    public byte[] toByte() {
-        ByteBuffer buffer = ByteBuffer.allocate((Constants.DIMENSION + 1) * Double.BYTES);
+    public byte[] toByte(int dimension) {
+        ByteBuffer buffer = ByteBuffer.allocate((dimension + 1) * Double.BYTES);
 
         for (double p : coefficients) {
             buffer.putDouble(p);
