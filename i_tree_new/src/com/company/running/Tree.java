@@ -24,6 +24,11 @@ public class Tree {
             }
         }
 
+        // none of the functions partition the domain
+        if (rootPartitionFunction == null) {
+            return;
+        }
+
         NodeRecord nodeRecord = new NodeRecord(domain, rootPartitionFunction, -1, -1);
         nodeRecord.insertToMySql(dimension, table_name);
 
@@ -113,13 +118,15 @@ public class Tree {
 //                System.out.println("yes");
                 break;
             } else {
-                System.out.println("no");
+//                System.out.println("no");
                 continue;
             }
         }
 
-        // TODO: CRASH: if no function partitions the domain, rootPartitionFunction is null and we crash when attempting to insert
-        //  In such a case, our tree construction is complete, correct? It means that there are 0 partitioning functions in the domain.
+        // none of the functions partition the domain
+        if (rootPartitionFunction == null) {
+            return;
+        }
 
         NodeRecord nodeRecord = new NodeRecord(domain, rootPartitionFunction, -1, -1);
         nodeRecord.insertToMySql(dimension, table_name);
@@ -132,10 +139,6 @@ public class Tree {
             NodeRecord record = NodeRecord.getRecordById(1, true, dimension, table_name);
 
             // put the record in a queue Q
-            // TODO: We get out something different from what we put in.
-            //  In: our first partitioning function
-            //  Out: the first test function from the OTHER tree construction test
-            //  The buffer already contains that data for some reason? This is the case from the very beginning of the run.
             Queue<NodeRecord> Q = new LinkedList<NodeRecord>();
             Q.add(record);
 

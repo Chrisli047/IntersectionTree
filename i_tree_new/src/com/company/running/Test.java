@@ -256,9 +256,7 @@ public class Test {
 
     // Does not include boundary inequalities
     final static int num_inequality_default = 50;
-    // TODO: revert next line
-//    final static int num_dimension_default = 5;
-    final static int num_dimension_default = 2;
+    final static int num_dimension_default = 5;
 
     // Number of runs per variable
     final static int unique_runs = 10;
