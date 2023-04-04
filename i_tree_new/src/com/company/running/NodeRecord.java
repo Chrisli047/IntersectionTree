@@ -15,39 +15,39 @@ public class NodeRecord {
         this.rightID = rightID;
     }
 
-    public static void createTable() {
+    public static void createTable(String table_name) {
         try {
             Connection connection = DriverManager.getConnection(Constants.MYSQL_URL, Constants.MYSQL_USER, Constants.MYSQL_PASSWORD);
             Statement stmt = connection.createStatement();
             String sql = "use i_tree";
             stmt.executeUpdate(sql);
-            System.out.println("Create tables... ");
-            String createTable = "CREATE TABLE IntersectionTree (" +
+//            System.out.println("Create tables... ");
+            String createTable = "CREATE TABLE " + table_name + " (" +
                     "    ID INT PRIMARY KEY AUTO_INCREMENT,  " +
                     "    Domain BLOB," +
                     "    LinearFunction BLOB," +
                     "    LeftID INT, " +
                     "    rightID INT)";
             stmt.executeUpdate(createTable);
-            System.out.println("Table created successfully");
+//            System.out.println("Table created successfully");
             connection.close();
         } catch (SQLException e) {
             e.printStackTrace();
         }
     }
 
-    public int insertToMySql(int dimension) {
+    public int insertToMySql(int dimension, String table_name) {
         int returnId = 0;
         try {
             Connection connection = DriverManager.getConnection(Constants.MYSQL_URL, Constants.MYSQL_USER, Constants.MYSQL_PASSWORD);
             Statement stmt = connection.createStatement();
             String sql = "use i_tree";
             stmt.executeUpdate(sql);
-            System.out.println("Insert record... ");
+//            System.out.println("Insert record... ");
 
             connection.setAutoCommit(false);
             // Create a PreparedStatement with the SQL statement for inserting a record
-            String insertSql = "INSERT INTO IntersectionTree (Domain, LinearFunction, LeftID, rightID) " +
+            String insertSql = "INSERT INTO " + table_name + " (Domain, LinearFunction, LeftID, rightID) " +
                     "VALUES (?, ?, ?, ?)";
             PreparedStatement pstmt = connection.prepareStatement(insertSql, Statement.RETURN_GENERATED_KEYS);
 
@@ -66,7 +66,7 @@ public class NodeRecord {
             if (rs.next()) {
                 newId = rs.getInt(1);
             }
-            System.out.println("New record inserted with ID " + newId);
+//            System.out.println("New record inserted with ID " + newId);
 
             // Commit the transaction
             connection.commit();
@@ -74,7 +74,7 @@ public class NodeRecord {
             // Clean up resources
             pstmt.close();
 
-            System.out.println("Record inserted successfully");
+//            System.out.println("Record inserted successfully");
             connection.close();
             returnId = newId;
         } catch (SQLException e) {
@@ -83,17 +83,17 @@ public class NodeRecord {
         return returnId;
     }
 
-    public static NodeRecord getRecordById(int id, boolean simplex, int dimension) {
+    public static NodeRecord getRecordById(int id, boolean simplex, int dimension, String table_name) {
         NodeRecord nodeRecord = null;
         try {
             Connection connection = DriverManager.getConnection(Constants.MYSQL_URL, Constants.MYSQL_USER, Constants.MYSQL_PASSWORD);
             Statement stmt = connection.createStatement();
             String sql = "use i_tree";
             stmt.executeUpdate(sql);
-            System.out.println("Select record...");
+//            System.out.println("Select record...");
 
             // Create a PreparedStatement with the SQL statement for selecting a record based on its ID
-            String selectSql = "SELECT * FROM IntersectionTree WHERE ID = ?";
+            String selectSql = "SELECT * FROM " + table_name + " WHERE ID = ?";
             PreparedStatement pstmt = connection.prepareStatement(selectSql);
             pstmt.setInt(1, id);
 
@@ -119,7 +119,7 @@ public class NodeRecord {
             // Clean up resources
             pstmt.close();
 
-            System.out.println("Record selected successfully");
+//            System.out.println("Record selected successfully");
             connection.close();
         } catch (SQLException e) {
             e.printStackTrace();
@@ -128,7 +128,7 @@ public class NodeRecord {
         return nodeRecord;
     }
 
-    public static NodeRecord updateRecord(int recordId, int newLeftId, int newRightId, boolean simplex, int dimension) {
+    public static NodeRecord updateRecord(int recordId, int newLeftId, int newRightId, boolean simplex, int dimension, String table_name) {
         NodeRecord updatedRecord = null;
 
         try {
@@ -137,7 +137,7 @@ public class NodeRecord {
             String sql = "use i_tree";
             stmt.executeUpdate(sql);
 
-            String updateSql = "UPDATE IntersectionTree SET LeftID = ?, rightID = ? WHERE ID = ?";
+            String updateSql = "UPDATE " + table_name + " SET LeftID = ?, rightID = ? WHERE ID = ?";
             PreparedStatement pstmt = connection.prepareStatement(updateSql);
             pstmt.setInt(1, newLeftId);
             pstmt.setInt(2, newRightId);
@@ -145,8 +145,8 @@ public class NodeRecord {
 
             int rowsUpdated = pstmt.executeUpdate();
             if (rowsUpdated > 0) {
-                System.out.println("Record with ID " + recordId + " updated successfully");
-                updatedRecord = getRecordById(recordId, simplex, dimension);
+//                System.out.println("Record with ID " + recordId + " updated successfully");
+                updatedRecord = getRecordById(recordId, simplex, dimension, table_name);
             } else {
                 System.out.println("No record found with ID " + recordId);
             }
