@@ -102,9 +102,8 @@ public class Test {
     public static void testConstructTree() throws IOException {
 
         DataReader dataReader = new DataReader("/Users/xiyaoli/Desktop/Study/research_program/information_element/i_tree_data/data/initDomains/initDomains_d_2.json",
-        // TODO: Change comment
-//                "/Users/xiyaoli/Desktop/Study/research_program/information_element/i_tree_data/data/input/data_d_2_records_5_initDomainID_1.json");
-                "/Users/maximpopov/Documents/data_d_2_records_5_initDomainID_1.json");        //      Get coefficients
+                "/Users/xiyaoli/Desktop/Study/research_program/information_element/i_tree_data/data/input/data_d_2_records_5_initDomainID_1.json");
+//                "/Users/maximpopov/Documents/data_d_2_records_5_initDomainID_1.json");        //      Get coefficients
         double[][] coefficientSet = dataReader.coefficientSet();
 //        Queue<Function> functions = new LinkedList<Function>();
         Function[] functions = new Function[coefficientSet.length];
@@ -154,9 +153,8 @@ public class Test {
 
     public static void testConstructTreeSimplex(SimplexType simplexType) throws IOException {
         DataReader dataReader = new DataReader("/Users/xiyaoli/Desktop/Study/research_program/information_element/i_tree_data/data/initDomains/initDomains_d_2.json",
-        // TODO: change comment
-//                "/Users/xiyaoli/Desktop/Study/research_program/information_element/i_tree_data/data/input/data_d_2_records_5_initDomainID_1.json");
-                "/Users/maximpopov/Documents/data_d_2_records_5_initDomainID_1.json");
+                "/Users/xiyaoli/Desktop/Study/research_program/information_element/i_tree_data/data/input/data_d_2_records_5_initDomainID_1.json");
+//                "/Users/maximpopov/Documents/data_d_2_records_5_initDomainID_1.json");
         // Get coefficients
         double[][] coefficientSet = dataReader.coefficientSet();
         // Queue<Function> functions = new LinkedList<Function>();
@@ -265,10 +263,9 @@ public class Test {
 
     public static void collect_data() throws IOException {
         int[] table_counter = new int[]{0};
-        // TODO: uncomment below
-//        collect_data_individual_feasibility_checks();
+        collect_data_individual_feasibility_checks();
         collect_data_tree_path(table_counter);
-//        collect_data_tree_construction(table_counter);
+        collect_data_tree_construction(table_counter);
     }
 
     public static void collect_data_individual_feasibility_checks() throws IOException {
@@ -297,10 +294,6 @@ public class Test {
         writer.write("Variable #Inequalities\n");
         writer.write("#Inequalities\tSimplex\t\tSign-Changing Simplex\tParametric Equation\n");
         for (int num_inequality = 1; num_inequality <= 100; num_inequality++) {
-            // TODO: delete next lines
-            System.out.println(num_inequality);
-            writer.flush();
-
             writer.write(num_inequality + "\t\t\t\t");
             time_tree_path(num_dimension_default, num_inequality, writer, table_counter);
         }
@@ -308,10 +301,6 @@ public class Test {
         writer.write("\nVariable #Dimensions\n");
         writer.write("#Inequalities\tSimplex\t\tSign-Changing Simplex\tParametric Equation\n");
         for (int num_dimension = 2; num_dimension <= 10; num_dimension++) {
-            // TODO: delete next lines
-            System.out.println(num_dimension);
-            writer.flush();
-
             writer.write(num_dimension + "\t\t\t\t");
             time_tree_path(num_dimension, num_inequality_default, writer, table_counter);
         }
@@ -416,7 +405,6 @@ public class Test {
 
     private static void time_tree_path(int num_dimension, int num_inequality, BufferedWriter writer, int[] table_counter)
             throws IOException {
-        // TODO: implement
         long average_time_simplex = 0;
         long average_time_sign_changing_simplex = 0;
         long average_time_parametric_equation = 0;
