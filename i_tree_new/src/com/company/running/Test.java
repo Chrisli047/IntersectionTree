@@ -255,7 +255,7 @@ public class Test {
     // Does not include boundary inequalities
     final static int num_inequality_default = 50;
     final static int num_dimension_default = 5;
-    final static int boundary_length = 1;
+    final static int domain_boundary_length_default = 1;
 
     // Number of runs per variable
     final static int unique_runs = 10;
@@ -275,14 +275,24 @@ public class Test {
         writer.write("#Inequalities\tSimplex\t\t\tSign-Changing Simplex\tParametric Equation\n");
         for (int num_inequality = 3; num_inequality <= 100; num_inequality++) {
             writer.write(num_inequality + "\t\t\t\t");
-            time_individual_feasibility_checks(num_dimension_default, num_inequality, writer);
+            time_individual_feasibility_checks(num_dimension_default, num_inequality, domain_boundary_length_default,
+                    writer);
         }
 
         writer.write("\nVariable #Dimensions\n");
         writer.write("#Inequalities\tSimplex\t\tSign-Changing Simplex\tParametric Equation\n");
         for (int num_dimension = 2; num_dimension <= 10; num_dimension++) {
             writer.write(num_dimension + "\t\t\t\t");
-            time_individual_feasibility_checks(num_dimension, num_inequality_default, writer);
+            time_individual_feasibility_checks(num_dimension, num_inequality_default, domain_boundary_length_default,
+                    writer);
+        }
+
+        writer.write("\nVariable Domain Boundary Length\n");
+        writer.write("#Inequalities\tSimplex\t\tSign-Changing Simplex\tParametric Equation\n");
+        for (int domain_boundary_length = 1; domain_boundary_length <= 10; domain_boundary_length++) {
+            writer.write(domain_boundary_length + "\t\t\t\t");
+            time_individual_feasibility_checks(num_dimension_default, num_inequality_default, domain_boundary_length,
+                    writer);
         }
 
         writer.close();
@@ -295,14 +305,21 @@ public class Test {
         writer.write("#Inequalities\tSimplex\t\tSign-Changing Simplex\tParametric Equation\n");
         for (int num_inequality = 1; num_inequality <= 100; num_inequality++) {
             writer.write(num_inequality + "\t\t\t\t");
-            time_tree_path(num_dimension_default, num_inequality, writer, table_counter);
+            time_tree_path(num_dimension_default, num_inequality, domain_boundary_length_default, writer, table_counter);
         }
 
         writer.write("\nVariable #Dimensions\n");
         writer.write("#Inequalities\tSimplex\t\tSign-Changing Simplex\tParametric Equation\n");
         for (int num_dimension = 2; num_dimension <= 10; num_dimension++) {
             writer.write(num_dimension + "\t\t\t\t");
-            time_tree_path(num_dimension, num_inequality_default, writer, table_counter);
+            time_tree_path(num_dimension, num_inequality_default, domain_boundary_length_default, writer, table_counter);
+        }
+
+        writer.write("\nVariable Domain Boundary Length\n");
+        writer.write("#Inequalities\tSimplex\t\tSign-Changing Simplex\tParametric Equation\n");
+        for (int domain_boundary_length = 1; domain_boundary_length <= 10; domain_boundary_length++) {
+            writer.write(domain_boundary_length + "\t\t\t\t");
+            time_tree_path(num_dimension_default, num_inequality_default, domain_boundary_length, writer, table_counter);
         }
 
         writer.close();
@@ -316,20 +333,31 @@ public class Test {
         writer.write("#Inequalities\tSimplex\t\tSign-Changing Simplex\tParametric Equation\n");
         for (int num_inequality = 1; num_inequality <= 100; num_inequality++) {
             writer.write(num_inequality + "\t\t\t\t");
-            time_tree_construction(num_dimension_default, num_inequality, writer, table_counter);
+            time_tree_construction(num_dimension_default, num_inequality, domain_boundary_length_default, writer,
+                    table_counter);
         }
 
         writer.write("\nVariable #Dimensions\n");
         writer.write("#Inequalities\tSimplex\t\tSign-Changing Simplex\tParametric Equation\n");
         for (int num_dimension = 2; num_dimension <= 10; num_dimension++) {
             writer.write(num_dimension + "\t\t\t\t");
-            time_tree_construction(num_dimension, num_inequality_default, writer, table_counter);
+            time_tree_construction(num_dimension, num_inequality_default, domain_boundary_length_default, writer,
+                    table_counter);
+        }
+
+        writer.write("\nVariable Domain Boundary Length\n");
+        writer.write("#Inequalities\tSimplex\t\tSign-Changing Simplex\tParametric Equation\n");
+        for (int domain_boundary_length = 1; domain_boundary_length <= 10; domain_boundary_length++) {
+            writer.write(domain_boundary_length + "\t\t\t\t");
+            time_tree_construction(num_dimension_default, num_inequality_default, domain_boundary_length, writer,
+                    table_counter);
         }
 
         writer.close();
     }
 
-    private static void time_individual_feasibility_checks(int num_dimension, int num_inequality, BufferedWriter writer)
+    private static void time_individual_feasibility_checks(int num_dimension, int num_inequality,
+                                                           int domain_boundary_length, BufferedWriter writer)
             throws IOException {
         long average_time_simplex = 0;
         long average_time_sign_changing_simplex = 0;
@@ -338,7 +366,7 @@ public class Test {
 
         for (int i = 0; i < unique_runs; i++) {
             // Equations defining subdomain
-            ArrayList<double[]> inequalities = generate_inequalities(num_inequality, num_dimension);
+            ArrayList<double[]> inequalities = generate_inequalities(num_inequality, num_dimension, domain_boundary_length);
             // Equation of line for feasibility checking. Hijacks generate_inequalities().
             Function function = new Function(generate_equation(num_dimension));
 
@@ -403,7 +431,8 @@ public class Test {
         writer.write(average_time_parametric_equation + "\n");
     }
 
-    private static void time_tree_path(int num_dimension, int num_inequality, BufferedWriter writer, int[] table_counter)
+    private static void time_tree_path(int num_dimension, int num_inequality, int domain_boundary_length,
+                                       BufferedWriter writer, int[] table_counter)
             throws IOException {
         long average_time_simplex = 0;
         long average_time_sign_changing_simplex = 0;
@@ -412,7 +441,8 @@ public class Test {
 
         for (int i = 0; i < unique_runs; i++) {
             // Equations defining subdomain
-            ArrayList<double[]> inequalities = generate_inequalities(0, num_dimension);
+            ArrayList<double[]> inequalities = generate_inequalities(0, num_dimension,
+                    domain_boundary_length);
             Function[] functions = new Function[num_inequality];
             for (int j = 0; j < functions.length; j++) {
                 functions[j] = new Function(generate_equation(num_dimension));
@@ -451,7 +481,7 @@ public class Test {
             average_time_repeat = 0;
             for (int j = 0; j < repeat_runs; j++) {
                 start_time = System.nanoTime();
-                Tree.constructTreeSegmentSimplex(functions, constraintCoefficients, constraintConstants, SimplexType.SIMPLEX, num_dimension, boundary_length);
+                Tree.constructTreeSegmentSimplex(functions, constraintCoefficients, constraintConstants, SimplexType.SIMPLEX, num_dimension, domain_boundary_length);
                 stop_time = System.nanoTime();
                 table_counter[0]++;
                 average_time_repeat += (stop_time - start_time) / repeat_runs;
@@ -462,7 +492,7 @@ public class Test {
             average_time_repeat = 0;
             for (int j = 0; j < repeat_runs; j++) {
                 start_time = System.nanoTime();
-                Tree.constructTreeSegmentSimplex(functions, constraintCoefficients, constraintConstants, SimplexType.SIGN_CHANGING_SIMPLEX, num_dimension, boundary_length);
+                Tree.constructTreeSegmentSimplex(functions, constraintCoefficients, constraintConstants, SimplexType.SIGN_CHANGING_SIMPLEX, num_dimension, domain_boundary_length);
                 stop_time = System.nanoTime();
                 table_counter[0]++;
                 average_time_repeat += (stop_time - start_time) / repeat_runs;
@@ -481,7 +511,8 @@ public class Test {
         writer.write(average_time_parametric_equation + "\n");
     }
 
-    private static void time_tree_construction(int num_dimension, int num_inequality, BufferedWriter writer, int[] table_counter)
+    private static void time_tree_construction(int num_dimension, int num_inequality, int domain_boundary_length,
+                                               BufferedWriter writer, int[] table_counter)
             throws IOException {
             long average_time_simplex = 0;
             long average_time_sign_changing_simplex = 0;
@@ -490,7 +521,8 @@ public class Test {
 
             for (int i = 0; i < unique_runs; i++) {
                 // Equations defining subdomain
-                ArrayList<double[]> inequalities = generate_inequalities(0, num_dimension);
+                ArrayList<double[]> inequalities = generate_inequalities(0, num_dimension,
+                        domain_boundary_length);
                 Function[] functions = new Function[num_inequality];
                 for (int j = 0; j < functions.length; j++) {
                     functions[j] = new Function(generate_equation(num_dimension));
@@ -573,7 +605,8 @@ public class Test {
     }
 
     // Generated equations are in the form: ax1 + bx2 + cx3 + ... = d where double[] = {a, b, c, d}.
-    private static ArrayList<double[]> generate_inequalities(int num_inequality, int num_dimension) {
+    private static ArrayList<double[]> generate_inequalities(int num_inequality, int num_dimension,
+                                                             int domain_boundary_length) {
         ArrayList<double[]> inequalities = new ArrayList<>();
 
         // Generate boundaries
@@ -584,7 +617,7 @@ public class Test {
             // 1x ≤ boundary_length
             double[] upper_bound = new double[num_dimension + 1];
             upper_bound[i] = 1;
-            upper_bound[upper_bound.length - 1] = boundary_length;
+            upper_bound[upper_bound.length - 1] = domain_boundary_length;
             inequalities.add(lower_bound);
             inequalities.add(upper_bound);
         }
@@ -609,7 +642,7 @@ public class Test {
             double point_value = 0;
             for (int j = 0; j < num_dimension; j++) {
                 // point value = boundary_length/2
-                point_value += inequality[j] * boundary_length/2;
+                point_value += inequality[j] * domain_boundary_length/2;
             }
 
             // if not legal (legal is ≤), invert inequality
