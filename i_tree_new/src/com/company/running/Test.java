@@ -288,7 +288,7 @@ public class Test {
         }
 
         writer.write("\nVariable Domain Boundary Length\n");
-        writer.write("#Inequalities\tSimplex\t\tSign-Changing Simplex\tParametric Equation\n");
+        writer.write("Domain Boundary Length\tSimplex\t\tSign-Changing Simplex\tParametric Equation\n");
         for (int domain_boundary_length = 1; domain_boundary_length <= 10; domain_boundary_length++) {
             writer.write(domain_boundary_length + "\t\t\t\t");
             time_individual_feasibility_checks(num_dimension_default, num_inequality_default, domain_boundary_length,
@@ -316,7 +316,7 @@ public class Test {
         }
 
         writer.write("\nVariable Domain Boundary Length\n");
-        writer.write("#Inequalities\tSimplex\t\tSign-Changing Simplex\tParametric Equation\n");
+        writer.write("Domain Boundary Length\tSimplex\t\tSign-Changing Simplex\tParametric Equation\n");
         for (int domain_boundary_length = 1; domain_boundary_length <= 10; domain_boundary_length++) {
             writer.write(domain_boundary_length + "\t\t\t\t");
             time_tree_path(num_dimension_default, num_inequality_default, domain_boundary_length, writer, table_counter);
@@ -346,7 +346,7 @@ public class Test {
         }
 
         writer.write("\nVariable Domain Boundary Length\n");
-        writer.write("#Inequalities\tSimplex\t\tSign-Changing Simplex\tParametric Equation\n");
+        writer.write("Domain Boundary Length\tSimplex\t\tSign-Changing Simplex\tParametric Equation\n");
         for (int domain_boundary_length = 1; domain_boundary_length <= 10; domain_boundary_length++) {
             writer.write(domain_boundary_length + "\t\t\t\t");
             time_tree_construction(num_dimension_default, num_inequality_default, domain_boundary_length, writer,
