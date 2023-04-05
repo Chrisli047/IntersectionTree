@@ -257,6 +257,7 @@ public class Test {
     // Does not include boundary inequalities
     final static int num_inequality_default = 50;
     final static int num_dimension_default = 5;
+    final static int boundary_length = 1;
 
     // Number of runs per variable
     final static int unique_runs = 10;
@@ -266,57 +267,8 @@ public class Test {
         int[] table_counter = new int[]{0};
         // TODO: uncomment below
 //        collect_data_individual_feasibility_checks();
-//        collect_data_tree_path(table_counter);
-        collect_data_tree_construction(table_counter);
-    }
-
-    public static void collect_data_tree_construction(int[] table_counter)
-            throws IOException {
-        BufferedWriter writer = new BufferedWriter(new FileWriter("tree_construction.txt"));
-
-        writer.write("Variable #Inequalities\n");
-        writer.write("#Inequalities\tSimplex\t\tSign-Changing Simplex\tParametric Equation\n");
-        for (int num_inequality = 1; num_inequality <= 100; num_inequality++) {
-            writer.write(num_inequality + "\t\t\t\t");
-            time_tree_construction(num_dimension_default, num_inequality, writer, table_counter);
-            // TODO: delete below
-            writer.flush();
-        }
-
-        writer.write("\nVariable #Dimensions\n");
-        writer.write("#Inequalities\tSimplex\t\tSign-Changing Simplex\tParametric Equation\n");
-        for (int num_dimension = 2; num_dimension <= 10; num_dimension++) {
-            writer.write(num_dimension + "\t\t\t\t");
-            time_tree_construction(num_dimension, num_inequality_default, writer, table_counter);
-            // TODO: delete below
-            writer.flush();
-        }
-
-        writer.close();
-    }
-
-    public static void collect_data_tree_path(int[] table_counter) throws IOException {
-        BufferedWriter writer = new BufferedWriter(new FileWriter("tree_path.txt"));
-
-        writer.write("Variable #Inequalities\n");
-        writer.write("#Inequalities\tSimplex\t\tSign-Changing Simplex\tParametric Equation\n");
-        for (int num_inequality = 1; num_inequality <= 100; num_inequality++) {
-            writer.write(num_inequality + "\t\t\t\t");
-            time_tree_path(num_dimension_default, num_inequality, writer, table_counter);
-            // TODO: delete below
-            writer.flush();
-        }
-
-        writer.write("\nVariable #Dimensions\n");
-        writer.write("#Inequalities\tSimplex\t\tSign-Changing Simplex\tParametric Equation\n");
-        for (int num_dimension = 2; num_dimension <= 10; num_dimension++) {
-            writer.write(num_dimension + "\t\t\t\t");
-            time_tree_path(num_dimension, num_inequality_default, writer, table_counter);
-            // TODO: delete below
-            writer.flush();
-        }
-
-        writer.close();
+        collect_data_tree_path(table_counter);
+//        collect_data_tree_construction(table_counter);
     }
 
     public static void collect_data_individual_feasibility_checks() throws IOException {
@@ -339,176 +291,53 @@ public class Test {
         writer.close();
     }
 
-    private static void time_tree_path(int num_dimension, int num_inequality, BufferedWriter writer, int[] table_counter)
-            throws IOException {
-        // TODO: implement
-        long average_time_simplex = 0;
-        long average_time_sign_changing_simplex = 0;
-        long average_time_parametric_equation = 0;
-        long average_time_repeat, start_time, stop_time;
+    public static void collect_data_tree_path(int[] table_counter) throws IOException {
+        BufferedWriter writer = new BufferedWriter(new FileWriter("tree_path.txt"));
 
-        for (int i = 0; i < unique_runs; i++) {
-            // Equations defining subdomain
-            ArrayList<double[]> inequalities = generate_inequalities(0, num_dimension);
-            Function[] functions = new Function[num_inequality];
-            for (int j = 0; j < functions.length; j++) {
-                functions[j] = new Function(generate_equation(num_dimension));
-            }
+        writer.write("Variable #Inequalities\n");
+        writer.write("#Inequalities\tSimplex\t\tSign-Changing Simplex\tParametric Equation\n");
+        for (int num_inequality = 1; num_inequality <= 100; num_inequality++) {
+            // TODO: delete next lines
+            System.out.println(num_inequality);
+            writer.flush();
 
-            // Uncomment if slack variables required
-//            // Modifications for Simplex:
-//            // Introduce slack variables
-//            ArrayList<double[]> constraintCoefficients = new ArrayList<>();
-//            // Separate constraint constants
-//            ArrayList<Double> constraintConstants = new ArrayList<>();
-//            for (double[] inequality : inequalities) {
-//                // ignore constant at the end
-//                double[] slackenedEquation = new double[inequality.length * 2 - 2];
-//                for (int j = 0; j < inequality.length - 1; j++) {
-//                    slackenedEquation[j * 2] = inequality[j];
-//                    slackenedEquation[j * 2 + 1] = -inequality[j];
-//                }
-//                constraintConstants.add(inequality[inequality.length - 1]);
-//                constraintCoefficients.add(slackenedEquation);
-//            }
-
-            // Modifications for Simplex:
-            Function function = new Function(new double[]{0, 0, 1});
-            DomainSimplex d = new DomainSimplex(function, true);
-            ArrayList<double[]> constraintCoefficients = new ArrayList<>();
-            // Separate constraint constants
-            ArrayList<Double> constraintConstants = new ArrayList<>();
-            for (double[] inequality : inequalities) {
-                // ignore constant at the end
-                double[] slackenedEquation = new double[inequality.length - 1];
-                System.arraycopy(inequality, 0, slackenedEquation, 0, inequality.length - 1);
-                constraintConstants.add(inequality[inequality.length - 1]);
-                constraintCoefficients.add(slackenedEquation);
-            }
-
-            // Simplex
-            average_time_repeat = 0;
-            for (int j = 0; j < repeat_runs; j++) {
-                // TODO: delete below
-                System.out.println(table_counter[0]);
-
-                start_time = System.nanoTime();
-                Tree.constructTreeSimplex(functions, d, constraintCoefficients, constraintConstants, SimplexType.SIMPLEX, num_dimension, "IntersectionTree" + table_counter[0]);
-                stop_time = System.nanoTime();
-                table_counter[0]++;
-                average_time_repeat += (stop_time - start_time) / repeat_runs;
-            }
-            average_time_simplex += average_time_repeat / unique_runs;
-
-            // Sign-Changing Simplex
-            average_time_repeat = 0;
-            for (int j = 0; j < repeat_runs; j++) {
-                // TODO: delete below
-                System.out.println(table_counter);
-
-                start_time = System.nanoTime();
-                Tree.constructTreeSimplex(functions, d, constraintCoefficients, constraintConstants, SimplexType.SIGN_CHANGING_SIMPLEX, num_dimension, "IntersectionTree" + table_counter[0]);
-                stop_time = System.nanoTime();
-                table_counter[0]++;
-                average_time_repeat += (stop_time - start_time) / repeat_runs;
-            }
-            average_time_sign_changing_simplex += average_time_repeat / unique_runs;
-
-            // Parametric Equation
-            // TODO: Xiyao: get average_time_parametric_equation here by timing Tree.constructTree() on inequalities
-            //  and function
+            writer.write(num_inequality + "\t\t\t\t");
+            time_tree_path(num_dimension_default, num_inequality, writer, table_counter);
         }
 
-        writer.write(average_time_simplex + "\t\t\t");
-        writer.write(average_time_sign_changing_simplex + "\t\t\t\t\t");
-        writer.write(average_time_parametric_equation + "\n");
+        writer.write("\nVariable #Dimensions\n");
+        writer.write("#Inequalities\tSimplex\t\tSign-Changing Simplex\tParametric Equation\n");
+        for (int num_dimension = 2; num_dimension <= 10; num_dimension++) {
+            // TODO: delete next lines
+            System.out.println(num_dimension);
+            writer.flush();
+
+            writer.write(num_dimension + "\t\t\t\t");
+            time_tree_path(num_dimension, num_inequality_default, writer, table_counter);
+        }
+
+        writer.close();
     }
 
-    private static void time_tree_construction(int num_dimension, int num_inequality, BufferedWriter writer, int[] table_counter)
+    public static void collect_data_tree_construction(int[] table_counter)
             throws IOException {
-            long average_time_simplex = 0;
-            long average_time_sign_changing_simplex = 0;
-            long average_time_parametric_equation = 0;
-            long average_time_repeat, start_time, stop_time;
+        BufferedWriter writer = new BufferedWriter(new FileWriter("tree_construction.txt"));
 
-            for (int i = 0; i < unique_runs; i++) {
-                // Equations defining subdomain
-                ArrayList<double[]> inequalities = generate_inequalities(0, num_dimension);
-                Function[] functions = new Function[num_inequality];
-                for (int j = 0; j < functions.length; j++) {
-                    functions[j] = new Function(generate_equation(num_dimension));
-                }
+        writer.write("Variable #Inequalities\n");
+        writer.write("#Inequalities\tSimplex\t\tSign-Changing Simplex\tParametric Equation\n");
+        for (int num_inequality = 1; num_inequality <= 100; num_inequality++) {
+            writer.write(num_inequality + "\t\t\t\t");
+            time_tree_construction(num_dimension_default, num_inequality, writer, table_counter);
+        }
 
+        writer.write("\nVariable #Dimensions\n");
+        writer.write("#Inequalities\tSimplex\t\tSign-Changing Simplex\tParametric Equation\n");
+        for (int num_dimension = 2; num_dimension <= 10; num_dimension++) {
+            writer.write(num_dimension + "\t\t\t\t");
+            time_tree_construction(num_dimension, num_inequality_default, writer, table_counter);
+        }
 
-                // Uncomment if slack variables required
-//            // Modifications for Simplex:
-//            // Introduce slack variables
-//            ArrayList<double[]> constraintCoefficients = new ArrayList<>();
-//            // Separate constraint constants
-//            ArrayList<Double> constraintConstants = new ArrayList<>();
-//            for (double[] inequality : inequalities) {
-//                // ignore constant at the end
-//                double[] slackenedEquation = new double[inequality.length * 2 - 2];
-//                for (int j = 0; j < inequality.length - 1; j++) {
-//                    slackenedEquation[j * 2] = inequality[j];
-//                    slackenedEquation[j * 2 + 1] = -inequality[j];
-//                }
-//                constraintConstants.add(inequality[inequality.length - 1]);
-//                constraintCoefficients.add(slackenedEquation);
-//            }
-
-                // Modifications for Simplex:
-                double[] function_values = new double[num_dimension + 1];
-                function_values[function_values.length - 1] = 1;
-                Function function = new Function(function_values);
-                DomainSimplex d = new DomainSimplex(function, true);
-                ArrayList<double[]> constraintCoefficients = new ArrayList<>();
-                // Separate constraint constants
-                ArrayList<Double> constraintConstants = new ArrayList<>();
-                for (double[] inequality : inequalities) {
-                    // ignore constant at the end
-                    double[] slackenedEquation = new double[inequality.length - 1];
-                    System.arraycopy(inequality, 0, slackenedEquation, 0, inequality.length - 1);
-                    constraintConstants.add(inequality[inequality.length - 1]);
-                    constraintCoefficients.add(slackenedEquation);
-                }
-
-                // Simplex
-                average_time_repeat = 0;
-                for (int j = 0; j < repeat_runs; j++) {
-                    // TODO: delete below
-                    System.out.println(table_counter[0]);
-
-                    start_time = System.nanoTime();
-                    Tree.constructTreeSimplex(functions, d, constraintCoefficients, constraintConstants, SimplexType.SIMPLEX, num_dimension, "IntersectionTree" + table_counter[0]);
-                    stop_time = System.nanoTime();
-                    table_counter[0]++;
-                    average_time_repeat += (stop_time - start_time) / repeat_runs;
-                }
-                average_time_simplex += average_time_repeat / unique_runs;
-
-                // Sign-Changing Simplex
-                average_time_repeat = 0;
-                for (int j = 0; j < repeat_runs; j++) {
-                    // TODO: delete below
-                    System.out.println(table_counter[0]);
-
-                    start_time = System.nanoTime();
-                    Tree.constructTreeSimplex(functions, d, constraintCoefficients, constraintConstants, SimplexType.SIGN_CHANGING_SIMPLEX, num_dimension, "IntersectionTree" + table_counter[0]);
-                    stop_time = System.nanoTime();
-                    table_counter[0]++;
-                    average_time_repeat += (stop_time - start_time) / repeat_runs;
-                }
-                average_time_sign_changing_simplex += average_time_repeat / unique_runs;
-
-                // Parametric Equation
-                // TODO: Xiyao: get average_time_parametric_equation here by timing Tree.constructTree() on inequalities
-                //  and function
-            }
-
-            writer.write(average_time_simplex + "\t\t\t");
-            writer.write(average_time_sign_changing_simplex + "\t\t\t\t\t");
-            writer.write(average_time_parametric_equation + "\n");
+        writer.close();
     }
 
     private static void time_individual_feasibility_checks(int num_dimension, int num_inequality, BufferedWriter writer)
@@ -585,6 +414,166 @@ public class Test {
         writer.write(average_time_parametric_equation + "\n");
     }
 
+    private static void time_tree_path(int num_dimension, int num_inequality, BufferedWriter writer, int[] table_counter)
+            throws IOException {
+        // TODO: implement
+        long average_time_simplex = 0;
+        long average_time_sign_changing_simplex = 0;
+        long average_time_parametric_equation = 0;
+        long average_time_repeat, start_time, stop_time;
+
+        for (int i = 0; i < unique_runs; i++) {
+            // Equations defining subdomain
+            ArrayList<double[]> inequalities = generate_inequalities(0, num_dimension);
+            Function[] functions = new Function[num_inequality];
+            for (int j = 0; j < functions.length; j++) {
+                functions[j] = new Function(generate_equation(num_dimension));
+            }
+
+            // Uncomment if slack variables required
+//            // Modifications for Simplex:
+//            // Introduce slack variables
+//            ArrayList<double[]> constraintCoefficients = new ArrayList<>();
+//            // Separate constraint constants
+//            ArrayList<Double> constraintConstants = new ArrayList<>();
+//            for (double[] inequality : inequalities) {
+//                // ignore constant at the end
+//                double[] slackenedEquation = new double[inequality.length * 2 - 2];
+//                for (int j = 0; j < inequality.length - 1; j++) {
+//                    slackenedEquation[j * 2] = inequality[j];
+//                    slackenedEquation[j * 2 + 1] = -inequality[j];
+//                }
+//                constraintConstants.add(inequality[inequality.length - 1]);
+//                constraintCoefficients.add(slackenedEquation);
+//            }
+
+            // Modifications for Simplex:
+            ArrayList<double[]> constraintCoefficients = new ArrayList<>();
+            // Separate constraint constants
+            ArrayList<Double> constraintConstants = new ArrayList<>();
+            for (double[] inequality : inequalities) {
+                // ignore constant at the end
+                double[] slackenedEquation = new double[inequality.length - 1];
+                System.arraycopy(inequality, 0, slackenedEquation, 0, inequality.length - 1);
+                constraintConstants.add(inequality[inequality.length - 1]);
+                constraintCoefficients.add(slackenedEquation);
+            }
+
+            // Simplex
+            average_time_repeat = 0;
+            for (int j = 0; j < repeat_runs; j++) {
+                start_time = System.nanoTime();
+                Tree.constructTreeSegmentSimplex(functions, constraintCoefficients, constraintConstants, SimplexType.SIMPLEX, num_dimension, boundary_length);
+                stop_time = System.nanoTime();
+                table_counter[0]++;
+                average_time_repeat += (stop_time - start_time) / repeat_runs;
+            }
+            average_time_simplex += average_time_repeat / unique_runs;
+
+            // Sign-Changing Simplex
+            average_time_repeat = 0;
+            for (int j = 0; j < repeat_runs; j++) {
+                start_time = System.nanoTime();
+                Tree.constructTreeSegmentSimplex(functions, constraintCoefficients, constraintConstants, SimplexType.SIGN_CHANGING_SIMPLEX, num_dimension, boundary_length);
+                stop_time = System.nanoTime();
+                table_counter[0]++;
+                average_time_repeat += (stop_time - start_time) / repeat_runs;
+            }
+            average_time_sign_changing_simplex += average_time_repeat / unique_runs;
+
+            // Parametric Equation
+            // TODO: Xiyao: get average_time_parametric_equation here by timing Tree.constructTreeSegment() which you
+            //  need to implement. It is a simplified version of constructing the full tree, you can follow the Simplex
+            //  version as a guideline. For each intersection, test if it partitions. If yes, continue on the subdomain
+            //  which accepts the central point. If 2-d, that is (boundary_length/2, boundary_length/2).
+        }
+
+        writer.write(average_time_simplex + "\t\t\t");
+        writer.write(average_time_sign_changing_simplex + "\t\t\t\t\t");
+        writer.write(average_time_parametric_equation + "\n");
+    }
+
+    private static void time_tree_construction(int num_dimension, int num_inequality, BufferedWriter writer, int[] table_counter)
+            throws IOException {
+            long average_time_simplex = 0;
+            long average_time_sign_changing_simplex = 0;
+            long average_time_parametric_equation = 0;
+            long average_time_repeat, start_time, stop_time;
+
+            for (int i = 0; i < unique_runs; i++) {
+                // Equations defining subdomain
+                ArrayList<double[]> inequalities = generate_inequalities(0, num_dimension);
+                Function[] functions = new Function[num_inequality];
+                for (int j = 0; j < functions.length; j++) {
+                    functions[j] = new Function(generate_equation(num_dimension));
+                }
+
+
+                // Uncomment if slack variables required
+//            // Modifications for Simplex:
+//            // Introduce slack variables
+//            ArrayList<double[]> constraintCoefficients = new ArrayList<>();
+//            // Separate constraint constants
+//            ArrayList<Double> constraintConstants = new ArrayList<>();
+//            for (double[] inequality : inequalities) {
+//                // ignore constant at the end
+//                double[] slackenedEquation = new double[inequality.length * 2 - 2];
+//                for (int j = 0; j < inequality.length - 1; j++) {
+//                    slackenedEquation[j * 2] = inequality[j];
+//                    slackenedEquation[j * 2 + 1] = -inequality[j];
+//                }
+//                constraintConstants.add(inequality[inequality.length - 1]);
+//                constraintCoefficients.add(slackenedEquation);
+//            }
+
+                // Modifications for Simplex:
+                double[] function_values = new double[num_dimension + 1];
+                function_values[function_values.length - 1] = 1;
+                Function function = new Function(function_values);
+                DomainSimplex d = new DomainSimplex(function, true);
+                ArrayList<double[]> constraintCoefficients = new ArrayList<>();
+                // Separate constraint constants
+                ArrayList<Double> constraintConstants = new ArrayList<>();
+                for (double[] inequality : inequalities) {
+                    // ignore constant at the end
+                    double[] slackenedEquation = new double[inequality.length - 1];
+                    System.arraycopy(inequality, 0, slackenedEquation, 0, inequality.length - 1);
+                    constraintConstants.add(inequality[inequality.length - 1]);
+                    constraintCoefficients.add(slackenedEquation);
+                }
+
+                // Simplex
+                average_time_repeat = 0;
+                for (int j = 0; j < repeat_runs; j++) {
+                    start_time = System.nanoTime();
+                    Tree.constructTreeSimplex(functions, d, constraintCoefficients, constraintConstants, SimplexType.SIMPLEX, num_dimension, "IntersectionTree" + table_counter[0]);
+                    stop_time = System.nanoTime();
+                    table_counter[0]++;
+                    average_time_repeat += (stop_time - start_time) / repeat_runs;
+                }
+                average_time_simplex += average_time_repeat / unique_runs;
+
+                // Sign-Changing Simplex
+                average_time_repeat = 0;
+                for (int j = 0; j < repeat_runs; j++) {
+                    start_time = System.nanoTime();
+                    Tree.constructTreeSimplex(functions, d, constraintCoefficients, constraintConstants, SimplexType.SIGN_CHANGING_SIMPLEX, num_dimension, "IntersectionTree" + table_counter[0]);
+                    stop_time = System.nanoTime();
+                    table_counter[0]++;
+                    average_time_repeat += (stop_time - start_time) / repeat_runs;
+                }
+                average_time_sign_changing_simplex += average_time_repeat / unique_runs;
+
+                // Parametric Equation
+                // TODO: Xiyao: get average_time_parametric_equation here by timing Tree.constructTree() on inequalities
+                //  and function
+            }
+
+            writer.write(average_time_simplex + "\t\t\t");
+            writer.write(average_time_sign_changing_simplex + "\t\t\t\t\t");
+            writer.write(average_time_parametric_equation + "\n");
+    }
+
     // Generated equation is in the form: ax1 + bx2 + cx3 + ... = d where double[] = {a, b, c, d}.
     private static double[] generate_equation(int num_dimension) {
         double[] equation = new double[num_dimension + 1];
@@ -597,7 +586,6 @@ public class Test {
 
     // Generated equations are in the form: ax1 + bx2 + cx3 + ... = d where double[] = {a, b, c, d}.
     private static ArrayList<double[]> generate_inequalities(int num_inequality, int num_dimension) {
-        int boundary_length = 1;
         ArrayList<double[]> inequalities = new ArrayList<>();
 
         // Generate boundaries

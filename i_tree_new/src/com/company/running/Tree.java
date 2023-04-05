@@ -12,8 +12,7 @@ public class Tree {
 
         // Construct the root node with the domain, store as the first record
         Function rootPartitionFunction = null;
-        for (Function f:
-             intersections) {
+        for (Function f: intersections) {
             if (Domain.ifPartitionsDomain(domain, f.coefficients)) {
                 rootPartitionFunction = f;
 //                System.out.println("yes");
@@ -110,8 +109,7 @@ public class Tree {
 
         // Construct the root node with the domain, store as the first record
         Function rootPartitionFunction = null;
-        for (Function f:
-                intersections) {
+        for (Function f: intersections) {
             if (DomainSimplex.ifPartitionsDomain(allConstraintCoefficients, allConstraintConstants, f,
                     simplexType, dimension)) {
                 rootPartitionFunction = f;
@@ -200,6 +198,41 @@ public class Tree {
                         Q.add(rightRecord);
                     }
                 }
+            }
+        }
+    }
+
+    // Constructs path down tree
+    public static void constructTreeSegmentSimplex(Function[] intersections,
+                                                   ArrayList<double[]> allConstraintCoefficients,
+                                                   ArrayList<Double> allConstraintConstants,
+                                                   SimplexType simplexType,
+                                                   int dimension,
+                                                   int boundary_length) {
+        for (Function intersection : intersections) {
+            if (DomainSimplex.ifPartitionsDomain(allConstraintCoefficients, allConstraintConstants, intersection,
+                    simplexType, dimension)) {
+                double[] coefficients = new double[intersection.coefficients.length - 1];
+                System.arraycopy(intersection.coefficients, 0, coefficients, 0, coefficients.length - 1);
+                double constant = intersection.coefficients[intersection.coefficients.length - 1];
+
+                // If inequality does not accept central point, flip it in order to maximize likelihood of future
+                // partitions.
+                double point_value = 0;
+                for (double coefficient : coefficients) {
+                    // point value = boundary_length/2
+                    point_value += coefficient * boundary_length / 2;
+                }
+                if (point_value > constant) {
+                    for (int i = 0; i < coefficients.length; i++) {
+                        coefficients[i] *= -1;
+                    }
+                    constant *= -1;
+                }
+
+                // add constraints to define subdomain
+                allConstraintCoefficients.add(coefficients);
+                allConstraintConstants.add(constant);
             }
         }
     }
