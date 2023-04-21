@@ -263,9 +263,9 @@ public class Test {
 
     public static void collect_data() throws IOException {
         int[] table_counter = new int[]{0};
-        collect_data_individual_feasibility_checks();
+//        collect_data_individual_feasibility_checks();
 //        collect_data_tree_path(table_counter);
-//        collect_data_tree_construction(table_counter);
+        collect_data_tree_construction(table_counter);
     }
 
     public static void collect_data_individual_feasibility_checks() throws IOException {
@@ -335,6 +335,8 @@ public class Test {
             writer.write(num_inequality + ",");
             time_tree_construction(num_dimension_default, num_inequality, domain_boundary_length_default, writer,
                     table_counter);
+            //TODO: delete next line
+            writer.flush();
         }
 
         writer.write("\nVariable #Dimensions\n");
@@ -343,6 +345,8 @@ public class Test {
             writer.write(num_dimension + ",");
             time_tree_construction(num_dimension, num_inequality_default, domain_boundary_length_default, writer,
                     table_counter);
+            //TODO: delete next line
+            writer.flush();
         }
 
         writer.write("\nVariable Domain Boundary Length\n");
@@ -351,6 +355,8 @@ public class Test {
             writer.write(domain_boundary_length + ",");
             time_tree_construction(num_dimension_default, num_inequality_default, domain_boundary_length, writer,
                     table_counter);
+            //TODO: delete next line
+            writer.flush();
         }
 
         writer.close();
