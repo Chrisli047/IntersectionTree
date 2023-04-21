@@ -265,7 +265,7 @@ public class Test {
         int[] table_counter = new int[]{0};
         collect_data_individual_feasibility_checks();
 //        collect_data_tree_path(table_counter);
-        collect_data_tree_construction(table_counter);
+//        collect_data_tree_construction(table_counter);
     }
 
     public static void collect_data_individual_feasibility_checks() throws IOException {
