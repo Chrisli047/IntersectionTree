@@ -686,8 +686,8 @@ public class Test {
             while (line != null && lineCount <= 100) {
                 String[] parts = line.split(",");
                 int num1 = Integer.parseInt(parts[0]);
-                double num2 = Long.parseLong(parts[1]) / 1000000000.0;
-                double num3 = Long.parseLong(parts[2]) / 1000000000.0;
+                double num2 = Long.parseLong(parts[1]) / 1000000.0;
+                double num3 = Long.parseLong(parts[2]) / 1000000.0;
 
                 FileWriter writer1 = new FileWriter(individual_inequality_naive, true);
                 writer1.write(num1 + " " + num2 + "\n");
@@ -709,8 +709,8 @@ public class Test {
             while (line != null && lineCount <= 112) {
                 String[] parts = line.split(",");
                 int num1 = Integer.parseInt(parts[0]);
-                double num2 = Long.parseLong(parts[1]) / 1000000000.0;
-                double num3 = Long.parseLong(parts[2]) / 1000000000.0;
+                double num2 = Long.parseLong(parts[1]) / 1000000.0;
+                double num3 = Long.parseLong(parts[2]) / 1000000.0;
 
                 FileWriter writer1 = new FileWriter(individual_dimension_naive, true);
                 writer1.write(num1 + " " + num2 + "\n");
@@ -732,8 +732,8 @@ public class Test {
             while (line != null && lineCount <= 125) {
                 String[] parts = line.split(",");
                 int num1 = Integer.parseInt(parts[0]);
-                double num2 = Long.parseLong(parts[1]) / 1000000000.0;
-                double num3 = Long.parseLong(parts[2]) / 1000000000.0;
+                double num2 = Long.parseLong(parts[1]) / 1000000.0;
+                double num3 = Long.parseLong(parts[2]) / 1000000.0;
 
                 FileWriter writer1 = new FileWriter(individual_domain_naive, true);
                 writer1.write(num1 + " " + num2 + "\n");
@@ -779,8 +779,8 @@ public class Test {
             while (line != null && lineCount <= 102) {
                 String[] parts = line.split(",");
                 int num1 = Integer.parseInt(parts[0]);
-                double num2 = Long.parseLong(parts[1]) / 1000000000.0;
-                double num3 = Long.parseLong(parts[2]) / 1000000000.0;
+                double num2 = Long.parseLong(parts[1]) / 1000000.0;
+                double num3 = Long.parseLong(parts[2]) / 1000000.0;
 
                 FileWriter writer1 = new FileWriter(path_inequality_naive, true);
                 writer1.write(num1 + " " + num2 + "\n");
@@ -802,8 +802,8 @@ public class Test {
             while (line != null && lineCount <= 114) {
                 String[] parts = line.split(",");
                 int num1 = Integer.parseInt(parts[0]);
-                double num2 = Long.parseLong(parts[1]) / 1000000000.0;
-                double num3 = Long.parseLong(parts[2]) / 1000000000.0;
+                double num2 = Long.parseLong(parts[1]) / 1000000.0;
+                double num3 = Long.parseLong(parts[2]) / 1000000.0;
 
                 FileWriter writer1 = new FileWriter(path_dimension_naive, true);
                 writer1.write(num1 + " " + num2 + "\n");
@@ -825,8 +825,8 @@ public class Test {
             while (line != null && lineCount <= 127) {
                 String[] parts = line.split(",");
                 int num1 = Integer.parseInt(parts[0]);
-                double num2 = Long.parseLong(parts[1]) / 1000000000.0;
-                double num3 = Long.parseLong(parts[2]) / 1000000000.0;
+                double num2 = Long.parseLong(parts[1]) / 1000000.0;
+                double num3 = Long.parseLong(parts[2]) / 1000000.0;
 
                 FileWriter writer1 = new FileWriter(path_domain_naive, true);
                 writer1.write(num1 + " " + num2 + "\n");
@@ -872,8 +872,8 @@ public class Test {
             while (line != null && lineCount <= 102) {
                 String[] parts = line.split(",");
                 int num1 = Integer.parseInt(parts[0]);
-                double num2 = Long.parseLong(parts[1]) / 1000000000.0;
-                double num3 = Long.parseLong(parts[2]) / 1000000000.0;
+                double num2 = Long.parseLong(parts[1]) / 1000000.0;
+                double num3 = Long.parseLong(parts[2]) / 1000000.0;
 
                 FileWriter writer1 = new FileWriter(full_inequality_naive, true);
                 writer1.write(num1 + " " + num2 + "\n");
@@ -895,8 +895,8 @@ public class Test {
             while (line != null && lineCount <= 114) {
                 String[] parts = line.split(",");
                 int num1 = Integer.parseInt(parts[0]);
-                double num2 = Long.parseLong(parts[1]) / 1000000000.0;
-                double num3 = Long.parseLong(parts[2]) / 1000000000.0;
+                double num2 = Long.parseLong(parts[1]) / 1000000.0;
+                double num3 = Long.parseLong(parts[2]) / 1000000.0;
 
                 FileWriter writer1 = new FileWriter(full_dimension_naive, true);
                 writer1.write(num1 + " " + num2 + "\n");
@@ -918,8 +918,8 @@ public class Test {
             while (line != null && lineCount <= 127) {
                 String[] parts = line.split(",");
                 int num1 = Integer.parseInt(parts[0]);
-                double num2 = Long.parseLong(parts[1]) / 1000000000.0;
-                double num3 = Long.parseLong(parts[2]) / 1000000000.0;
+                double num2 = Long.parseLong(parts[1]) / 1000000.0;
+                double num3 = Long.parseLong(parts[2]) / 1000000.0;
 
                 FileWriter writer1 = new FileWriter(full_domain_naive, true);
                 writer1.write(num1 + " " + num2 + "\n");
