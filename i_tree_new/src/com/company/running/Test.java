@@ -657,4 +657,286 @@ public class Test {
 
         return inequalities;
     }
+
+    public static void ParseDataFiles() {
+        try {
+            File individual_inequality_naive = new File("Data_Individual_Partition_Variable_Inequalities_Simplex.txt");
+            individual_inequality_naive.delete();
+            File individual_inequality_sign_changing = new File("Data_Individual_Partition_Variable_Inequalities_Sign_Changing_Simplex.txt");
+            individual_inequality_sign_changing.createNewFile();
+            File individual_dimension_naive = new File("Data_Individual_Partition_Variable_Dimensions_Simplex.txt");
+            individual_inequality_naive.createNewFile();
+            File individual_dimension_sign_changing = new File("Data_Individual_Partition_Variable_Dimensions_Sign_Changing_Simplex.txt");
+            individual_inequality_sign_changing.createNewFile();
+            File individual_domain_naive = new File("Data_Individual_Partition_Variable_Domain_Simplex.txt");
+            individual_inequality_naive.createNewFile();
+            File individual_domain_sign_changing = new File("Data_Individual_Partition_Variable_Domain_Sign_Changing_Simplex.txt");
+            individual_inequality_sign_changing.createNewFile();
+
+            File inputFile = new File("individual_feasibility_checks.txt");
+            BufferedReader reader = new BufferedReader(new FileReader(inputFile));
+            String line = reader.readLine();
+            int lineCount = 1;
+
+            while (line != null && lineCount < 3) {
+                line = reader.readLine();
+                lineCount++;
+            }
+
+            while (line != null && lineCount <= 100) {
+                String[] parts = line.split(",");
+                int num1 = Integer.parseInt(parts[0]);
+                double num2 = Long.parseLong(parts[1]) / 1000000000.0;
+                double num3 = Long.parseLong(parts[2]) / 1000000000.0;
+
+                FileWriter writer1 = new FileWriter(individual_inequality_naive, true);
+                writer1.write(num1 + " " + num2 + "\n");
+                writer1.close();
+
+                FileWriter writer2 = new FileWriter(individual_inequality_sign_changing, true);
+                writer2.write(num1 + " " + num3 + "\n");
+                writer2.close();
+
+                line = reader.readLine();
+                lineCount++;
+            }
+
+            while (line != null && lineCount < 104) {
+                line = reader.readLine();
+                lineCount++;
+            }
+
+            while (line != null && lineCount <= 112) {
+                String[] parts = line.split(",");
+                int num1 = Integer.parseInt(parts[0]);
+                double num2 = Long.parseLong(parts[1]) / 1000000000.0;
+                double num3 = Long.parseLong(parts[2]) / 1000000000.0;
+
+                FileWriter writer1 = new FileWriter(individual_dimension_naive, true);
+                writer1.write(num1 + " " + num2 + "\n");
+                writer1.close();
+
+                FileWriter writer2 = new FileWriter(individual_dimension_sign_changing, true);
+                writer2.write(num1 + " " + num3 + "\n");
+                writer2.close();
+
+                line = reader.readLine();
+                lineCount++;
+            }
+
+            while (line != null && lineCount < 116) {
+                line = reader.readLine();
+                lineCount++;
+            }
+
+            while (line != null && lineCount <= 125) {
+                String[] parts = line.split(",");
+                int num1 = Integer.parseInt(parts[0]);
+                double num2 = Long.parseLong(parts[1]) / 1000000000.0;
+                double num3 = Long.parseLong(parts[2]) / 1000000000.0;
+
+                FileWriter writer1 = new FileWriter(individual_domain_naive, true);
+                writer1.write(num1 + " " + num2 + "\n");
+                writer1.close();
+
+                FileWriter writer2 = new FileWriter(individual_domain_sign_changing, true);
+                writer2.write(num1 + " " + num3 + "\n");
+                writer2.close();
+
+                line = reader.readLine();
+                lineCount++;
+            }
+
+            reader.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        try {
+            File path_inequality_naive = new File("Data_Tree_Path_Variable_Inequalities_Simplex.txt");
+            path_inequality_naive.createNewFile();
+            File path_inequality_sign_changing = new File("Data_Tree_Path_Variable_Inequalities_Sign_Changing_Simplex.txt");
+            path_inequality_sign_changing.createNewFile();
+            File path_dimension_naive = new File("Data_Tree_Path_Variable_Dimensions_Simplex.txt");
+            path_inequality_naive.createNewFile();
+            File path_dimension_sign_changing = new File("Data_Tree_Path_Variable_Dimensions_Sign_Changing_Simplex.txt");
+            path_inequality_sign_changing.createNewFile();
+            File path_domain_naive = new File("Data_Tree_Path_Variable_Domain_Simplex.txt");
+            path_inequality_naive.createNewFile();
+            File path_domain_sign_changing = new File("Data_Tree_Path_Variable_Domain_Sign_Changing_Simplex.txt");
+            path_inequality_sign_changing.createNewFile();
+
+            File inputFile = new File("tree_path.txt");
+            BufferedReader reader = new BufferedReader(new FileReader(inputFile));
+            String line = reader.readLine();
+            int lineCount = 1;
+
+            while (line != null && lineCount < 3) {
+                line = reader.readLine();
+                lineCount++;
+            }
+
+            while (line != null && lineCount <= 102) {
+                String[] parts = line.split(",");
+                int num1 = Integer.parseInt(parts[0]);
+                double num2 = Long.parseLong(parts[1]) / 1000000000.0;
+                double num3 = Long.parseLong(parts[2]) / 1000000000.0;
+
+                FileWriter writer1 = new FileWriter(path_inequality_naive, true);
+                writer1.write(num1 + " " + num2 + "\n");
+                writer1.close();
+
+                FileWriter writer2 = new FileWriter(path_inequality_sign_changing, true);
+                writer2.write(num1 + " " + num3 + "\n");
+                writer2.close();
+
+                line = reader.readLine();
+                lineCount++;
+            }
+
+            while (line != null && lineCount < 106) {
+                line = reader.readLine();
+                lineCount++;
+            }
+
+            while (line != null && lineCount <= 114) {
+                String[] parts = line.split(",");
+                int num1 = Integer.parseInt(parts[0]);
+                double num2 = Long.parseLong(parts[1]) / 1000000000.0;
+                double num3 = Long.parseLong(parts[2]) / 1000000000.0;
+
+                FileWriter writer1 = new FileWriter(path_dimension_naive, true);
+                writer1.write(num1 + " " + num2 + "\n");
+                writer1.close();
+
+                FileWriter writer2 = new FileWriter(path_dimension_sign_changing, true);
+                writer2.write(num1 + " " + num3 + "\n");
+                writer2.close();
+
+                line = reader.readLine();
+                lineCount++;
+            }
+
+            while (line != null && lineCount < 118) {
+                line = reader.readLine();
+                lineCount++;
+            }
+
+            while (line != null && lineCount <= 127) {
+                String[] parts = line.split(",");
+                int num1 = Integer.parseInt(parts[0]);
+                double num2 = Long.parseLong(parts[1]) / 1000000000.0;
+                double num3 = Long.parseLong(parts[2]) / 1000000000.0;
+
+                FileWriter writer1 = new FileWriter(path_domain_naive, true);
+                writer1.write(num1 + " " + num2 + "\n");
+                writer1.close();
+
+                FileWriter writer2 = new FileWriter(path_domain_sign_changing, true);
+                writer2.write(num1 + " " + num3 + "\n");
+                writer2.close();
+
+                line = reader.readLine();
+                lineCount++;
+            }
+
+            reader.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        try {
+            File full_inequality_naive = new File("Data_Full_Tree_Variable_Inequalities_Simplex.txt");
+            full_inequality_naive.createNewFile();
+            File full_inequality_sign_changing = new File("Data_Full_Tree_Variable_Inequalities_Sign_Changing_Simplex.txt");
+            full_inequality_sign_changing.createNewFile();
+            File full_dimension_naive = new File("Data_Full_Tree_Variable_Dimensions_Simplex.txt");
+            full_inequality_naive.createNewFile();
+            File full_dimension_sign_changing = new File("Data_Full_Tree_Variable_Dimensions_Sign_Changing_Simplex.txt");
+            full_inequality_sign_changing.createNewFile();
+            File full_domain_naive = new File("Data_Full_Tree_Variable_Domain_Simplex.txt");
+            full_inequality_naive.createNewFile();
+            File full_domain_sign_changing = new File("Data_Full_Tree_Variable_Domain_Sign_Changing_Simplex.txt");
+            full_inequality_sign_changing.createNewFile();
+
+            File inputFile = new File("tree_construction.txt");
+            BufferedReader reader = new BufferedReader(new FileReader(inputFile));
+            String line = reader.readLine();
+            int lineCount = 1;
+
+            while (line != null && lineCount < 3) {
+                line = reader.readLine();
+                lineCount++;
+            }
+
+            while (line != null && lineCount <= 102) {
+                String[] parts = line.split(",");
+                int num1 = Integer.parseInt(parts[0]);
+                double num2 = Long.parseLong(parts[1]) / 1000000000.0;
+                double num3 = Long.parseLong(parts[2]) / 1000000000.0;
+
+                FileWriter writer1 = new FileWriter(full_inequality_naive, true);
+                writer1.write(num1 + " " + num2 + "\n");
+                writer1.close();
+
+                FileWriter writer2 = new FileWriter(full_inequality_sign_changing, true);
+                writer2.write(num1 + " " + num3 + "\n");
+                writer2.close();
+
+                line = reader.readLine();
+                lineCount++;
+            }
+
+            while (line != null && lineCount < 106) {
+                line = reader.readLine();
+                lineCount++;
+            }
+
+            while (line != null && lineCount <= 114) {
+                String[] parts = line.split(",");
+                int num1 = Integer.parseInt(parts[0]);
+                double num2 = Long.parseLong(parts[1]) / 1000000000.0;
+                double num3 = Long.parseLong(parts[2]) / 1000000000.0;
+
+                FileWriter writer1 = new FileWriter(full_dimension_naive, true);
+                writer1.write(num1 + " " + num2 + "\n");
+                writer1.close();
+
+                FileWriter writer2 = new FileWriter(full_dimension_sign_changing, true);
+                writer2.write(num1 + " " + num3 + "\n");
+                writer2.close();
+
+                line = reader.readLine();
+                lineCount++;
+            }
+
+            while (line != null && lineCount < 118) {
+                line = reader.readLine();
+                lineCount++;
+            }
+
+            while (line != null && lineCount <= 127) {
+                String[] parts = line.split(",");
+                int num1 = Integer.parseInt(parts[0]);
+                double num2 = Long.parseLong(parts[1]) / 1000000000.0;
+                double num3 = Long.parseLong(parts[2]) / 1000000000.0;
+
+                FileWriter writer1 = new FileWriter(full_domain_naive, true);
+                writer1.write(num1 + " " + num2 + "\n");
+                writer1.close();
+
+                FileWriter writer2 = new FileWriter(full_domain_sign_changing, true);
+                writer2.write(num1 + " " + num3 + "\n");
+                writer2.close();
+
+                line = reader.readLine();
+                lineCount++;
+            }
+
+            reader.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
 }

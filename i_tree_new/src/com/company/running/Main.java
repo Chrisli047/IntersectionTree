@@ -14,7 +14,8 @@ public class Main {
 //        Test.testConstructTreeSimplex(SimplexType.SIMPLEX);
 //        Test.testConstructTreeSimplex(SimplexType.SIGN_CHANGING_SIMPLEX);
 //        Test.testFindBoundaryLines();
-        Test.collect_data();
+//        Test.collect_data();
+        Test.ParseDataFiles();
     }
 
 }
