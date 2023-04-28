@@ -99,11 +99,14 @@ public class Tree {
     }
 
     // Pass allConstraintCoefficients and allConstraintConstants with initial domain
-    public static void constructTreeSimplex(Function[] intersections, DomainSimplex domain,
+    public static int constructTreeSimplex(Function[] intersections, DomainSimplex domain,
                                             ArrayList<double[]> allConstraintCoefficients,
                                             ArrayList<Double> allConstraintConstants,
                                             SimplexType simplexType,
                                             int dimension, String table_name) {
+        // TODO: are we stacking the constraints on different sides of the tree?
+        int numNodes = 0;
+
         // create a table IntersectionTree in MySQL
         NodeRecord.createTable(table_name);
 
@@ -123,11 +126,13 @@ public class Tree {
 
         // none of the functions partition the domain
         if (rootPartitionFunction == null) {
-            return;
+            return numNodes;
         }
 
+        // TODO: our root constraint should be a fake constraint cause we need to be able to go left or right
         NodeRecord nodeRecord = new NodeRecord(domain, rootPartitionFunction, -1, -1);
         nodeRecord.insertToMySql(dimension, table_name);
+        numNodes++;
 
         // compute the intersections, Function intersection[]
 
@@ -179,7 +184,9 @@ public class Tree {
                         // store the two child nodes to the table
                         // get the IDs for the two nodes
                         int leftID = leftNode.insertToMySql(dimension, table_name);
+                        numNodes++;
                         int rightID = rightNode.insertToMySql(dimension, table_name);
+                        numNodes++;
 
 //                        System.out.println(leftID + " " + rightID);
 
@@ -200,6 +207,7 @@ public class Tree {
                 }
             }
         }
+        return numNodes;
     }
 
     // Constructs path down tree

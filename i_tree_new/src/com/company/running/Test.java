@@ -248,6 +248,60 @@ public class Test {
         }
     }
 
+    // *******************
+    // Tree Accuracy Tests
+    // *******************
+
+    // Given n lines going through the origin with a positive finite slope there should be n+1 subdomains or 2n+1 nodes
+    public static void originLineTest() {
+        int num_inequality = 100;
+        int num_dimension = 2;
+        int domain_boundary_length = 1;
+
+        int expectedNumNodes = 2 * num_inequality + 1;
+
+        // Equations defining subdomain
+        ArrayList<double[]> inequalities = generate_inequalities_origin(0, num_dimension,
+                domain_boundary_length);
+        Function[] functions = new Function[num_inequality];
+        for (int j = 0; j < functions.length; j++) {
+            functions[j] = new Function(generate_equation_origin(num_dimension));
+        }
+
+        // Modifications for Simplex:
+        double[] function_values = new double[num_dimension + 1];
+        function_values[function_values.length - 1] = 1;
+        Function function = new Function(function_values);
+        DomainSimplex d = new DomainSimplex(function, true);
+        ArrayList<double[]> constraintCoefficients = new ArrayList<>();
+        // Separate constraint constants
+        ArrayList<Double> constraintConstants = new ArrayList<>();
+        for (double[] inequality : inequalities) {
+            // ignore constant at the end
+            double[] slackenedEquation = new double[inequality.length - 1];
+            System.arraycopy(inequality, 0, slackenedEquation, 0, inequality.length - 1);
+            constraintConstants.add(inequality[inequality.length - 1]);
+            constraintCoefficients.add(slackenedEquation);
+        }
+
+        // Simplex
+        int numNodesSimplex = Tree.constructTreeSimplex(functions, d, constraintCoefficients, constraintConstants,
+                SimplexType.SIMPLEX, num_dimension, "OriginLineTestSimplex");
+        if (numNodesSimplex != expectedNumNodes) {
+            throw new IllegalStateException("Num nodes Simplex should be " + expectedNumNodes + ", but is "
+                    + numNodesSimplex);
+        }
+
+        // Sign-Changing Simplex
+        int numNodesSignChangingSimplex = Tree.constructTreeSimplex(functions, d, constraintCoefficients,
+                constraintConstants, SimplexType.SIGN_CHANGING_SIMPLEX, num_dimension,
+                "OriginLineTestSignChangingSimplex");
+        if (numNodesSignChangingSimplex != expectedNumNodes) {
+            throw new IllegalStateException("Num nodes SignChangingSimplex should be " + expectedNumNodes + ", but is "
+                    + numNodesSignChangingSimplex);
+        }
+    }
+
     // ***************
     // DATA COLLECTION
     // ***************
@@ -594,6 +648,18 @@ public class Test {
             writer.write(average_time_parametric_equation + "\n");
     }
 
+    // Positive finite slope going through origin
+    private static double[] generate_equation_origin(int num_dimension) {
+        double[] equation = new double[num_dimension + 1];
+        for (int i = 0; i < equation.length - 1; i++) {
+            equation[i] = Math.random();
+        }
+        equation[equation.length - 1] = 0;
+        // Set b = -1
+        equation[1] = -1;
+        return equation;
+    }
+
     // Generated equation is in the form: ax1 + bx2 + cx3 + ... = d where double[] = {a, b, c, d}.
     private static double[] generate_equation(int num_dimension) {
         double[] equation = new double[num_dimension + 1];
@@ -602,6 +668,41 @@ public class Test {
         }
         equation[equation.length - 1] = Math.random() - 0.5;
         return equation;
+    }
+
+    // Positive finite slope going through origin
+    public static ArrayList<double[]> generate_inequalities_origin(int num_inequality, int num_dimension,
+                                                                   int domain_boundary_length) {
+        ArrayList<double[]> inequalities = new ArrayList<>();
+
+        // Generate boundaries
+        for (int i = 0; i < num_dimension; i++) {
+            // 1x ≥ 0 --> -1x ≤ 0
+            double[] lower_bound = new double[num_dimension + 1];
+            lower_bound[i] = -1;
+            // 1x ≤ boundary_length
+            double[] upper_bound = new double[num_dimension + 1];
+            upper_bound[i] = 1;
+            upper_bound[upper_bound.length - 1] = domain_boundary_length;
+            inequalities.add(lower_bound);
+            inequalities.add(upper_bound);
+        }
+
+        for (int i = 0; i < num_inequality; i++) {
+            double[] inequality = new double[num_dimension+1];
+            // Set a, b, c, ...
+            for (int j = 0; j < inequality.length - 1; j++) {
+                inequality[j] = Math.random();
+            }
+            // Set d
+            inequality[inequality.length - 1] = 0;
+            // Set b = -1
+            inequality[1] = -1;
+
+            inequalities.add(inequality);
+        }
+
+        return inequalities;
     }
 
     // Generated equations are in the form: ax1 + bx2 + cx3 + ... = d where double[] = {a, b, c, d}.
@@ -686,8 +787,8 @@ public class Test {
             while (line != null && lineCount <= 100) {
                 String[] parts = line.split(",");
                 int num1 = Integer.parseInt(parts[0]);
-                double num2 = Long.parseLong(parts[1]) / 1000000.0;
-                double num3 = Long.parseLong(parts[2]) / 1000000.0;
+                double num2 = Long.parseLong(parts[1]) / 1000000000.0;
+                double num3 = Long.parseLong(parts[2]) / 1000000000.0;
 
                 FileWriter writer1 = new FileWriter(individual_inequality_naive, true);
                 writer1.write(num1 + " " + num2 + "\n");
@@ -709,8 +810,8 @@ public class Test {
             while (line != null && lineCount <= 112) {
                 String[] parts = line.split(",");
                 int num1 = Integer.parseInt(parts[0]);
-                double num2 = Long.parseLong(parts[1]) / 1000000.0;
-                double num3 = Long.parseLong(parts[2]) / 1000000.0;
+                double num2 = Long.parseLong(parts[1]) / 1000000000.0;
+                double num3 = Long.parseLong(parts[2]) / 1000000000.0;
 
                 FileWriter writer1 = new FileWriter(individual_dimension_naive, true);
                 writer1.write(num1 + " " + num2 + "\n");
@@ -732,8 +833,8 @@ public class Test {
             while (line != null && lineCount <= 125) {
                 String[] parts = line.split(",");
                 int num1 = Integer.parseInt(parts[0]);
-                double num2 = Long.parseLong(parts[1]) / 1000000.0;
-                double num3 = Long.parseLong(parts[2]) / 1000000.0;
+                double num2 = Long.parseLong(parts[1]) / 1000000000.0;
+                double num3 = Long.parseLong(parts[2]) / 1000000000.0;
 
                 FileWriter writer1 = new FileWriter(individual_domain_naive, true);
                 writer1.write(num1 + " " + num2 + "\n");
@@ -779,8 +880,8 @@ public class Test {
             while (line != null && lineCount <= 102) {
                 String[] parts = line.split(",");
                 int num1 = Integer.parseInt(parts[0]);
-                double num2 = Long.parseLong(parts[1]) / 1000000.0;
-                double num3 = Long.parseLong(parts[2]) / 1000000.0;
+                double num2 = Long.parseLong(parts[1]) / 1000000000.0;
+                double num3 = Long.parseLong(parts[2]) / 1000000000.0;
 
                 FileWriter writer1 = new FileWriter(path_inequality_naive, true);
                 writer1.write(num1 + " " + num2 + "\n");
@@ -802,8 +903,8 @@ public class Test {
             while (line != null && lineCount <= 114) {
                 String[] parts = line.split(",");
                 int num1 = Integer.parseInt(parts[0]);
-                double num2 = Long.parseLong(parts[1]) / 1000000.0;
-                double num3 = Long.parseLong(parts[2]) / 1000000.0;
+                double num2 = Long.parseLong(parts[1]) / 1000000000.0;
+                double num3 = Long.parseLong(parts[2]) / 1000000000.0;
 
                 FileWriter writer1 = new FileWriter(path_dimension_naive, true);
                 writer1.write(num1 + " " + num2 + "\n");
@@ -825,8 +926,8 @@ public class Test {
             while (line != null && lineCount <= 127) {
                 String[] parts = line.split(",");
                 int num1 = Integer.parseInt(parts[0]);
-                double num2 = Long.parseLong(parts[1]) / 1000000.0;
-                double num3 = Long.parseLong(parts[2]) / 1000000.0;
+                double num2 = Long.parseLong(parts[1]) / 1000000000.0;
+                double num3 = Long.parseLong(parts[2]) / 1000000000.0;
 
                 FileWriter writer1 = new FileWriter(path_domain_naive, true);
                 writer1.write(num1 + " " + num2 + "\n");
@@ -872,8 +973,8 @@ public class Test {
             while (line != null && lineCount <= 102) {
                 String[] parts = line.split(",");
                 int num1 = Integer.parseInt(parts[0]);
-                double num2 = Long.parseLong(parts[1]) / 1000000.0;
-                double num3 = Long.parseLong(parts[2]) / 1000000.0;
+                double num2 = Long.parseLong(parts[1]) / 1000000000.0;
+                double num3 = Long.parseLong(parts[2]) / 1000000000.0;
 
                 FileWriter writer1 = new FileWriter(full_inequality_naive, true);
                 writer1.write(num1 + " " + num2 + "\n");
@@ -895,8 +996,8 @@ public class Test {
             while (line != null && lineCount <= 114) {
                 String[] parts = line.split(",");
                 int num1 = Integer.parseInt(parts[0]);
-                double num2 = Long.parseLong(parts[1]) / 1000000.0;
-                double num3 = Long.parseLong(parts[2]) / 1000000.0;
+                double num2 = Long.parseLong(parts[1]) / 1000000000.0;
+                double num3 = Long.parseLong(parts[2]) / 1000000000.0;
 
                 FileWriter writer1 = new FileWriter(full_dimension_naive, true);
                 writer1.write(num1 + " " + num2 + "\n");
@@ -918,8 +1019,8 @@ public class Test {
             while (line != null && lineCount <= 127) {
                 String[] parts = line.split(",");
                 int num1 = Integer.parseInt(parts[0]);
-                double num2 = Long.parseLong(parts[1]) / 1000000.0;
-                double num3 = Long.parseLong(parts[2]) / 1000000.0;
+                double num2 = Long.parseLong(parts[1]) / 1000000000.0;
+                double num3 = Long.parseLong(parts[2]) / 1000000000.0;
 
                 FileWriter writer1 = new FileWriter(full_domain_naive, true);
                 writer1.write(num1 + " " + num2 + "\n");

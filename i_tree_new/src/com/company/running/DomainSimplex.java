@@ -98,6 +98,7 @@ public class DomainSimplex implements DomainType {
                             simplexType);
             }
         } catch (ArithmeticException e) {
+            // TODO: we had infeasible problems because our constraints were thrown together wrong, we can return to exceptions here
             // program is unbounded (should not be allowed in input) or infeasible (no partition)
 //            System.out.println(e.getMessage());
             return false;
