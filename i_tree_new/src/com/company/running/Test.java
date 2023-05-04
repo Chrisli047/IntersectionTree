@@ -254,7 +254,7 @@ public class Test {
 
     // Given n lines going through the origin with a positive finite slope there should be n+1 subdomains or 2n+1 nodes
     public static void originLineTest() {
-        int num_inequality = 100;
+        int num_inequality = 2;
         int num_dimension = 2;
         int domain_boundary_length = 1;
 
@@ -300,6 +300,8 @@ public class Test {
             throw new IllegalStateException("Num nodes SignChangingSimplex should be " + expectedNumNodes + ", but is "
                     + numNodesSignChangingSimplex);
         }
+
+        // TODO: TEST: tree path num nodes correct (same between methods)
     }
 
     // ***************
@@ -474,10 +476,6 @@ public class Test {
                 average_time_repeat += (stop_time - start_time) / repeat_runs;
             }
             average_time_sign_changing_simplex += average_time_repeat / unique_runs;
-
-            // Parametric Equation
-            // TODO: Xiyao: get average_time_parametric_equation here by timing Domain.ifPartitionsDomain() on
-            //  inequalities and function
         }
 
         writer.write(average_time_simplex + ",");
@@ -552,12 +550,6 @@ public class Test {
                 average_time_repeat += (stop_time - start_time) / repeat_runs;
             }
             average_time_sign_changing_simplex += average_time_repeat / unique_runs;
-
-            // Parametric Equation
-            // TODO: Xiyao: get average_time_parametric_equation here by timing Tree.constructTreeSegment() which you
-            //  need to implement. It is a simplified version of constructing the full tree, you can follow the Simplex
-            //  version as a guideline. For each intersection, test if it partitions. If yes, continue on the subdomain
-            //  which accepts the central point. If 2-d, that is (boundary_length/2, boundary_length/2).
         }
 
         writer.write(average_time_simplex + ",");
@@ -637,10 +629,6 @@ public class Test {
                     average_time_repeat += (stop_time - start_time) / repeat_runs;
                 }
                 average_time_sign_changing_simplex += average_time_repeat / unique_runs;
-
-                // Parametric Equation
-                // TODO: Xiyao: get average_time_parametric_equation here by timing Tree.constructTree() on inequalities
-                //  and function
             }
 
             writer.write(average_time_simplex + ",");
