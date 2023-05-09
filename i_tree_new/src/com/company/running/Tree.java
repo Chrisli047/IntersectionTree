@@ -115,8 +115,8 @@ public class Tree {
                 DomainSimplex leftDomain = new DomainSimplex(intersection, true);
                 DomainSimplex rightDomain = new DomainSimplex(intersection, false);
 
-                NodeRecord leftNode = new NodeRecord(leftDomain, intersection, -1, -1);
-                NodeRecord rightNode = new NodeRecord(rightDomain, intersection, -1, -1);
+                NodeRecord leftNode = new NodeRecord(leftDomain, intersection, intersectionIndex.get() + 1, -1, -1);
+                NodeRecord rightNode = new NodeRecord(rightDomain, intersection, intersectionIndex.get() + 1, -1, -1);
 
                 leftNode.ID = leftNode.insertToMySql(dimension, tableName);
                 numNodes.incrementAndGet();
@@ -137,21 +137,15 @@ public class Tree {
     }
 
     // Build right node
-    private static void stepRight(Function[] intersections, ArrayList<Integer> ancestorIDs,
-                                  NodeRecord[] parentWrapper, AtomicInteger intersectionIndex,
-                                  ArrayList<double[]> constraintCoefficients,
-                                  ArrayList<Double> constraintConstants, SimplexType simplexType, int dimension,
-                                  String tableName, AtomicInteger numNodes) {
-        Function intersection = intersections[intersectionIndex.get()];
-        if (DomainSimplex.ifPartitionsDomain(constraintCoefficients, constraintConstants, intersection, simplexType,
-                dimension)) {
-            intersectionIndex.incrementAndGet();
-            parentWrapper[0] = NodeRecord.getRecordById(parentWrapper[0].rightID, true, dimension, tableName);
-            ancestorIDs.add(parentWrapper[0].ID);
-            DomainSimplex parentDomain = (DomainSimplex) parentWrapper[0].d;
-            constraintCoefficients.add(parentDomain.constraintCoefficients);
-            constraintConstants.add(parentDomain.constraintConstant);
-        }
+    private static void stepRight(ArrayList<Integer> ancestorIDs, NodeRecord[] parentWrapper,
+                                  AtomicInteger intersectionIndex, ArrayList<double[]> constraintCoefficients,
+                                  ArrayList<Double> constraintConstants, int dimension, String tableName) {
+        intersectionIndex.incrementAndGet();
+        parentWrapper[0] = NodeRecord.getRecordById(parentWrapper[0].rightID, true, dimension, tableName);
+        ancestorIDs.add(parentWrapper[0].ID);
+        DomainSimplex parentDomain = (DomainSimplex) parentWrapper[0].d;
+        constraintCoefficients.add(parentDomain.constraintCoefficients);
+        constraintConstants.add(parentDomain.constraintConstant);
     }
 
     // Step back to parent
@@ -161,7 +155,7 @@ public class Tree {
         ancestorIDs.remove(ancestorIDs.size() - 1);
         parentWrapper[0] = NodeRecord.getRecordById(ancestorIDs.get(ancestorIDs.size() - 1), true, dimension,
                 tableName);
-        intersectionIndex.decrementAndGet();
+        intersectionIndex.set(parentWrapper[0].intersectionIndex);
         constraintCoefficients.remove(constraintCoefficients.size() - 1);
         constraintConstants.remove(constraintConstants.size() - 1);
     }
@@ -192,37 +186,38 @@ public class Tree {
             return numNodes.get();
         }
 
-        NodeRecord root = new NodeRecord(domain, rootPartitionFunction, -1, -1);
+        NodeRecord root = new NodeRecord(domain, rootPartitionFunction, intersectionIndex.get(), -1, -1);
         root.ID = root.insertToMySql(dimension, tableName);
         numNodes.incrementAndGet();
 
         ArrayList<Integer> ancestorIDs = new ArrayList<>();
         NodeRecord[] parentWrapper = new NodeRecord[]{root};
         ancestorIDs.add(parentWrapper[0].ID);
-        NodeRecord lastNode = parentWrapper[0];
 
-        while (parentWrapper[0] != root || parentWrapper[0].rightID != lastNode.ID) {
-            // TODO: stepBack assumes 1 node = 1 intersection, it might be more for skipped ones
-            //  don't change intersectionIndex when stepping back
-            //  when all step backs completed, take intersection index using number in root
-            //  but what if the number shows up multiple times?
-            //  SOLUTION: store intersection number in nodeRecord in MySQL so we get whatever we need to use after being
-            //    done with all stepping back
+        boolean done = false;
+        while (true) {
             buildLeftFull(intersections, ancestorIDs, parentWrapper, intersectionIndex, constraintCoefficients,
                     constraintConstants, simplexType, dimension, tableName, numNodes);
-            lastNode = parentWrapper[0];
+            NodeRecord lastNode = parentWrapper[0];
             stepBack(ancestorIDs, parentWrapper, intersectionIndex, constraintCoefficients, constraintConstants, dimension,
                     tableName);
             while (parentWrapper[0].rightID == lastNode.ID) {
+                if (parentWrapper[0].ID == root.ID) {
+                    done = true;
+                    break;
+                }
                 lastNode = parentWrapper[0];
                 stepBack(ancestorIDs, parentWrapper, intersectionIndex, constraintCoefficients, constraintConstants, dimension,
                         tableName);
             }
-            stepRight(intersections, ancestorIDs, parentWrapper, intersectionIndex, constraintCoefficients,
-                    constraintConstants, simplexType, dimension, tableName, numNodes);
+            if (done) {
+                break;
+            }
+            stepRight(ancestorIDs, parentWrapper, intersectionIndex, constraintCoefficients,
+                    constraintConstants, dimension, tableName);
         }
 
-        return numNodes.incrementAndGet();
+        return numNodes.get();
     }
 
     // Constructs path down tree

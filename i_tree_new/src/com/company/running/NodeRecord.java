@@ -1,9 +1,11 @@
 package com.company.running;
+import java.nio.ByteBuffer;
 import java.sql.*;
 
 public class NodeRecord {
     DomainType d;
     Function f;
+    int intersectionIndex;
     int leftID;
     int rightID;
     int ID = 0;
@@ -11,6 +13,15 @@ public class NodeRecord {
     public NodeRecord (DomainType d, Function f, int leftID, int rightID) {
         this.d = d;
         this.f = f;
+        this.intersectionIndex = -1;
+        this.leftID = leftID;
+        this.rightID = rightID;
+    }
+
+    public NodeRecord (DomainType d, Function f, int intersectionIndex, int leftID, int rightID) {
+        this.d = d;
+        this.f = f;
+        this.intersectionIndex = intersectionIndex;
         this.leftID = leftID;
         this.rightID = rightID;
     }
@@ -26,6 +37,7 @@ public class NodeRecord {
                     "    ID INT PRIMARY KEY AUTO_INCREMENT,  " +
                     "    Domain BLOB," +
                     "    LinearFunction BLOB," +
+                    "    IntersectionIndex INT, " +
                     "    LeftID INT, " +
                     "    rightID INT)";
             stmt.executeUpdate(createTable);
@@ -47,15 +59,16 @@ public class NodeRecord {
 
             connection.setAutoCommit(false);
             // Create a PreparedStatement with the SQL statement for inserting a record
-            String insertSql = "INSERT INTO " + table_name + " (Domain, LinearFunction, LeftID, rightID) " +
-                    "VALUES (?, ?, ?, ?)";
+            String insertSql = "INSERT INTO " + table_name + " (Domain, LinearFunction, IntersectionIndex, LeftID, rightID) " +
+                    "VALUES (?, ?, ?, ?, ?)";
             PreparedStatement pstmt = connection.prepareStatement(insertSql, Statement.RETURN_GENERATED_KEYS);
 
             // Set the values for the parameters in the prepared statement
             pstmt.setBytes(1, d.toByte(dimension));
             pstmt.setBytes(2, f.toByte(dimension));
-            pstmt.setInt(3, -1);
+            pstmt.setInt(3, intersectionIndex);
             pstmt.setInt(4, -1);
+            pstmt.setInt(5, -1);
 
             // Execute the insert statement
             pstmt.executeUpdate();
@@ -109,10 +122,11 @@ public class NodeRecord {
                 }
                 byte[] functionBytes = rs.getBytes("LinearFunction");
                 Function function = Function.toFunction(functionBytes);
+                int intersectionIndex = rs.getInt("IntersectionIndex");
                 int leftID = rs.getInt("LeftID");
                 int rightID = rs.getInt("RightID");
 
-                nodeRecord = new NodeRecord(domain, function, leftID, rightID);
+                nodeRecord = new NodeRecord(domain, function, intersectionIndex, leftID, rightID);
                 nodeRecord.ID = id;
             }
 

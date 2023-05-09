@@ -254,8 +254,8 @@ public class Test {
 
     // Given n lines going through the origin with a positive finite slope there should be n+1 subdomains or 2n+1 nodes
     public static void originLineTest() {
-        int num_inequality = 2;
-        int num_dimension = 2;
+        int num_inequality = 100;
+        int num_dimension = 10;
         int domain_boundary_length = 1;
 
         int expectedNumNodes = 2 * num_inequality + 1;

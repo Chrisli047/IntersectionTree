@@ -48,9 +48,8 @@ public class DomainSimplex implements DomainType {
         coefficients[coefficients.length - 1] = buffer.getInt();
         Function function = new Function(coefficients);
 
-        //lessThan has already been accounted for when initially created and then encoded
-        DomainSimplex d = new DomainSimplex(function, false);
-        return d;
+        // lessThan has already been accounted for when initially created and then encoded
+        return new DomainSimplex(function, true);
     }
 
     public static boolean ifPartitionsDomain(ArrayList<double[]> allConstraintCoefficients,
