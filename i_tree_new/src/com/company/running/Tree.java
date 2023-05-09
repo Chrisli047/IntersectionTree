@@ -221,15 +221,17 @@ public class Tree {
     }
 
     // Constructs path down tree
-    public static void constructTreeSegmentSimplex(Function[] intersections,
+    public static int constructTreeSegmentSimplex(Function[] intersections,
                                                    ArrayList<double[]> allConstraintCoefficients,
                                                    ArrayList<Double> allConstraintConstants,
                                                    SimplexType simplexType,
                                                    int dimension,
                                                    int boundary_length) {
+        int numPartitions = 0;
         for (Function intersection : intersections) {
             if (DomainSimplex.ifPartitionsDomain(allConstraintCoefficients, allConstraintConstants, intersection,
                     simplexType, dimension)) {
+                numPartitions++;
                 double[] coefficients = new double[intersection.coefficients.length - 1];
                 System.arraycopy(intersection.coefficients, 0, coefficients, 0,
                         coefficients.length - 1);
@@ -254,6 +256,7 @@ public class Tree {
                 allConstraintConstants.add(constant);
             }
         }
+        return numPartitions;
     }
 
 }

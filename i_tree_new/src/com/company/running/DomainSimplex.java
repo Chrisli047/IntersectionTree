@@ -97,7 +97,6 @@ public class DomainSimplex implements DomainType {
                             simplexType);
             }
         } catch (ArithmeticException e) {
-            // TODO: TEST: constraint stacking bug fixed -> throw on infeasible and unbounded?
             // program is unbounded (should not be allowed in input) or infeasible (no partition)
             System.out.println(e.getMessage());
             return false;

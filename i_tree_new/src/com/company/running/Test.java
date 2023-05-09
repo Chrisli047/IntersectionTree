@@ -252,6 +252,45 @@ public class Test {
     // Tree Accuracy Tests
     // *******************
 
+    public static void simplexTests() {
+        originLineTest();
+        treePathTest();
+    }
+
+    public static void treePathTest() {
+        int num_inequality = 100;
+        int num_dimension = 10;
+        int domain_boundary_length = 1;
+
+        ArrayList<double[]> inequalities = generate_inequalities(0, num_dimension,
+                domain_boundary_length);
+        Function[] functions = new Function[num_inequality];
+        for (int j = 0; j < functions.length; j++) {
+            functions[j] = new Function(generate_equation(num_dimension));
+        }
+
+        // Modifications for Simplex:
+        ArrayList<double[]> constraintCoefficients = new ArrayList<>();
+        // Separate constraint constants
+        ArrayList<Double> constraintConstants = new ArrayList<>();
+        for (double[] inequality : inequalities) {
+            // ignore constant at the end
+            double[] slackenedEquation = new double[inequality.length - 1];
+            System.arraycopy(inequality, 0, slackenedEquation, 0, inequality.length - 1);
+            constraintConstants.add(inequality[inequality.length - 1]);
+            constraintCoefficients.add(slackenedEquation);
+        }
+
+        int numPartitionsSimplex = Tree.constructTreeSegmentSimplex(functions, constraintCoefficients,
+                constraintConstants, SimplexType.SIMPLEX, num_dimension, domain_boundary_length);
+        int numPartitionsSignChangingSimplex = Tree.constructTreeSegmentSimplex(functions, constraintCoefficients,
+                constraintConstants, SimplexType.SIGN_CHANGING_SIMPLEX, num_dimension, domain_boundary_length);
+        if (numPartitionsSimplex != numPartitionsSignChangingSimplex) {
+            throw new IllegalStateException("Num nodes should be the same, but is " + numPartitionsSimplex +
+                    " for Simplex and " + numPartitionsSignChangingSimplex + "for SignChangingSimplex");
+        }
+    }
+
     // Given n lines going through the origin with a positive finite slope there should be n+1 subdomains or 2n+1 nodes
     public static void originLineTest() {
         int num_inequality = 100;
@@ -300,8 +339,6 @@ public class Test {
             throw new IllegalStateException("Num nodes SignChangingSimplex should be " + expectedNumNodes + ", but is "
                     + numNodesSignChangingSimplex);
         }
-
-        // TODO: TEST: tree path num nodes correct (same between methods)
     }
 
     // ***************

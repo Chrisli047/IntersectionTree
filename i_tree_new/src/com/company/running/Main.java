@@ -16,7 +16,7 @@ public class Main {
 //        Test.testFindBoundaryLines();
 //        Test.collect_data();
 //        Test.ParseDataFiles();
-        Test.originLineTest();
+        Test.simplexTests();
     }
 
 }
