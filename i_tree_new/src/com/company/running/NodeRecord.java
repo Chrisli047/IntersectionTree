@@ -48,7 +48,7 @@ public class NodeRecord {
         }
     }
 
-    public int insertToMySql(int dimension, String table_name) {
+    public int insertToMySql(int dimension, String table_name, boolean storePoints) {
         int returnId = 0;
         try {
             Connection connection = DriverManager.getConnection(Constants.MYSQL_URL, Constants.MYSQL_USER, Constants.MYSQL_PASSWORD);
@@ -64,7 +64,7 @@ public class NodeRecord {
             PreparedStatement pstmt = connection.prepareStatement(insertSql, Statement.RETURN_GENERATED_KEYS);
 
             // Set the values for the parameters in the prepared statement
-            pstmt.setBytes(1, d.toByte(dimension));
+            pstmt.setBytes(1, d.toByte(dimension, storePoints));
             pstmt.setBytes(2, f.toByte(dimension));
             pstmt.setInt(3, intersectionIndex);
             pstmt.setInt(4, -1);
@@ -96,7 +96,8 @@ public class NodeRecord {
         return returnId;
     }
 
-    public static NodeRecord getRecordById(int id, boolean simplex, int dimension, String table_name) {
+    public static NodeRecord getRecordById(int id, boolean simplex, int dimension, String table_name,
+                                           boolean storedPoints) {
         NodeRecord nodeRecord = null;
         try {
             Connection connection = DriverManager.getConnection(Constants.MYSQL_URL, Constants.MYSQL_USER, Constants.MYSQL_PASSWORD);
@@ -116,9 +117,9 @@ public class NodeRecord {
                 byte[] domainBytes = rs.getBytes("Domain");
                 DomainType domain;
                 if (!simplex) {
-                    domain = Domain.toDomain(domainBytes, dimension);
+                    domain = Domain.toDomain(domainBytes, dimension, storedPoints);
                 } else {
-                    domain = DomainSimplex.toDomain(domainBytes, dimension);
+                    domain = DomainSimplex.toDomain(domainBytes, dimension, storedPoints);
                 }
                 byte[] functionBytes = rs.getBytes("LinearFunction");
                 Function function = Function.toFunction(functionBytes);
@@ -142,7 +143,8 @@ public class NodeRecord {
         return nodeRecord;
     }
 
-    public static NodeRecord updateRecord(int recordId, int newLeftId, int newRightId, boolean simplex, int dimension, String table_name) {
+    public static NodeRecord updateRecord(int recordId, int newLeftId, int newRightId, boolean simplex,
+                                          int dimension, String table_name, boolean storedPoints) {
         NodeRecord updatedRecord = null;
 
         try {
@@ -160,7 +162,7 @@ public class NodeRecord {
             int rowsUpdated = pstmt.executeUpdate();
             if (rowsUpdated > 0) {
 //                System.out.println("Record with ID " + recordId + " updated successfully");
-                updatedRecord = getRecordById(recordId, simplex, dimension, table_name);
+                updatedRecord = getRecordById(recordId, simplex, dimension, table_name, storedPoints);
             } else {
                 System.out.println("No record found with ID " + recordId);
             }

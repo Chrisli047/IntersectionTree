@@ -20,8 +20,8 @@ public class Test {
         Point[] pA = new Point[] {new Point(new double[]{1.0, 2.0}), new Point(new double[]{2.0, 3.0})};
         Segment[] sA = new Segment[] {new Segment(1, 2), new Segment(2, 3)};
         Domain d = new Domain(pA, sA);
-        byte[] bd = d.toByte(2);
-        Domain originalDomain = Domain.toDomain(bd, 2);
+        byte[] bd = d.toByte(2, false);
+        Domain originalDomain = Domain.toDomain(bd, 2, false);
         originalDomain.printDomain();
 
         Function f = new Function(new double[]{1.0, 2.0, 3.0});
@@ -34,8 +34,8 @@ public class Test {
         Point[] pA = new Point[] {new Point(new double[]{1.0, 2.0}), new Point(new double[]{2.0, 3.0})};
         Segment[] sA = new Segment[] {new Segment(1, 2), new Segment(2, 3)};
         Domain d = new Domain(pA, sA);
-        byte[] bd = d.toByte(2);
-        Domain originalDomain = Domain.toDomain(bd, 2);
+        byte[] bd = d.toByte(2, false);
+        Domain originalDomain = Domain.toDomain(bd, 2, false);
         originalDomain.printDomain();
 
         Function f = new Function(new double[]{1.0, 2.0, 3.0});
@@ -44,11 +44,12 @@ public class Test {
         System.out.println(originalFunction);
 
         NodeRecord nodeRecord = new NodeRecord(d, f, -1, -1);
-        nodeRecord.insertToMySql(2, "IntersectionTree");
+        nodeRecord.insertToMySql(2, "IntersectionTree", false);
     }
 
     public static void testGetRecordById(int id) {
-        NodeRecord nodeRecord = NodeRecord.getRecordById(id, false, 2, "IntersectionTree");
+        NodeRecord nodeRecord = NodeRecord.getRecordById(id, false, 2, "IntersectionTree",
+                false);
         nodeRecord.d.printDomain();
         System.out.println(nodeRecord.f);
         System.out.println(nodeRecord.leftID);
@@ -56,7 +57,8 @@ public class Test {
     }
 
     public static void testUpdateRecord() {
-        NodeRecord nodeRecord = NodeRecord.updateRecord(1, 2,2, false, 2, "IntersectionTree");
+        NodeRecord nodeRecord = NodeRecord.updateRecord(1, 2,2, false, 2,
+                "IntersectionTree", false);
         nodeRecord.d.printDomain();
         System.out.println(nodeRecord.f);
         System.out.println(nodeRecord.leftID);
@@ -182,7 +184,7 @@ public class Test {
         Function function = new Function(new double[]{0, 0, 1});
 
         // construct domain
-        DomainSimplex d = new DomainSimplex(function, true);
+        DomainSimplex d = new DomainSimplex(function, true, null, null, null);
         d.printDomain();
 
         // call constructTree method
@@ -253,6 +255,8 @@ public class Test {
     // *******************
 
     public static void simplexTests() {
+        //  TODO: Tests Pass
+        //  TODO: Test Walkthrough: check points working properly
         originLineTest();
         treePathTest();
     }
@@ -286,9 +290,20 @@ public class Test {
         int numPartitionsSignChangingSimplex = Tree.constructTreeSegmentSimplex(functions,
                 new ArrayList<>(constraintCoefficients), new ArrayList<>(constraintConstants),
                 SimplexType.SIGN_CHANGING_SIMPLEX, num_dimension, domain_boundary_length);
-        if (numPartitionsSimplex != numPartitionsSignChangingSimplex) {
-            throw new IllegalStateException("Num nodes should be the same, but is " + numPartitionsSimplex +
-                    " for Simplex and " + numPartitionsSignChangingSimplex + "for SignChangingSimplex");
+        int numPartitionsPermanentPointMemorization = Tree.constructTreeSegmentSimplex(functions,
+                new ArrayList<>(constraintCoefficients), new ArrayList<>(constraintConstants),
+                SimplexType.POINT_REMEMBERING_PERMANENT_SIGN_CHANGING_SIMPLEX, num_dimension, domain_boundary_length);
+        int numPartitionsLocalPointMemorization = Tree.constructTreeSegmentSimplex(functions,
+                new ArrayList<>(constraintCoefficients), new ArrayList<>(constraintConstants),
+                SimplexType.POINT_REMEMBERING_LOCAL_SIGN_CHANGING_SIMPLEX, num_dimension, domain_boundary_length);
+        if (numPartitionsSimplex != numPartitionsSignChangingSimplex ||
+                numPartitionsSimplex != numPartitionsPermanentPointMemorization ||
+                numPartitionsSimplex != numPartitionsLocalPointMemorization) {
+            throw new IllegalStateException("Num nodes should be the same, but is " +
+                    numPartitionsSimplex + " for Simplex, " +
+                    numPartitionsSignChangingSimplex + "for SignChangingSimplex" +
+                    numPartitionsPermanentPointMemorization + "for Permanent Point Memorization" +
+                    numPartitionsLocalPointMemorization + "for Local Point Memorization");
         }
     }
 
@@ -312,7 +327,7 @@ public class Test {
         double[] function_values = new double[num_dimension + 1];
         function_values[function_values.length - 1] = 1;
         Function function = new Function(function_values);
-        DomainSimplex d = new DomainSimplex(function, true);
+        DomainSimplex d = new DomainSimplex(function, true, null, null, null);
         ArrayList<double[]> constraintCoefficients = new ArrayList<>();
         // Separate constraint constants
         ArrayList<Double> constraintConstants = new ArrayList<>();
@@ -340,6 +355,24 @@ public class Test {
             throw new IllegalStateException("Num nodes SignChangingSimplex should be " + expectedNumNodes + ", but is "
                     + numNodesSignChangingSimplex);
         }
+
+        // Sign-Changing Permanent Point Memorization Simplex
+        int numNodesPermanentPointMemorization = Tree.constructTreeSimplex(functions, d, constraintCoefficients,
+                constraintConstants, SimplexType.POINT_REMEMBERING_PERMANENT_SIGN_CHANGING_SIMPLEX, num_dimension,
+                "OriginLineTestPermanentPointMemorization");
+        if (numNodesPermanentPointMemorization != expectedNumNodes) {
+            throw new IllegalStateException("Num nodes Permanent Point Memorization should be " + expectedNumNodes +
+                    ", but is " + numNodesPermanentPointMemorization);
+        }
+
+        // Sign-Changing Local Point Memorization Simplex
+        int numNodesLocalPointMemorization = Tree.constructTreeSimplex(functions, d, constraintCoefficients,
+                constraintConstants, SimplexType.POINT_REMEMBERING_LOCAL_SIGN_CHANGING_SIMPLEX, num_dimension,
+                "OriginLineTestLocalPointMemorization");
+        if (numNodesLocalPointMemorization != expectedNumNodes) {
+            throw new IllegalStateException("Num nodes Local Point Memorization should be " + expectedNumNodes +
+                    ", but is " + numNodesLocalPointMemorization);
+        }
     }
 
     // ***************
@@ -356,6 +389,7 @@ public class Test {
     final static int repeat_runs = 10;
 
     public static void collect_data() throws IOException {
+        //  TODO: Data Gathering for 2 Point Memorization Versions
         int[] table_counter = new int[]{0};
         collect_data_individual_feasibility_checks();
         collect_data_tree_path(table_counter);
@@ -499,7 +533,7 @@ public class Test {
                 start_time = System.nanoTime();
                 DomainSimplex.ifPartitionsDomain(new ArrayList<>(constraintCoefficients),
                         new ArrayList<>(constraintConstants), function,
-                        SimplexType.SIMPLEX, num_dimension);
+                        SimplexType.SIMPLEX, num_dimension, null, null);
                 stop_time = System.nanoTime();
                 average_time_repeat += (stop_time - start_time) / repeat_runs;
             }
@@ -511,7 +545,7 @@ public class Test {
                 start_time = System.nanoTime();
                 DomainSimplex.ifPartitionsDomain(new ArrayList<>(constraintCoefficients),
                         new ArrayList<>(constraintConstants), function,
-                        SimplexType.SIGN_CHANGING_SIMPLEX, num_dimension);
+                        SimplexType.SIGN_CHANGING_SIMPLEX, num_dimension, null, null);
                 stop_time = System.nanoTime();
                 average_time_repeat += (stop_time - start_time) / repeat_runs;
             }
@@ -640,7 +674,7 @@ public class Test {
                 double[] function_values = new double[num_dimension + 1];
                 function_values[function_values.length - 1] = 1;
                 Function function = new Function(function_values);
-                DomainSimplex d = new DomainSimplex(function, true);
+                DomainSimplex d = new DomainSimplex(function, true, null, null, null);
                 ArrayList<double[]> constraintCoefficients = new ArrayList<>();
                 // Separate constraint constants
                 ArrayList<Double> constraintConstants = new ArrayList<>();
@@ -796,6 +830,7 @@ public class Test {
     }
 
     public static void ParseDataFiles() {
+        // TODO: parse data files for new data file format with 2 point memorization techniques included
         try {
             File individual_inequality_naive = new File("Data_Individual_Partition_Variable_Inequalities_Simplex.txt");
             individual_inequality_naive.delete();

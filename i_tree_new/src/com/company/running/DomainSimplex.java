@@ -2,12 +2,17 @@ package com.company.running;
 
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
+import java.util.HashSet;
 
 public class DomainSimplex implements DomainType {
     double[] constraintCoefficients;
     double constraintConstant;
+    HashSet<double[]> unknownSet;
+    HashSet<double[]> maxSet;
+    HashSet<double[]> minSet;
 
-    public DomainSimplex(Function function, boolean lessThan) {
+    public DomainSimplex(Function function, boolean lessThan, HashSet<double[]> unknownSet, HashSet<double[]> maxSet,
+                         HashSet<double[]> minSet) {
         this.constraintCoefficients = functionToConstraintCoefficients(function);
         this.constraintConstant = function.coefficients[function.coefficients.length-1];
         if (!lessThan) {
@@ -15,6 +20,9 @@ public class DomainSimplex implements DomainType {
                 constraintCoefficients[i] *= -1;
             }
         }
+        this.unknownSet = unknownSet;
+        this.maxSet = maxSet;
+        this.minSet = minSet;
     }
 
     private static double[] functionToConstraintCoefficients(Function function) {
@@ -24,9 +32,13 @@ public class DomainSimplex implements DomainType {
         return constraintCoefficients;
     }
 
-    public byte[] toByte(int dimension) {
-        ByteBuffer buffer = ByteBuffer.allocate(
-                constraintCoefficients.length * Double.BYTES + Double.BYTES);
+    public byte[] toByte(int dimension, boolean storePoints) {
+        int capacity = constraintCoefficients.length * Double.BYTES + Double.BYTES;
+        if (storePoints) {
+            capacity += 3 * Integer.BYTES + dimension * Double.BYTES * unknownSet.size() +
+                    dimension * Double.BYTES * maxSet.size() + dimension * Double.BYTES * minSet.size();
+        }
+        ByteBuffer buffer = ByteBuffer.allocate(capacity);
 
         for (double c : constraintCoefficients) {
             buffer.putDouble(c);
@@ -34,11 +46,32 @@ public class DomainSimplex implements DomainType {
 
         buffer.putDouble(constraintConstant);
 
+        buffer.putInt(unknownSet.size());
+        unknownSet.forEach(variableValues -> {
+            for (int i = 0; i < variableValues.length; i++) {
+                buffer.putDouble(variableValues[i]);
+            }
+        });
+
+        buffer.putInt(maxSet.size());
+        maxSet.forEach(variableValues -> {
+            for (int i = 0; i < variableValues.length; i++) {
+                buffer.putDouble(variableValues[i]);
+            }
+        });
+
+        buffer.putInt(minSet.size());
+        minSet.forEach(variableValues -> {
+            for (int i = 0; i < variableValues.length; i++) {
+                buffer.putDouble(variableValues[i]);
+            }
+        });
+
         byte[] bytes = buffer.array();
         return bytes;
     }
 
-    public static DomainSimplex toDomain(byte[] bytes, int dimension) {
+    public static DomainSimplex toDomain(byte[] bytes, int dimension, boolean storedPoints) {
         ByteBuffer buffer = ByteBuffer.wrap(bytes);
 
         double[] coefficients = new double[dimension + 1];
@@ -48,15 +81,50 @@ public class DomainSimplex implements DomainType {
         coefficients[coefficients.length - 1] = buffer.getInt();
         Function function = new Function(coefficients);
 
+        HashSet<double[]> unknownSet = null;
+        HashSet<double[]> maxSet = null;
+        HashSet<double[]> minSet = null;
+
+        if (storedPoints) {
+            int unknownSetSize = buffer.getInt();
+            for (int i = 0; i < unknownSetSize; i++) {
+                double[] variableValues = new double[dimension];
+                for (int j = 0; j < variableValues.length; j++) {
+                    variableValues[j] = buffer.getDouble();
+                }
+                unknownSet.add(variableValues);
+            }
+
+            int maxSetSize = buffer.getInt();
+            for (int i = 0; i < maxSetSize; i++) {
+                double[] variableValues = new double[dimension];
+                for (int j = 0; j < variableValues.length; j++) {
+                    variableValues[j] = buffer.getDouble();
+                }
+                maxSet.add(variableValues);
+            }
+
+            int minSetSize = buffer.getInt();
+            for (int i = 0; i < minSetSize; i++) {
+                double[] variableValues = new double[dimension];
+                for (int j = 0; j < variableValues.length; j++) {
+                    variableValues[j] = buffer.getDouble();
+                }
+                minSet.add(variableValues);
+            }
+        }
+
         // lessThan has already been accounted for when initially created and then encoded
-        return new DomainSimplex(function, true);
+        return new DomainSimplex(function, true, unknownSet, maxSet, minSet);
     }
 
     public static boolean ifPartitionsDomain(ArrayList<double[]> allConstraintCoefficients,
                                              ArrayList<Double> allConstraintConstants,
                                              Function function,
                                              SimplexType simplexType,
-                                             int dimension) {
+                                             int dimension,
+                                             HashSet<double[]> maxSet,
+                                             HashSet<double[]> minSet) {
         double[] objectiveFunctionVariableCoefficients = functionToConstraintCoefficients(function);
         double objectiveFunctionConstant = function.coefficients[function.coefficients.length-1];
 
@@ -92,6 +160,20 @@ public class DomainSimplex implements DomainType {
                     min = new TwoPhaseSignChangingSimplex(constraintVariableCoefficients, constraintConstants,
                             objectiveFunctionVariableCoefficientsMin, false, objectiveFunctionConstant);
                     break;
+                case POINT_REMEMBERING_PERMANENT_SIGN_CHANGING_SIMPLEX:
+                    max = new TwoPhaseSignChangingPointMemorizingSimplex(constraintVariableCoefficients,
+                            constraintConstants, objectiveFunctionVariableCoefficients, true,
+                            objectiveFunctionConstant, maxSet, minSet);
+                    min = new TwoPhaseSignChangingPointMemorizingSimplex(constraintVariableCoefficients,
+                            constraintConstants, objectiveFunctionVariableCoefficients, false,
+                            objectiveFunctionConstant, maxSet, minSet);
+                case POINT_REMEMBERING_LOCAL_SIGN_CHANGING_SIMPLEX:
+                    max = new TwoPhaseSignChangingPointMemorizingSimplex(constraintVariableCoefficients,
+                            constraintConstants, objectiveFunctionVariableCoefficients, true,
+                            objectiveFunctionConstant, maxSet, minSet);
+                    min = new TwoPhaseSignChangingPointMemorizingSimplex(constraintVariableCoefficients,
+                            constraintConstants, objectiveFunctionVariableCoefficients, false,
+                            objectiveFunctionConstant, maxSet, minSet);
                 default:
                     throw new IllegalArgumentException("Simplex type argument is invalid. Inputted argument: " +
                             simplexType);
