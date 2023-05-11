@@ -88,9 +88,9 @@ public class DomainSimplex implements DomainType {
                     break;
                 case SIGN_CHANGING_SIMPLEX:
                     max = new TwoPhaseSignChangingSimplex(constraintVariableCoefficients, constraintConstants,
-                            objectiveFunctionVariableCoefficients, true);
+                            objectiveFunctionVariableCoefficients, true, objectiveFunctionConstant);
                     min = new TwoPhaseSignChangingSimplex(constraintVariableCoefficients, constraintConstants,
-                            objectiveFunctionVariableCoefficientsMin, false);
+                            objectiveFunctionVariableCoefficientsMin, false, objectiveFunctionConstant);
                     break;
                 default:
                     throw new IllegalArgumentException("Simplex type argument is invalid. Inputted argument: " +

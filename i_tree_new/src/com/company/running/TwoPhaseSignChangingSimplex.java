@@ -16,17 +16,21 @@ public class TwoPhaseSignChangingSimplex implements SimplexMarker {
 
     private int[] basis;    // basis[i] = basic variable corresponding to row i
 
-    boolean maximizing;     // true if we are maximizing false if minimizing: for early termination
+    double objectiveFunctionConstant; // comparison for early (sign changing) termination
 
     // sets up the simplex tableaux
     // A: constraint coefficients
     // b: constraint constants
     // c: maximizing objective function constants
-    public TwoPhaseSignChangingSimplex(double[][] A, double[] b, double[] c, boolean maximizing) {
+    public TwoPhaseSignChangingSimplex(double[][] A, double[] b, double[] c, boolean maximizing,
+                                       double objectiveFunctionConstant) {
         m = b.length;
         n = c.length;
         a = new double[m+2][n+m+m+1];
-        this.maximizing = maximizing;
+        if (!maximizing) {
+            objectiveFunctionConstant *= -1; // different check for minimization
+        }
+        this.objectiveFunctionConstant = objectiveFunctionConstant;
         for (int i = 0; i < m; i++)
             for (int j = 0; j < n; j++)
                 a[i][j] = A[i][j];
@@ -92,8 +96,8 @@ public class TwoPhaseSignChangingSimplex implements SimplexMarker {
     private void phase2() {
         while (true) {
             // Every time we get a new and more optimal BFS we get to this point
-            // We can check if the value > 0 (for max and min both) and terminate early if so
-            if (this.value() > 0) {
+            // We can check if the value > value at line (for max and min both) and terminate early if so
+            if (this.value() > objectiveFunctionConstant) {
                 return;
             }
 

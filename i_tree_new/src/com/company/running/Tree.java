@@ -233,8 +233,7 @@ public class Tree {
                     simplexType, dimension)) {
                 numPartitions++;
                 double[] coefficients = new double[intersection.coefficients.length - 1];
-                System.arraycopy(intersection.coefficients, 0, coefficients, 0,
-                        coefficients.length - 1);
+                System.arraycopy(intersection.coefficients, 0, coefficients, 0, coefficients.length);
                 double constant = intersection.coefficients[intersection.coefficients.length - 1];
 
                 // If inequality does not accept central point, flip it in order to maximize likelihood of future

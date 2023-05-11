@@ -281,10 +281,11 @@ public class Test {
             constraintCoefficients.add(slackenedEquation);
         }
 
-        int numPartitionsSimplex = Tree.constructTreeSegmentSimplex(functions, constraintCoefficients,
-                constraintConstants, SimplexType.SIMPLEX, num_dimension, domain_boundary_length);
-        int numPartitionsSignChangingSimplex = Tree.constructTreeSegmentSimplex(functions, constraintCoefficients,
-                constraintConstants, SimplexType.SIGN_CHANGING_SIMPLEX, num_dimension, domain_boundary_length);
+        int numPartitionsSimplex = Tree.constructTreeSegmentSimplex(functions, new ArrayList<>(constraintCoefficients),
+                new ArrayList<>(constraintConstants), SimplexType.SIMPLEX, num_dimension, domain_boundary_length);
+        int numPartitionsSignChangingSimplex = Tree.constructTreeSegmentSimplex(functions,
+                new ArrayList<>(constraintCoefficients), new ArrayList<>(constraintConstants),
+                SimplexType.SIGN_CHANGING_SIMPLEX, num_dimension, domain_boundary_length);
         if (numPartitionsSimplex != numPartitionsSignChangingSimplex) {
             throw new IllegalStateException("Num nodes should be the same, but is " + numPartitionsSimplex +
                     " for Simplex and " + numPartitionsSignChangingSimplex + "for SignChangingSimplex");
@@ -496,7 +497,8 @@ public class Test {
             average_time_repeat = 0;
             for (int j = 0; j < repeat_runs; j++) {
                 start_time = System.nanoTime();
-                DomainSimplex.ifPartitionsDomain(constraintCoefficients, constraintConstants, function,
+                DomainSimplex.ifPartitionsDomain(new ArrayList<>(constraintCoefficients),
+                        new ArrayList<>(constraintConstants), function,
                         SimplexType.SIMPLEX, num_dimension);
                 stop_time = System.nanoTime();
                 average_time_repeat += (stop_time - start_time) / repeat_runs;
@@ -507,7 +509,8 @@ public class Test {
             average_time_repeat = 0;
             for (int j = 0; j < repeat_runs; j++) {
                 start_time = System.nanoTime();
-                DomainSimplex.ifPartitionsDomain(constraintCoefficients, constraintConstants, function,
+                DomainSimplex.ifPartitionsDomain(new ArrayList<>(constraintCoefficients),
+                        new ArrayList<>(constraintConstants), function,
                         SimplexType.SIGN_CHANGING_SIMPLEX, num_dimension);
                 stop_time = System.nanoTime();
                 average_time_repeat += (stop_time - start_time) / repeat_runs;
@@ -570,7 +573,9 @@ public class Test {
             average_time_repeat = 0;
             for (int j = 0; j < repeat_runs; j++) {
                 start_time = System.nanoTime();
-                Tree.constructTreeSegmentSimplex(functions, constraintCoefficients, constraintConstants, SimplexType.SIMPLEX, num_dimension, domain_boundary_length);
+                Tree.constructTreeSegmentSimplex(functions, new ArrayList<>(constraintCoefficients),
+                        new ArrayList<>(constraintConstants), SimplexType.SIMPLEX, num_dimension,
+                        domain_boundary_length);
                 stop_time = System.nanoTime();
                 table_counter[0]++;
                 average_time_repeat += (stop_time - start_time) / repeat_runs;
@@ -581,7 +586,9 @@ public class Test {
             average_time_repeat = 0;
             for (int j = 0; j < repeat_runs; j++) {
                 start_time = System.nanoTime();
-                Tree.constructTreeSegmentSimplex(functions, constraintCoefficients, constraintConstants, SimplexType.SIGN_CHANGING_SIMPLEX, num_dimension, domain_boundary_length);
+                Tree.constructTreeSegmentSimplex(functions, new ArrayList<>(constraintCoefficients),
+                        new ArrayList<>(constraintConstants), SimplexType.SIGN_CHANGING_SIMPLEX, num_dimension,
+                        domain_boundary_length);
                 stop_time = System.nanoTime();
                 table_counter[0]++;
                 average_time_repeat += (stop_time - start_time) / repeat_runs;
@@ -649,7 +656,9 @@ public class Test {
                 average_time_repeat = 0;
                 for (int j = 0; j < repeat_runs; j++) {
                     start_time = System.nanoTime();
-                    Tree.constructTreeSimplex(functions, d, constraintCoefficients, constraintConstants, SimplexType.SIMPLEX, num_dimension, "IntersectionTree" + table_counter[0]);
+                    Tree.constructTreeSimplex(functions, d, new ArrayList<>(constraintCoefficients),
+                            new ArrayList<>(constraintConstants), SimplexType.SIMPLEX, num_dimension,
+                            "IntersectionTree" + table_counter[0]);
                     stop_time = System.nanoTime();
                     table_counter[0]++;
                     average_time_repeat += (stop_time - start_time) / repeat_runs;
@@ -660,7 +669,9 @@ public class Test {
                 average_time_repeat = 0;
                 for (int j = 0; j < repeat_runs; j++) {
                     start_time = System.nanoTime();
-                    Tree.constructTreeSimplex(functions, d, constraintCoefficients, constraintConstants, SimplexType.SIGN_CHANGING_SIMPLEX, num_dimension, "IntersectionTree" + table_counter[0]);
+                    Tree.constructTreeSimplex(functions, d, new ArrayList<>(constraintCoefficients),
+                            new ArrayList<>(constraintConstants), SimplexType.SIGN_CHANGING_SIMPLEX, num_dimension,
+                            "IntersectionTree" + table_counter[0]);
                     stop_time = System.nanoTime();
                     table_counter[0]++;
                     average_time_repeat += (stop_time - start_time) / repeat_runs;
