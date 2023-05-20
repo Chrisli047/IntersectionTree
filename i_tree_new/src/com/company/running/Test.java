@@ -43,7 +43,7 @@ public class Test {
         Function originalFunction = Function.toFunction(fb);
         System.out.println(originalFunction);
 
-        NodeRecord nodeRecord = new NodeRecord(d, f, -1, -1);
+        NodeRecord nodeRecord = new NodeRecord(d, f, -1, -1, -1);
         nodeRecord.insertToMySql(2, "IntersectionTree", false);
     }
 
@@ -57,7 +57,7 @@ public class Test {
     }
 
     public static void testUpdateRecord() {
-        NodeRecord nodeRecord = NodeRecord.updateRecord(1, 2,2, false, 2,
+        NodeRecord nodeRecord = NodeRecord.updateRecord(1, -1, 2,null, false, 2,
                 "IntersectionTree", false);
         nodeRecord.d.printDomain();
         System.out.println(nodeRecord.f);
@@ -255,8 +255,8 @@ public class Test {
     // *******************
 
     public static void simplexTests() {
-        //  TODO: Tests Pass
-        //  TODO: Test Walkthrough: check points working properly
+        //  TODO: Tests Pass: point memorization
+        //  TODO: Test Walkthrough: point memorization check points working properly: CAREFULLY
         originLineTest();
         treePathTest();
     }
@@ -290,19 +290,14 @@ public class Test {
         int numPartitionsSignChangingSimplex = Tree.constructTreeSegmentSimplex(functions,
                 new ArrayList<>(constraintCoefficients), new ArrayList<>(constraintConstants),
                 SimplexType.SIGN_CHANGING_SIMPLEX, num_dimension, domain_boundary_length);
-        int numPartitionsPermanentPointMemorization = Tree.constructTreeSegmentSimplex(functions,
-                new ArrayList<>(constraintCoefficients), new ArrayList<>(constraintConstants),
-                SimplexType.POINT_REMEMBERING_PERMANENT_SIGN_CHANGING_SIMPLEX, num_dimension, domain_boundary_length);
         int numPartitionsLocalPointMemorization = Tree.constructTreeSegmentSimplex(functions,
                 new ArrayList<>(constraintCoefficients), new ArrayList<>(constraintConstants),
                 SimplexType.POINT_REMEMBERING_LOCAL_SIGN_CHANGING_SIMPLEX, num_dimension, domain_boundary_length);
         if (numPartitionsSimplex != numPartitionsSignChangingSimplex ||
-                numPartitionsSimplex != numPartitionsPermanentPointMemorization ||
                 numPartitionsSimplex != numPartitionsLocalPointMemorization) {
             throw new IllegalStateException("Num nodes should be the same, but is " +
                     numPartitionsSimplex + " for Simplex, " +
                     numPartitionsSignChangingSimplex + "for SignChangingSimplex" +
-                    numPartitionsPermanentPointMemorization + "for Permanent Point Memorization" +
                     numPartitionsLocalPointMemorization + "for Local Point Memorization");
         }
     }

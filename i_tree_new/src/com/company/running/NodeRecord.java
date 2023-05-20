@@ -6,22 +6,25 @@ public class NodeRecord {
     DomainType d;
     Function f;
     int intersectionIndex;
+    int parentID;
     int leftID;
     int rightID;
     int ID = 0;
 
-    public NodeRecord (DomainType d, Function f, int leftID, int rightID) {
+    public NodeRecord (DomainType d, Function f, int parentID, int leftID, int rightID) {
         this.d = d;
         this.f = f;
         this.intersectionIndex = -1;
+        this.parentID = parentID;
         this.leftID = leftID;
         this.rightID = rightID;
     }
 
-    public NodeRecord (DomainType d, Function f, int intersectionIndex, int leftID, int rightID) {
+    public NodeRecord (DomainType d, Function f, int intersectionIndex, int parentID, int leftID, int rightID) {
         this.d = d;
         this.f = f;
         this.intersectionIndex = intersectionIndex;
+        this.parentID = parentID;
         this.leftID = leftID;
         this.rightID = rightID;
     }
@@ -38,6 +41,7 @@ public class NodeRecord {
                     "    Domain BLOB," +
                     "    LinearFunction BLOB," +
                     "    IntersectionIndex INT, " +
+                    "    ParentID INT, " +
                     "    LeftID INT, " +
                     "    rightID INT)";
             stmt.executeUpdate(createTable);
@@ -59,8 +63,8 @@ public class NodeRecord {
 
             connection.setAutoCommit(false);
             // Create a PreparedStatement with the SQL statement for inserting a record
-            String insertSql = "INSERT INTO " + table_name + " (Domain, LinearFunction, IntersectionIndex, LeftID, rightID) " +
-                    "VALUES (?, ?, ?, ?, ?)";
+            String insertSql = "INSERT INTO " + table_name + " (Domain, LinearFunction, IntersectionIndex, ParentID, " +
+                    "LeftID, rightID) VALUES (?, ?, ?, ?, ?)";
             PreparedStatement pstmt = connection.prepareStatement(insertSql, Statement.RETURN_GENERATED_KEYS);
 
             // Set the values for the parameters in the prepared statement
@@ -69,6 +73,7 @@ public class NodeRecord {
             pstmt.setInt(3, intersectionIndex);
             pstmt.setInt(4, -1);
             pstmt.setInt(5, -1);
+            pstmt.setInt(6, -1);
 
             // Execute the insert statement
             pstmt.executeUpdate();
@@ -124,10 +129,11 @@ public class NodeRecord {
                 byte[] functionBytes = rs.getBytes("LinearFunction");
                 Function function = Function.toFunction(functionBytes);
                 int intersectionIndex = rs.getInt("IntersectionIndex");
+                int parentID = rs.getInt("ParentID");
                 int leftID = rs.getInt("LeftID");
                 int rightID = rs.getInt("RightID");
 
-                nodeRecord = new NodeRecord(domain, function, intersectionIndex, leftID, rightID);
+                nodeRecord = new NodeRecord(domain, function, intersectionIndex, parentID, leftID, rightID);
                 nodeRecord.ID = id;
             }
 
@@ -143,8 +149,8 @@ public class NodeRecord {
         return nodeRecord;
     }
 
-    public static NodeRecord updateRecord(int recordId, int newLeftId, int newRightId, boolean simplex,
-                                          int dimension, String table_name, boolean storedPoints) {
+    public static NodeRecord updateRecord(int recordId, int newLeftId, int newRightId, DomainType newDomain,
+                                          boolean simplex, int dimension, String table_name, boolean storedPoints) {
         NodeRecord updatedRecord = null;
 
         try {
@@ -153,11 +159,12 @@ public class NodeRecord {
             String sql = "use i_tree";
             stmt.executeUpdate(sql);
 
-            String updateSql = "UPDATE " + table_name + " SET LeftID = ?, rightID = ? WHERE ID = ?";
+            String updateSql = "UPDATE " + table_name + " SET LeftID = ?, rightID = ? WHERE ID = ?, DOMAIN = ?";
             PreparedStatement pstmt = connection.prepareStatement(updateSql);
             pstmt.setInt(1, newLeftId);
             pstmt.setInt(2, newRightId);
-            pstmt.setInt(3, recordId);
+            pstmt.setInt(3, recordId);;
+            pstmt.setBytes(4, newDomain.toByte(dimension, storedPoints));
 
             int rowsUpdated = pstmt.executeUpdate();
             if (rowsUpdated > 0) {

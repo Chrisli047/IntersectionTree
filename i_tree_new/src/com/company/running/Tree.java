@@ -1,6 +1,7 @@
 package com.company.running;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.Queue;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -29,7 +30,7 @@ public class Tree {
             return;
         }
 
-        NodeRecord nodeRecord = new NodeRecord(domain, rootPartitionFunction, -1, -1);
+        NodeRecord nodeRecord = new NodeRecord(domain, rootPartitionFunction, -1, -1, -1);
         nodeRecord.insertToMySql(dimension, table_name, false);
 
         // compute the intersections, Function intersection[]
@@ -67,8 +68,8 @@ public class Tree {
                         Domain[] partitionedDomain = Partition.partitionDomain((Domain) fetchedRecord.d, intersection);
 
                         // create two child nodes leftNode and rightNode
-                        NodeRecord leftNode = new NodeRecord(partitionedDomain[0], intersection, -1, -1);
-                        NodeRecord rightNode = new NodeRecord(partitionedDomain[1], intersection, -1, -1);
+                        NodeRecord leftNode = new NodeRecord(partitionedDomain[0], intersection, -1, -1, -1);
+                        NodeRecord rightNode = new NodeRecord(partitionedDomain[1], intersection, -1, -1, -1);
 //
 //                        // set the values for both nodes (e.g., domain)
 //                        leftNode.domain = I.leftDomain(N.domain);
@@ -83,7 +84,8 @@ public class Tree {
 
                         // update N.leftID and N.rightID with the IDs
                         // update N to the table;
-                        NodeRecord.updateRecord(fetchedRecord.ID, leftID, rightID, false, dimension, table_name,
+                        NodeRecord.updateRecord(fetchedRecord.ID, leftID, rightID, fetchedRecord.d, false,
+                                dimension, table_name,
                                 false);
                     }
                     // case 2: N is NOT a subdomain node
@@ -112,14 +114,20 @@ public class Tree {
         for (; intersectionIndex.get() < intersections.length; intersectionIndex.incrementAndGet()) {
             Function intersection = intersections[intersectionIndex.get()];
             if (constructTreePartitionDomain(simplexType, parentWrapper[0], constraintCoefficients, constraintConstants,
-                    intersection, dimension)) {
-                DomainSimplex leftDomain = new DomainSimplex(intersection, true, null, null,
+                    intersection, dimension, tableName)) {
+                DomainSimplex parentDomain = ((DomainSimplex) parentWrapper[0].d);
+                HashSet<double[]> maxSet = parentDomain.maxSet;
+                HashSet<double[]> minSet = parentDomain.minSet;
+
+                DomainSimplex leftDomain = new DomainSimplex(intersection, true, maxSet, null,
                         null);
-                DomainSimplex rightDomain = new DomainSimplex(intersection, false, null, null,
+                DomainSimplex rightDomain = new DomainSimplex(intersection, false, minSet, null,
                         null);
 
-                NodeRecord leftNode = new NodeRecord(leftDomain, intersection, intersectionIndex.get() + 1, -1, -1);
-                NodeRecord rightNode = new NodeRecord(rightDomain, intersection, intersectionIndex.get() + 1, -1, -1);
+                NodeRecord leftNode = new NodeRecord(leftDomain, intersection,
+                        intersectionIndex.get() + 1, parentWrapper[0].ID, -1, -1);
+                NodeRecord rightNode = new NodeRecord(rightDomain, intersection,
+                        intersectionIndex.get() + 1, parentWrapper[0].ID, -1, -1);
 
                 leftNode.ID = leftNode.insertToMySql(dimension, tableName, false);
                 numNodes.incrementAndGet();
@@ -128,12 +136,11 @@ public class Tree {
 
                 parentWrapper[0].leftID = leftNode.ID;
                 parentWrapper[0].rightID = rightNode.ID;
-                NodeRecord.updateRecord(parentWrapper[0].ID, leftNode.ID, rightNode.ID, true, dimension,
-                        tableName, false);
+                NodeRecord.updateRecord(parentWrapper[0].ID, leftNode.ID, rightNode.ID, parentWrapper[0].d, true,
+                        dimension, tableName, false);
 
                 parentWrapper[0] = leftNode;
                 ancestorIDs.add(parentWrapper[0].ID);
-                DomainSimplex parentDomain = (DomainSimplex) parentWrapper[0].d;
                 constraintCoefficients.add(parentDomain.constraintCoefficients);
                 constraintConstants.add(parentDomain.constraintConstant);
             }
@@ -165,35 +172,125 @@ public class Tree {
         constraintConstants.remove(constraintConstants.size() - 1);
     }
 
+    // Returns true if node inequality accepts point
+    // Not aware of ancestor node inequalities
+    private static boolean nodeAcceptsPoint(NodeRecord node, double[] point) {
+        DomainSimplex domain = (DomainSimplex) node.d;
+
+        double pointValue = 0;
+        for (int i = 0; i < domain.constraintCoefficients.length; i++) {
+            pointValue += point[i] * domain.constraintCoefficients[i];
+        }
+
+        return pointValue < domain.constraintConstant;
+    }
+
+    // Trickle points down from last node toward first node
+    private static void checkPoints(ArrayList<NodeRecord> nodes, HashSet<double[]> maxSet, HashSet<double[]> minSet,
+                                    int dimension, String tableName) {
+        NodeRecord firstNode = nodes.get(0);
+        NodeRecord lastNode = nodes.get(nodes.size() - 1);
+
+        // At index i store right child points for ith ancestor
+        // Not updated immediately to reduce number of database calls
+        ArrayList<double[]>[] rightChildPoints = new ArrayList[nodes.size()];
+
+        for (double[] point : ((DomainSimplex) lastNode.d).unknownSet) {
+            ((DomainSimplex) lastNode.d).unknownSet.remove(point);
+
+            // Trickle point down toward leaf node
+            boolean trickledToBottom = true;
+            for (int i = nodes.size() - 1; i > 0; i--) {
+                NodeRecord node = nodes.get(i);
+                NodeRecord childNode = nodes.get(i - 1);
+                boolean rightChild = node.rightID == childNode.ID;
+
+                // Halt trickle down if wrong direction
+                if (!(nodeAcceptsPoint(childNode, point) && rightChild)) {
+                    // Don't save left points (tree constructed left to right)
+                    if (!rightChild) {
+                        if (rightChildPoints[i] == null) {
+                            rightChildPoints[i] = new ArrayList<>();
+                        }
+
+                        rightChildPoints[i].add(point);
+                    }
+
+                    trickledToBottom = false;
+                    break;
+                }
+            }
+
+            if (trickledToBottom) {
+                if (nodeAcceptsPoint(firstNode, point)) {
+                    minSet.add(point);
+                } else {
+                    maxSet.add(point);
+                }
+
+                // partition points found
+                if (!maxSet.isEmpty() && !minSet.isEmpty()) {
+                    // do not return because we need to update saved points
+                    break;
+                }
+            }
+        }
+
+        // lastNode.d.unknownSet has likely been shrunk
+        NodeRecord.updateRecord(lastNode.ID, lastNode.leftID, lastNode.rightID, lastNode.d, true, dimension,
+                tableName, true);
+
+        // add all remembered points to the right children of the respective nodes
+        for (int i = 0; i < rightChildPoints.length; i++) {
+            ArrayList<double[]> pointSet = rightChildPoints[i];
+            if (pointSet != null) {
+                int parentNodeID = nodes.get(i).ID;
+                NodeRecord rightChild = NodeRecord.getRecordById(parentNodeID, true, dimension, tableName, true);
+                ((DomainSimplex) rightChild.d).unknownSet.addAll(pointSet);
+                NodeRecord.updateRecord(rightChild.ID, rightChild.leftID, rightChild.rightID, rightChild.d, true, dimension,
+                        tableName, true);
+            }
+        }
+
+        // TODO: update remembered point sets (lastNode unknown set and all point groups into their new node IF -> right)
+    }
+
     private static boolean constructTreePartitionDomain(SimplexType simplexType,
                                                         NodeRecord node,
                                                         ArrayList<double[]> constraintCoefficients,
                                                         ArrayList<Double> constraintConstants,
                                                         Function function,
-                                                        int dimension) {
+                                                        int dimension,
+                                                        String tableName) {
+        HashSet<double[]> maxSet = new HashSet<>();
+        HashSet<double[]> minSet = new HashSet<>();
+        boolean maxFound = false;
+        boolean minFound = false;
+
         if (simplexType == SimplexType.POINT_REMEMBERING_PERMANENT_SIGN_CHANGING_SIMPLEX) {
-            // TODO: permanent point memorization
-            //  check our unknown points
-            //  check parent correct direction points
-            //  check and descend (stop if incorrect direction) parent unknown points
+            ArrayList<NodeRecord> nodes = new ArrayList<>();
+            nodes.add(node);
 
-            boolean maxFound = false;
-            boolean minFound = false;
+            while (true) {
+                checkPoints(nodes, maxSet, minSet, dimension, tableName);
+                maxFound = !maxSet.isEmpty();
+                minFound = !minSet.isEmpty();
+                if (maxFound && minFound) {
+                    return true;
+                }
 
-            // test points in subdomain
-            for (double[] point : ((DomainSimplex) node.d).unknownSet) {
+                if (node.parentID == -1) {
+                    break;
+                }
 
+                node = NodeRecord.getRecordById(node.parentID, true, dimension, tableName, true);
+                nodes.add(node);
             }
         } else if (simplexType == SimplexType.POINT_REMEMBERING_LOCAL_SIGN_CHANGING_SIMPLEX) {
-            // TODO: local point memorization
-            //  check our unknown points
-            //  check parent correct direction points
-            //  check and descend (stop if incorrect direction) parent unknown points
+            // TODO: same as permanent memorization, but all points stored in array (for get and for put)
         }
-        // TODO: maybe only 1 of max/min required
-        // TODO: Use updated maxSet and minSet
         return DomainSimplex.ifPartitionsDomain(constraintCoefficients, constraintConstants, function,
-                simplexType, dimension, null, null);
+                simplexType, dimension, maxSet, minSet, maxFound, minFound);
     }
 
     // Pass constraintCoefficients and constraintConstants with initial domain
@@ -222,7 +319,7 @@ public class Tree {
             return numNodes.get();
         }
 
-        NodeRecord root = new NodeRecord(domain, rootPartitionFunction, intersectionIndex.get(), -1, -1);
+        NodeRecord root = new NodeRecord(domain, rootPartitionFunction, intersectionIndex.get(), -1, -1, -1);
         root.ID = root.insertToMySql(dimension, tableName, false);
         numNodes.incrementAndGet();
 
@@ -263,8 +360,7 @@ public class Tree {
                                                    SimplexType simplexType,
                                                    int dimension,
                                                    int boundary_length) {
-        // TODO: permanent point memorization
-        // TODO: local point memorization
+        // TODO: local point memorization: same as full tree but cascade forgets
         int numPartitions = 0;
         for (Function intersection : intersections) {
             if (DomainSimplex.ifPartitionsDomain(allConstraintCoefficients, allConstraintConstants, intersection,
