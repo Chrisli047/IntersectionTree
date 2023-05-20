@@ -118,13 +118,16 @@ public class DomainSimplex implements DomainType {
         return new DomainSimplex(function, true, unknownSet, maxSet, minSet);
     }
 
+    // TODO: if max/min found check less
     public static boolean ifPartitionsDomain(ArrayList<double[]> allConstraintCoefficients,
                                              ArrayList<Double> allConstraintConstants,
                                              Function function,
                                              SimplexType simplexType,
                                              int dimension,
                                              HashSet<double[]> maxSet,
-                                             HashSet<double[]> minSet) {
+                                             HashSet<double[]> minSet,
+                                             boolean maxFound,
+                                             boolean minFound) {
         double[] objectiveFunctionVariableCoefficients = functionToConstraintCoefficients(function);
         double objectiveFunctionConstant = function.coefficients[function.coefficients.length-1];
 
@@ -144,36 +147,52 @@ public class DomainSimplex implements DomainType {
             objectiveFunctionVariableCoefficientsMin[i] = -objectiveFunctionVariableCoefficients[i];
         }
 
-        SimplexMarker max;
-        SimplexMarker min;
+        SimplexMarker max = null;
+        SimplexMarker min = null;
         try {
             switch (simplexType) {
                 case SIMPLEX:
-                    max = new TwoPhaseSimplex(constraintVariableCoefficients, constraintConstants,
-                            objectiveFunctionVariableCoefficients);
-                    min = new TwoPhaseSimplex(constraintVariableCoefficients, constraintConstants,
-                            objectiveFunctionVariableCoefficientsMin);
+                    if (!maxFound) {
+                        max = new TwoPhaseSimplex(constraintVariableCoefficients, constraintConstants,
+                                objectiveFunctionVariableCoefficients);
+                    }
+                    if (!minFound) {
+                        min = new TwoPhaseSimplex(constraintVariableCoefficients, constraintConstants,
+                                objectiveFunctionVariableCoefficientsMin);
+                    }
                     break;
                 case SIGN_CHANGING_SIMPLEX:
-                    max = new TwoPhaseSignChangingSimplex(constraintVariableCoefficients, constraintConstants,
-                            objectiveFunctionVariableCoefficients, true, objectiveFunctionConstant);
-                    min = new TwoPhaseSignChangingSimplex(constraintVariableCoefficients, constraintConstants,
-                            objectiveFunctionVariableCoefficientsMin, false, objectiveFunctionConstant);
+                    if (!maxFound) {
+                        max = new TwoPhaseSignChangingSimplex(constraintVariableCoefficients, constraintConstants,
+                                objectiveFunctionVariableCoefficients, true, objectiveFunctionConstant);
+                    }
+                    if (!minFound) {
+                        min = new TwoPhaseSignChangingSimplex(constraintVariableCoefficients, constraintConstants,
+                                objectiveFunctionVariableCoefficientsMin, false, objectiveFunctionConstant);
+                    }
                     break;
                 case POINT_REMEMBERING_PERMANENT_SIGN_CHANGING_SIMPLEX:
-                    max = new TwoPhaseSignChangingPointMemorizingSimplex(constraintVariableCoefficients,
-                            constraintConstants, objectiveFunctionVariableCoefficients, true,
-                            objectiveFunctionConstant, maxSet, minSet);
-                    min = new TwoPhaseSignChangingPointMemorizingSimplex(constraintVariableCoefficients,
-                            constraintConstants, objectiveFunctionVariableCoefficients, false,
-                            objectiveFunctionConstant, maxSet, minSet);
+                    if (!maxFound) {
+                        max = new TwoPhaseSignChangingPointMemorizingSimplex(constraintVariableCoefficients,
+                                constraintConstants, objectiveFunctionVariableCoefficients, true,
+                                objectiveFunctionConstant, maxSet, minSet);
+                    }
+                    if (!minFound) {
+                        min = new TwoPhaseSignChangingPointMemorizingSimplex(constraintVariableCoefficients,
+                                constraintConstants, objectiveFunctionVariableCoefficients, false,
+                                objectiveFunctionConstant, maxSet, minSet);
+                    }
                 case POINT_REMEMBERING_LOCAL_SIGN_CHANGING_SIMPLEX:
-                    max = new TwoPhaseSignChangingPointMemorizingSimplex(constraintVariableCoefficients,
-                            constraintConstants, objectiveFunctionVariableCoefficients, true,
-                            objectiveFunctionConstant, maxSet, minSet);
-                    min = new TwoPhaseSignChangingPointMemorizingSimplex(constraintVariableCoefficients,
-                            constraintConstants, objectiveFunctionVariableCoefficients, false,
-                            objectiveFunctionConstant, maxSet, minSet);
+                    if (!maxFound) {
+                        max = new TwoPhaseSignChangingPointMemorizingSimplex(constraintVariableCoefficients,
+                                constraintConstants, objectiveFunctionVariableCoefficients, true,
+                                objectiveFunctionConstant, maxSet, minSet);
+                    }
+                    if (!minFound) {
+                        min = new TwoPhaseSignChangingPointMemorizingSimplex(constraintVariableCoefficients,
+                                constraintConstants, objectiveFunctionVariableCoefficients, false,
+                                objectiveFunctionConstant, maxSet, minSet);
+                    }
                 default:
                     throw new IllegalArgumentException("Simplex type argument is invalid. Inputted argument: " +
                             simplexType);
@@ -184,9 +203,9 @@ public class DomainSimplex implements DomainType {
             return false;
         }
 
-        double minValue = -min.value();
-        double maxValue = max.value();
-        return minValue < objectiveFunctionConstant && maxValue > objectiveFunctionConstant;
+        boolean maxGood = maxFound || (max.value() > objectiveFunctionConstant);
+        boolean minGood = minFound || (-min.value() < objectiveFunctionConstant);
+        return maxGood && minGood;
     }
 
 

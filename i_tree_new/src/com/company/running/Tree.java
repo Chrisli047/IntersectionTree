@@ -308,7 +308,7 @@ public class Tree {
         for (; intersectionIndex.get() < intersections.length; intersectionIndex.incrementAndGet()) {
             Function function = intersections[intersectionIndex.get()];
             if (DomainSimplex.ifPartitionsDomain(constraintCoefficients, constraintConstants, function, simplexType,
-                    dimension, null, null)) {
+                    dimension, null, null, false, false)) {
                 rootPartitionFunction = function;
                 intersectionIndex.get();
                 break;
@@ -364,7 +364,7 @@ public class Tree {
         int numPartitions = 0;
         for (Function intersection : intersections) {
             if (DomainSimplex.ifPartitionsDomain(allConstraintCoefficients, allConstraintConstants, intersection,
-                    simplexType, dimension, null, null)) {
+                    simplexType, dimension, null, null, false, false)) {
                 numPartitions++;
                 double[] coefficients = new double[intersection.coefficients.length - 1];
                 System.arraycopy(intersection.coefficients, 0, coefficients, 0, coefficients.length);

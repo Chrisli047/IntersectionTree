@@ -528,7 +528,7 @@ public class Test {
                 start_time = System.nanoTime();
                 DomainSimplex.ifPartitionsDomain(new ArrayList<>(constraintCoefficients),
                         new ArrayList<>(constraintConstants), function,
-                        SimplexType.SIMPLEX, num_dimension, null, null);
+                        SimplexType.SIMPLEX, num_dimension, null, null, false, false);
                 stop_time = System.nanoTime();
                 average_time_repeat += (stop_time - start_time) / repeat_runs;
             }
@@ -540,7 +540,7 @@ public class Test {
                 start_time = System.nanoTime();
                 DomainSimplex.ifPartitionsDomain(new ArrayList<>(constraintCoefficients),
                         new ArrayList<>(constraintConstants), function,
-                        SimplexType.SIGN_CHANGING_SIMPLEX, num_dimension, null, null);
+                        SimplexType.SIGN_CHANGING_SIMPLEX, num_dimension, null, null, false, false);
                 stop_time = System.nanoTime();
                 average_time_repeat += (stop_time - start_time) / repeat_runs;
             }
