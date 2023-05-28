@@ -46,28 +46,32 @@ public class DomainSimplex implements DomainType {
 
         buffer.putDouble(constraintConstant);
 
-        // TODO: sets might be null
+        if (unknownSet != null) {
+            buffer.putInt(unknownSet.size());
+            unknownSet.forEach(variableValues -> {
+                for (int i = 0; i < variableValues.length; i++) {
+                    buffer.putDouble(variableValues[i]);
+                }
+            });
+        }
 
-        buffer.putInt(unknownSet.size());
-        unknownSet.forEach(variableValues -> {
-            for (int i = 0; i < variableValues.length; i++) {
-                buffer.putDouble(variableValues[i]);
-            }
-        });
+        if (maxSet != null) {
+            buffer.putInt(maxSet.size());
+            maxSet.forEach(variableValues -> {
+                for (int i = 0; i < variableValues.length; i++) {
+                    buffer.putDouble(variableValues[i]);
+                }
+            });
+        }
 
-        buffer.putInt(maxSet.size());
-        maxSet.forEach(variableValues -> {
-            for (int i = 0; i < variableValues.length; i++) {
-                buffer.putDouble(variableValues[i]);
-            }
-        });
-
-        buffer.putInt(minSet.size());
-        minSet.forEach(variableValues -> {
-            for (int i = 0; i < variableValues.length; i++) {
-                buffer.putDouble(variableValues[i]);
-            }
-        });
+        if (minSet != null) {
+            buffer.putInt(minSet.size());
+            minSet.forEach(variableValues -> {
+                for (int i = 0; i < variableValues.length; i++) {
+                    buffer.putDouble(variableValues[i]);
+                }
+            });
+        }
 
         byte[] bytes = buffer.array();
         return bytes;
