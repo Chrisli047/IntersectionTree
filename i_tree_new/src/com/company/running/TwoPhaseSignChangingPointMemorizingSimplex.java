@@ -116,11 +116,13 @@ public class TwoPhaseSignChangingPointMemorizingSimplex implements SimplexMarker
                 return;
             }
 
-            // Collect points
-            if (maximizing) {
-                minSet.add(this.primal());
-            } else {
-                maxSet.add(this.primal());
+            // Collect points that are not on the line
+            if (this.value() < objectiveFunctionConstant) {
+                if (maximizing) {
+                    minSet.add(this.primal());
+                } else {
+                    maxSet.add(this.primal());
+                }
             }
 
             // find entering column q
