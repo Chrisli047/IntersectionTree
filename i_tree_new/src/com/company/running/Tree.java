@@ -251,8 +251,6 @@ public class Tree {
                         tableName, true);
             }
         }
-
-        // TODO: update remembered point sets (lastNode unknown set and all point groups into their new node IF -> right)
     }
 
     private static boolean constructTreePartitionDomain(SimplexType simplexType,
@@ -307,10 +305,20 @@ public class Tree {
         Function rootPartitionFunction = null;
         for (; intersectionIndex.get() < intersections.length; intersectionIndex.incrementAndGet()) {
             Function function = intersections[intersectionIndex.get()];
+
+            HashSet<double[]> maxSet = null;
+            HashSet<double[]> minSet = null;
+
+            if (simplexType == SimplexType.POINT_REMEMBERING_PERMANENT_SIGN_CHANGING_SIMPLEX
+                    || simplexType == SimplexType.POINT_REMEMBERING_LOCAL_SIGN_CHANGING_SIMPLEX) {
+                maxSet = new HashSet<>();
+                minSet = new HashSet<>();
+            }
+
             if (DomainSimplex.ifPartitionsDomain(constraintCoefficients, constraintConstants, function, simplexType,
-                    dimension, null, null, false, false)) {
+                    dimension, maxSet, minSet, false, false)) {
                 rootPartitionFunction = function;
-                intersectionIndex.get();
+                intersectionIndex.incrementAndGet();
                 break;
             }
         }

@@ -46,6 +46,8 @@ public class DomainSimplex implements DomainType {
 
         buffer.putDouble(constraintConstant);
 
+        // TODO: sets might be null
+
         buffer.putInt(unknownSet.size());
         unknownSet.forEach(variableValues -> {
             for (int i = 0; i < variableValues.length; i++) {
@@ -172,16 +174,6 @@ public class DomainSimplex implements DomainType {
                     }
                     break;
                 case POINT_REMEMBERING_PERMANENT_SIGN_CHANGING_SIMPLEX:
-                    if (!maxFound) {
-                        max = new TwoPhaseSignChangingPointMemorizingSimplex(constraintVariableCoefficients,
-                                constraintConstants, objectiveFunctionVariableCoefficients, true,
-                                objectiveFunctionConstant, maxSet, minSet);
-                    }
-                    if (!minFound) {
-                        min = new TwoPhaseSignChangingPointMemorizingSimplex(constraintVariableCoefficients,
-                                constraintConstants, objectiveFunctionVariableCoefficients, false,
-                                objectiveFunctionConstant, maxSet, minSet);
-                    }
                 case POINT_REMEMBERING_LOCAL_SIGN_CHANGING_SIMPLEX:
                     if (!maxFound) {
                         max = new TwoPhaseSignChangingPointMemorizingSimplex(constraintVariableCoefficients,
@@ -193,6 +185,7 @@ public class DomainSimplex implements DomainType {
                                 constraintConstants, objectiveFunctionVariableCoefficients, false,
                                 objectiveFunctionConstant, maxSet, minSet);
                     }
+                    break;
                 default:
                     throw new IllegalArgumentException("Simplex type argument is invalid. Inputted argument: " +
                             simplexType);
