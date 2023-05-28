@@ -288,7 +288,7 @@ public class Tree {
             // TODO: same as permanent memorization, but all points stored in array (for get and for put)
         }
         return DomainSimplex.ifPartitionsDomain(constraintCoefficients, constraintConstants, function,
-                simplexType, dimension, maxSet, minSet, maxFound, minFound);
+                simplexType, dimension, maxSet, minSet, maxFound, minFound); // TODO: do maxSet and minSet persist after return?
     }
 
     // Pass constraintCoefficients and constraintConstants with initial domain
@@ -300,23 +300,22 @@ public class Tree {
                                            int dimension, String tableName) {
         AtomicInteger numNodes = new AtomicInteger(0); // num nodes in tree for testing
         AtomicInteger intersectionIndex = new AtomicInteger(0); // identifies current intersection
+        boolean storePoints = false;
+
+        if (simplexType == SimplexType.POINT_REMEMBERING_PERMANENT_SIGN_CHANGING_SIMPLEX
+                || simplexType == SimplexType.POINT_REMEMBERING_LOCAL_SIGN_CHANGING_SIMPLEX) {
+            storePoints = true;
+            domain.maxSet = new HashSet<>();
+            domain.minSet = new HashSet<>();
+        }
 
         NodeRecord.createTable(tableName);
         Function rootPartitionFunction = null;
         for (; intersectionIndex.get() < intersections.length; intersectionIndex.incrementAndGet()) {
             Function function = intersections[intersectionIndex.get()];
 
-            HashSet<double[]> maxSet = null;
-            HashSet<double[]> minSet = null;
-
-            if (simplexType == SimplexType.POINT_REMEMBERING_PERMANENT_SIGN_CHANGING_SIMPLEX
-                    || simplexType == SimplexType.POINT_REMEMBERING_LOCAL_SIGN_CHANGING_SIMPLEX) {
-                maxSet = new HashSet<>();
-                minSet = new HashSet<>();
-            }
-
             if (DomainSimplex.ifPartitionsDomain(constraintCoefficients, constraintConstants, function, simplexType,
-                    dimension, maxSet, minSet, false, false)) {
+                    dimension, domain.maxSet, domain.minSet, false, false)) {
                 rootPartitionFunction = function;
                 intersectionIndex.incrementAndGet();
                 break;
@@ -326,11 +325,11 @@ public class Tree {
         if (rootPartitionFunction == null) {
             return numNodes.get();
         }
-
+        // TODO: Constraints should update sooner. We are checking intersection2 partitions original domain, not left and rights
         NodeRecord root = new NodeRecord(domain, rootPartitionFunction, intersectionIndex.get(), -1, -1, -1);
-        root.ID = root.insertToMySql(dimension, tableName, false);
+        root.ID = root.insertToMySql(dimension, tableName, storePoints);
         numNodes.incrementAndGet();
-
+        // TODO: does root have a right node? When we go right, do we build a node or assume it is already there? If assume, fix root right
         ArrayList<Integer> ancestorIDs = new ArrayList<>();
         NodeRecord[] parentWrapper = new NodeRecord[]{root};
         ancestorIDs.add(parentWrapper[0].ID);

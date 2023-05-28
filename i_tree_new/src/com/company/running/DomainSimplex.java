@@ -34,10 +34,23 @@ public class DomainSimplex implements DomainType {
 
     public byte[] toByte(int dimension, boolean storePoints) {
         int capacity = constraintCoefficients.length * Double.BYTES + Double.BYTES;
+
         if (storePoints) {
-            capacity += 3 * Integer.BYTES + dimension * Double.BYTES * unknownSet.size() +
-                    dimension * Double.BYTES * maxSet.size() + dimension * Double.BYTES * minSet.size();
+            capacity += 3 * Integer.BYTES;
+
+            if (unknownSet != null) {
+                capacity += dimension * Double.BYTES * unknownSet.size();
+            }
+
+            if (maxSet != null) {
+                capacity += dimension * Double.BYTES * maxSet.size();
+            }
+
+            if (minSet != null) {
+                capacity += dimension * Double.BYTES * minSet.size();
+            }
         }
+
         ByteBuffer buffer = ByteBuffer.allocate(capacity);
 
         for (double c : constraintCoefficients) {
@@ -53,6 +66,8 @@ public class DomainSimplex implements DomainType {
                     buffer.putDouble(variableValues[i]);
                 }
             });
+        } else {
+            buffer.putInt(0);
         }
 
         if (maxSet != null) {
@@ -62,6 +77,8 @@ public class DomainSimplex implements DomainType {
                     buffer.putDouble(variableValues[i]);
                 }
             });
+        } else {
+            buffer.putInt(0);
         }
 
         if (minSet != null) {
@@ -71,10 +88,11 @@ public class DomainSimplex implements DomainType {
                     buffer.putDouble(variableValues[i]);
                 }
             });
+        } else {
+            buffer.putInt(0);
         }
 
-        byte[] bytes = buffer.array();
-        return bytes;
+        return buffer.array();
     }
 
     public static DomainSimplex toDomain(byte[] bytes, int dimension, boolean storedPoints) {
