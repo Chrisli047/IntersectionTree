@@ -124,7 +124,6 @@ public class DomainSimplex implements DomainType {
         return new DomainSimplex(function, true, unknownSet, maxSet, minSet);
     }
 
-    // TODO: if max/min found check less
     public static boolean ifPartitionsDomain(ArrayList<double[]> allConstraintCoefficients,
                                              ArrayList<Double> allConstraintConstants,
                                              Function function,
