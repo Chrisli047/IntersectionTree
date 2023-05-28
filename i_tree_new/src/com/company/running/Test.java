@@ -2,266 +2,119 @@ package com.company.running;
 
 import java.io.*;
 import java.util.ArrayList;
-import java.util.List;
 
 public class Test {
-    public static void testBuffer() {
-        Point p = new Point(new double[]{1.0, 2.0});
-        byte[] b = p.toByte();
-        Point originalPoint = Point.toPoint(b);
-        System.out.println(originalPoint);
-
-        Segment s = new Segment(1, 2);
-        byte[] bs = s.toByte();
-        Segment originalSegment = Segment.toSegment(bs);
-        System.out.println(originalSegment.startPointID);
-        System.out.println(originalSegment.endPointID);
-
-        Point[] pA = new Point[] {new Point(new double[]{1.0, 2.0}), new Point(new double[]{2.0, 3.0})};
-        Segment[] sA = new Segment[] {new Segment(1, 2), new Segment(2, 3)};
-        Domain d = new Domain(pA, sA);
-        byte[] bd = d.toByte(2, false);
-        Domain originalDomain = Domain.toDomain(bd, 2, false);
-        originalDomain.printDomain();
-
-        Function f = new Function(new double[]{1.0, 2.0, 3.0});
-        byte[] fb = f.toByte(2);
-        Function originalFunction = Function.toFunction(fb);
-        System.out.println(originalFunction);
-    }
-
-    public static void testInsertRecord() {
-        Point[] pA = new Point[] {new Point(new double[]{1.0, 2.0}), new Point(new double[]{2.0, 3.0})};
-        Segment[] sA = new Segment[] {new Segment(1, 2), new Segment(2, 3)};
-        Domain d = new Domain(pA, sA);
-        byte[] bd = d.toByte(2, false);
-        Domain originalDomain = Domain.toDomain(bd, 2, false);
-        originalDomain.printDomain();
-
-        Function f = new Function(new double[]{1.0, 2.0, 3.0});
-        byte[] fb = f.toByte(2);
-        Function originalFunction = Function.toFunction(fb);
-        System.out.println(originalFunction);
-
-        NodeRecord nodeRecord = new NodeRecord(d, f, -1, -1, -1);
-        nodeRecord.insertToMySql(2, "IntersectionTree", false);
-    }
-
-    public static void testGetRecordById(int id) {
-        NodeRecord nodeRecord = NodeRecord.getRecordById(id, false, 2, "IntersectionTree",
-                false);
-        nodeRecord.d.printDomain();
-        System.out.println(nodeRecord.f);
-        System.out.println(nodeRecord.leftID);
-        System.out.println(nodeRecord.rightID);
-    }
-
-    public static void testUpdateRecord() {
-        NodeRecord nodeRecord = NodeRecord.updateRecord(1, -1, 2,null, false, 2,
-                "IntersectionTree", false);
-        nodeRecord.d.printDomain();
-        System.out.println(nodeRecord.f);
-        System.out.println(nodeRecord.leftID);
-        System.out.println(nodeRecord.rightID);
-    }
-
-    public static void testFindCornerPoints() {
-        double[][] range = {{0, 10}, {0, 10}};
-
-        List<double[]> res = Domain.findCornerPoints(range);
-
-        for (double[] arr : res) {
-            for (double d : arr) {
-                System.out.print(d + " ");
-            }
-            System.out.println();
-        }
-    }
-
-    public static void testFindBoundaryLines() {
-        double[][] range = {{0, 10}, {0, 10}};
-
-        List<double[]> points = Domain.findCornerPoints(range);
-        for (double[] arr : points) {
-            for (double d : arr) {
-                System.out.print(d + " ");
-            }
-            System.out.println();
-        }
-
-        List<int[]> res = Domain.findBoundaryLines(points);
-
-        for (int i = 0; i < res.size(); i++) {
-            int[] arr = res.get(i);
-            for (int j = 0; j < arr.length; j++) {
-                System.out.print(arr[j] + " ");
-            }
-            System.out.println();
-        }
-
-    }
-
-    public static void testConstructTree() throws IOException {
-
-        DataReader dataReader = new DataReader("/Users/xiyaoli/Desktop/Study/research_program/information_element/i_tree_data/data/initDomains/initDomains_d_2.json",
-                "/Users/xiyaoli/Desktop/Study/research_program/information_element/i_tree_data/data/input/data_d_2_records_5_initDomainID_1.json");
-//                "/Users/maximpopov/Documents/data_d_2_records_5_initDomainID_1.json");        //      Get coefficients
-        double[][] coefficientSet = dataReader.coefficientSet();
-//        Queue<Function> functions = new LinkedList<Function>();
-        Function[] functions = new Function[coefficientSet.length];
-        for (int i = 0; i < coefficientSet.length; i++) {
-            functions[i] = (new Function(coefficientSet[i]));
-        }
-
-        double[][] range = {{0, 10}, {0, 10}};
-
-        List<double[]> points = Domain.findCornerPoints(range);
-        for (double[] arr : points) {
-            for (double d : arr) {
-                System.out.print(d + " ");
-            }
-            System.out.println();
-        }
-        //        construct point array for domain
-        Point[] pA = new Point[points.size()];
-        for (int i = 0; i < pA.length; i++) {
-            pA[i] = new Point(points.get(i));
-        }
-
-        List<int[]> res = Domain.findBoundaryLines(points);
-
-        for (int i = 0; i < res.size(); i++) {
-            int[] arr = res.get(i);
-            for (int j = 0; j < arr.length; j++) {
-                System.out.print(arr[j] + " ");
-            }
-            System.out.println();
-        }
-        //        construct segment array for domain
-        Segment[] sA = new Segment[res.size()];
-        for(int i = 0; i < sA.length; i++) {
-            sA[i] = new Segment(res.get(i)[0], res.get(i)[1]);
-        }
-
-//        construct domain
-        Domain d = new Domain(pA, sA);
-        d.printDomain();
-//        call constructTree method
-        Tree.constructTree(functions, d, 2, "intersection-tree");
-//        construct segment array for domain
-
-//        unfinished
-    }
-
-    public static void testConstructTreeSimplex(SimplexType simplexType) throws IOException {
-        DataReader dataReader = new DataReader("/Users/xiyaoli/Desktop/Study/research_program/information_element/i_tree_data/data/initDomains/initDomains_d_2.json",
-                "/Users/xiyaoli/Desktop/Study/research_program/information_element/i_tree_data/data/input/data_d_2_records_5_initDomainID_1.json");
-//                "/Users/maximpopov/Documents/data_d_2_records_5_initDomainID_1.json");
-        // Get coefficients
-        double[][] coefficientSet = dataReader.coefficientSet();
-        // Queue<Function> functions = new LinkedList<Function>();
-        Function[] functions = new Function[coefficientSet.length];
-        for (int i = 0; i < coefficientSet.length; i++) {
-            functions[i] = (new Function(coefficientSet[i]));
-        }
-
-        // define initial domain
-        ArrayList<double[]> allConstraintCoefficients = new ArrayList<>();
-        ArrayList<Double> allConstraintConstants = new ArrayList<>();
-        // x1 >= 0 --> -x1 <= 0
-        allConstraintCoefficients.add(new double[]{-1, 0});
-        allConstraintConstants.add(0.0);
-        // x1 <= 10
-        allConstraintCoefficients.add(new double[]{1, 0});
-        allConstraintConstants.add(10.0);
-        // x2 >= 0 --> -x2 <= 0
-        allConstraintCoefficients.add(new double[]{0, -1});
-        allConstraintConstants.add(0.0);
-        // x2 <= 10
-        allConstraintCoefficients.add(new double[]{0, 1});
-        allConstraintConstants.add(10.0);
-
-        Function function = new Function(new double[]{0, 0, 1});
-
-        // construct domain
-        DomainSimplex d = new DomainSimplex(function, true, null, null, null);
-        d.printDomain();
-
-        // call constructTree method
-        Tree.constructTreeSimplex(functions, d, allConstraintCoefficients, allConstraintConstants, simplexType, 2,
-                "intersection-tree");
-        // construct segment array for domain
-
-        // unfinished
-    }
-
-    public static void testFindIntersectionPoints(){
-        double[][] range = {{0, 10}, {0, 10}};
-
-        List<double[]> points = Domain.findCornerPoints(range);
-        for (double[] arr : points) {
-            for (double d : arr) {
-                System.out.print(d + " ");
-            }
-            System.out.println();
-        }
-        //        construct point array for domain
-        Point[] pA = new Point[points.size()];
-        for (int i = 0; i < pA.length; i++) {
-            pA[i] = new Point(points.get(i));
-        }
-
-        List<int[]> res = Domain.findBoundaryLines(points);
-
-        for (int i = 0; i < res.size(); i++) {
-            int[] arr = res.get(i);
-            for (int j = 0; j < arr.length; j++) {
-                System.out.print(arr[j] + " ");
-            }
-            System.out.println();
-        }
-        //        construct segment array for domain
-        Segment[] sA = new Segment[res.size()];
-        for(int i = 0; i < sA.length; i++) {
-            sA[i] = new Segment(res.get(i)[0], res.get(i)[1]);
-        }
-
-        //        construct function array
-        Function f = new Function(new double[] {1, 1, 1});
-        Function[] fs  = new Function[1];
-        fs[0] = f;
-
-//        construct point array for domain
-//        Point[] pA = new Point[] {new Point(new double[]{0.0, 0.0}),
-//                new Point(new double[]{5.0, 0.0}),
-//                new Point(new double[]{5.0, 5.0}),
-//                new Point(new double[]{0.0, 5.0})};
-//        construct segment array for domain
-//        Segment[] sA = new Segment[] {new Segment(0, 1), new Segment(1, 2), new Segment(2, 3), new Segment(3, 0)};
-
-//        construct domain
-        Domain d = new Domain(pA, sA);
-        d.printDomain();
-
-        Domain[] partitionedDomain = Partition.partitionDomain(d, f);
-        for (Domain pd :partitionedDomain
-             ) {
-            pd.printDomain();
-        }
-    }
-
-    // *******************
-    // Tree Accuracy Tests
-    // *******************
-
-    public static void simplexTests() {
-        //  TODO: Tests Pass: point memorization
-        //  TODO: Test Walkthrough: point memorization check points working properly: CAREFULLY
+    // Only includes broad Simplex tests.
+    // For smaller (unfinished) tests go to ArchivedTests.java.
+    public static void runTests() {
         originLineTest();
         treePathTest();
     }
 
-    public static void treePathTest() {
+    // Full tree construction test for Simplex-based solutions:
+    // Given n lines going through the origin with a positive finite slope there should be n+1 subdomains = 2n+1 nodes
+    public static void originLineTest() {
+        final int NUM_INEQUALITY = 50;
+        final int NUM_DIMENSION = 5;
+        final int DOMAIN_BOUNDARY_LENGTH = 1;
+
+        final int EXPECTED_NUM_NODES = 2 * NUM_INEQUALITY + 1;
+
+        ArrayList<double[]> domainBoundaryInequalities = generateDomainBoundary(NUM_DIMENSION, DOMAIN_BOUNDARY_LENGTH);
+        Function[] functions = new Function[NUM_INEQUALITY];
+        for (int j = 0; j < functions.length; j++) {
+            functions[j] = new Function(generate_equation_origin(NUM_DIMENSION));
+        }
+
+        // Modifications for Simplex:
+        double[] function_values = new double[NUM_DIMENSION + 1];
+        function_values[function_values.length - 1] = 1;
+        Function function = new Function(function_values);
+        DomainSimplex d = new DomainSimplex(function, true, null, null, null);
+        ArrayList<double[]> constraintCoefficients = new ArrayList<>();
+        // Separate constraint constants
+        ArrayList<Double> constraintConstants = new ArrayList<>();
+        for (double[] inequality : domainBoundaryInequalities) {
+            // ignore constant at the end
+            double[] slackenedEquation = new double[inequality.length - 1];
+            System.arraycopy(inequality, 0, slackenedEquation, 0, inequality.length - 1);
+            constraintConstants.add(inequality[inequality.length - 1]);
+            constraintCoefficients.add(slackenedEquation);
+        }
+
+        // Simplex
+        int numNodesSimplex = Tree.constructTreeSimplex(functions, d, constraintCoefficients, constraintConstants,
+                SimplexType.SIMPLEX, NUM_DIMENSION, "OriginLineTestSimplex");
+        if (numNodesSimplex != EXPECTED_NUM_NODES) {
+            throw new IllegalStateException("Num nodes Simplex should be " + EXPECTED_NUM_NODES + ", but is "
+                    + numNodesSimplex);
+        }
+
+        // Sign-Changing Simplex
+        int numNodesSignChangingSimplex = Tree.constructTreeSimplex(functions, d, constraintCoefficients,
+                constraintConstants, SimplexType.SIGN_CHANGING_SIMPLEX, NUM_DIMENSION,
+                "OriginLineTestSignChangingSimplex");
+        if (numNodesSignChangingSimplex != EXPECTED_NUM_NODES) {
+            throw new IllegalStateException("Num nodes SignChangingSimplex should be " + EXPECTED_NUM_NODES + ", but is "
+                    + numNodesSignChangingSimplex);
+        }
+
+        // Sign-Changing Permanent Point Memorization Simplex
+        int numNodesPermanentPointMemorization = Tree.constructTreeSimplex(functions, d, constraintCoefficients,
+                constraintConstants, SimplexType.POINT_REMEMBERING_PERMANENT_SIGN_CHANGING_SIMPLEX, NUM_DIMENSION,
+                "OriginLineTestPermanentPointMemorization");
+        if (numNodesPermanentPointMemorization != EXPECTED_NUM_NODES) {
+            throw new IllegalStateException("Num nodes Permanent Point Memorization should be " + EXPECTED_NUM_NODES +
+                    ", but is " + numNodesPermanentPointMemorization);
+        }
+
+        // Sign-Changing Local Point Memorization Simplex
+        int numNodesLocalPointMemorization = Tree.constructTreeSimplex(functions, d, constraintCoefficients,
+                constraintConstants, SimplexType.POINT_REMEMBERING_LOCAL_SIGN_CHANGING_SIMPLEX, NUM_DIMENSION,
+                "OriginLineTestLocalPointMemorization");
+        if (numNodesLocalPointMemorization != EXPECTED_NUM_NODES) {
+            throw new IllegalStateException("Num nodes Local Point Memorization should be " + EXPECTED_NUM_NODES +
+                    ", but is " + numNodesLocalPointMemorization);
+        }
+    }
+
+    // Positive finite slope going through origin
+    public static ArrayList<double[]> generateDomainBoundary(int num_dimension, int domain_boundary_length) {
+        int num_inequality = 0;
+
+        ArrayList<double[]> inequalities = new ArrayList<>();
+
+        // Generate boundaries
+        for (int i = 0; i < num_dimension; i++) {
+            // 1x ≥ 0 --> -1x ≤ 0
+            double[] lower_bound = new double[num_dimension + 1];
+            lower_bound[i] = -1;
+            // 1x ≤ boundary_length
+            double[] upper_bound = new double[num_dimension + 1];
+            upper_bound[i] = 1;
+            upper_bound[upper_bound.length - 1] = domain_boundary_length;
+            inequalities.add(lower_bound);
+            inequalities.add(upper_bound);
+        }
+
+        for (int i = 0; i < num_inequality; i++) {
+            double[] inequality = new double[num_dimension+1];
+            // Set a, b, c, ...
+            for (int j = 0; j < inequality.length - 1; j++) {
+                inequality[j] = Math.random();
+            }
+            // Set d
+            inequality[inequality.length - 1] = 0;
+            // Set b = -1
+            inequality[1] = -1;
+
+            inequalities.add(inequality);
+        }
+
+        return inequalities;
+    }
+
+    private static void treePathTest() {
         int num_inequality = 100;
         int num_dimension = 10;
         int domain_boundary_length = 1;
@@ -302,74 +155,6 @@ public class Test {
         }
     }
 
-    // Given n lines going through the origin with a positive finite slope there should be n+1 subdomains or 2n+1 nodes
-    public static void originLineTest() {
-        int num_inequality = 100;
-        int num_dimension = 2;
-        int domain_boundary_length = 1;
-
-        int expectedNumNodes = 2 * num_inequality + 1;
-
-        // Equations defining subdomain
-        ArrayList<double[]> inequalities = generate_inequalities_origin(0, num_dimension,
-                domain_boundary_length);
-        Function[] functions = new Function[num_inequality];
-        for (int j = 0; j < functions.length; j++) {
-            functions[j] = new Function(generate_equation_origin(num_dimension));
-        }
-
-        // Modifications for Simplex:
-        double[] function_values = new double[num_dimension + 1];
-        function_values[function_values.length - 1] = 1;
-        Function function = new Function(function_values);
-        DomainSimplex d = new DomainSimplex(function, true, null, null, null);
-        ArrayList<double[]> constraintCoefficients = new ArrayList<>();
-        // Separate constraint constants
-        ArrayList<Double> constraintConstants = new ArrayList<>();
-        for (double[] inequality : inequalities) {
-            // ignore constant at the end
-            double[] slackenedEquation = new double[inequality.length - 1];
-            System.arraycopy(inequality, 0, slackenedEquation, 0, inequality.length - 1);
-            constraintConstants.add(inequality[inequality.length - 1]);
-            constraintCoefficients.add(slackenedEquation);
-        }
-
-        // Simplex
-        int numNodesSimplex = Tree.constructTreeSimplex(functions, d, constraintCoefficients, constraintConstants,
-                SimplexType.SIMPLEX, num_dimension, "OriginLineTestSimplex");
-        if (numNodesSimplex != expectedNumNodes) {
-            throw new IllegalStateException("Num nodes Simplex should be " + expectedNumNodes + ", but is "
-                    + numNodesSimplex);
-        }
-
-        // Sign-Changing Simplex
-        int numNodesSignChangingSimplex = Tree.constructTreeSimplex(functions, d, constraintCoefficients,
-                constraintConstants, SimplexType.SIGN_CHANGING_SIMPLEX, num_dimension,
-                "OriginLineTestSignChangingSimplex");
-        if (numNodesSignChangingSimplex != expectedNumNodes) {
-            throw new IllegalStateException("Num nodes SignChangingSimplex should be " + expectedNumNodes + ", but is "
-                    + numNodesSignChangingSimplex);
-        }
-
-        // Sign-Changing Permanent Point Memorization Simplex
-        int numNodesPermanentPointMemorization = Tree.constructTreeSimplex(functions, d, constraintCoefficients,
-                constraintConstants, SimplexType.POINT_REMEMBERING_PERMANENT_SIGN_CHANGING_SIMPLEX, num_dimension,
-                "OriginLineTestPermanentPointMemorization");
-        if (numNodesPermanentPointMemorization != expectedNumNodes) {
-            throw new IllegalStateException("Num nodes Permanent Point Memorization should be " + expectedNumNodes +
-                    ", but is " + numNodesPermanentPointMemorization);
-        }
-
-        // Sign-Changing Local Point Memorization Simplex
-        int numNodesLocalPointMemorization = Tree.constructTreeSimplex(functions, d, constraintCoefficients,
-                constraintConstants, SimplexType.POINT_REMEMBERING_LOCAL_SIGN_CHANGING_SIMPLEX, num_dimension,
-                "OriginLineTestLocalPointMemorization");
-        if (numNodesLocalPointMemorization != expectedNumNodes) {
-            throw new IllegalStateException("Num nodes Local Point Memorization should be " + expectedNumNodes +
-                    ", but is " + numNodesLocalPointMemorization);
-        }
-    }
-
     // ***************
     // DATA COLLECTION
     // ***************
@@ -383,7 +168,7 @@ public class Test {
     final static int unique_runs = 10;
     final static int repeat_runs = 10;
 
-    public static void collect_data() throws IOException {
+    public static void collectData() throws IOException {
         //  TODO: Data Gathering for 2 Point Memorization Versions
         int[] table_counter = new int[]{0};
         collect_data_individual_feasibility_checks();
@@ -735,41 +520,6 @@ public class Test {
         return equation;
     }
 
-    // Positive finite slope going through origin
-    public static ArrayList<double[]> generate_inequalities_origin(int num_inequality, int num_dimension,
-                                                                   int domain_boundary_length) {
-        ArrayList<double[]> inequalities = new ArrayList<>();
-
-        // Generate boundaries
-        for (int i = 0; i < num_dimension; i++) {
-            // 1x ≥ 0 --> -1x ≤ 0
-            double[] lower_bound = new double[num_dimension + 1];
-            lower_bound[i] = -1;
-            // 1x ≤ boundary_length
-            double[] upper_bound = new double[num_dimension + 1];
-            upper_bound[i] = 1;
-            upper_bound[upper_bound.length - 1] = domain_boundary_length;
-            inequalities.add(lower_bound);
-            inequalities.add(upper_bound);
-        }
-
-        for (int i = 0; i < num_inequality; i++) {
-            double[] inequality = new double[num_dimension+1];
-            // Set a, b, c, ...
-            for (int j = 0; j < inequality.length - 1; j++) {
-                inequality[j] = Math.random();
-            }
-            // Set d
-            inequality[inequality.length - 1] = 0;
-            // Set b = -1
-            inequality[1] = -1;
-
-            inequalities.add(inequality);
-        }
-
-        return inequalities;
-    }
-
     // Generated equations are in the form: ax1 + bx2 + cx3 + ... = d where double[] = {a, b, c, d}.
     private static ArrayList<double[]> generate_inequalities(int num_inequality, int num_dimension,
                                                              int domain_boundary_length) {
@@ -824,7 +574,7 @@ public class Test {
         return inequalities;
     }
 
-    public static void ParseDataFiles() {
+    public static void parseDataFiles() {
         // TODO: parse data files for new data file format with 2 point memorization techniques included
         try {
             File individual_inequality_naive = new File("Data_Individual_Partition_Variable_Inequalities_Simplex.txt");
