@@ -1,5 +1,4 @@
 package com.company.running;
-import java.nio.ByteBuffer;
 import java.sql.*;
 
 public class NodeRecord {
@@ -31,7 +30,7 @@ public class NodeRecord {
 
     public static void createTable(String table_name) {
         try {
-            Connection connection = DriverManager.getConnection(Constants.MYSQL_URL, Constants.MYSQL_USER, Constants.MYSQL_PASSWORD);
+            Connection connection = DriverManager.getConnection(MYSQLConstants.MYSQL_URL, MYSQLConstants.MYSQL_USER, MYSQLConstants.MYSQL_PASSWORD);
             Statement stmt = connection.createStatement();
             String sql = "use i_tree";
             stmt.executeUpdate(sql);
@@ -55,7 +54,7 @@ public class NodeRecord {
     public int insertToMySql(int dimension, String table_name, boolean storePoints) {
         int returnId = 0;
         try {
-            Connection connection = DriverManager.getConnection(Constants.MYSQL_URL, Constants.MYSQL_USER, Constants.MYSQL_PASSWORD);
+            Connection connection = DriverManager.getConnection(MYSQLConstants.MYSQL_URL, MYSQLConstants.MYSQL_USER, MYSQLConstants.MYSQL_PASSWORD);
             Statement stmt = connection.createStatement();
             String sql = "use i_tree";
             stmt.executeUpdate(sql);
@@ -105,7 +104,7 @@ public class NodeRecord {
                                            boolean storedPoints) {
         NodeRecord nodeRecord = null;
         try {
-            Connection connection = DriverManager.getConnection(Constants.MYSQL_URL, Constants.MYSQL_USER, Constants.MYSQL_PASSWORD);
+            Connection connection = DriverManager.getConnection(MYSQLConstants.MYSQL_URL, MYSQLConstants.MYSQL_USER, MYSQLConstants.MYSQL_PASSWORD);
             Statement stmt = connection.createStatement();
             String sql = "use i_tree";
             stmt.executeUpdate(sql);
@@ -154,7 +153,7 @@ public class NodeRecord {
         NodeRecord updatedRecord = null;
 
         try {
-            Connection connection = DriverManager.getConnection(Constants.MYSQL_URL, Constants.MYSQL_USER, Constants.MYSQL_PASSWORD);
+            Connection connection = DriverManager.getConnection(MYSQLConstants.MYSQL_URL, MYSQLConstants.MYSQL_USER, MYSQLConstants.MYSQL_PASSWORD);
             Statement stmt = connection.createStatement();
             String sql = "use i_tree";
             stmt.executeUpdate(sql);
