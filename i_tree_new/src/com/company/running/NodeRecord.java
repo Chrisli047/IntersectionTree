@@ -63,7 +63,7 @@ public class NodeRecord {
             connection.setAutoCommit(false);
             // Create a PreparedStatement with the SQL statement for inserting a record
             String insertSql = "INSERT INTO " + table_name + " (Domain, LinearFunction, IntersectionIndex, ParentID, " +
-                    "LeftID, rightID) VALUES (?, ?, ?, ?, ?)";
+                    "LeftID, RightID) VALUES (?, ?, ?, ?, ?, ?)";
             PreparedStatement pstmt = connection.prepareStatement(insertSql, Statement.RETURN_GENERATED_KEYS);
 
             // Set the values for the parameters in the prepared statement
@@ -158,12 +158,12 @@ public class NodeRecord {
             String sql = "use i_tree";
             stmt.executeUpdate(sql);
 
-            String updateSql = "UPDATE " + table_name + " SET LeftID = ?, rightID = ? WHERE ID = ?, DOMAIN = ?";
+            String updateSql = "UPDATE " + table_name + " SET LeftID = ?, RightID = ?, DOMAIN = ? WHERE ID = ?";
             PreparedStatement pstmt = connection.prepareStatement(updateSql);
             pstmt.setInt(1, newLeftId);
             pstmt.setInt(2, newRightId);
-            pstmt.setInt(3, recordId);;
-            pstmt.setBytes(4, newDomain.toByte(dimension, storedPoints));
+            pstmt.setBytes(3, newDomain.toByte(dimension, storedPoints));
+            pstmt.setInt(4, recordId);
 
             int rowsUpdated = pstmt.executeUpdate();
             if (rowsUpdated > 0) {

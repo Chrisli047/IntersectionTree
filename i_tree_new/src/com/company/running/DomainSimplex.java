@@ -35,9 +35,8 @@ public class DomainSimplex implements DomainType {
     public byte[] toByte(int dimension, boolean storePoints) {
         int capacity = constraintCoefficients.length * Double.BYTES + Double.BYTES;
 
+        capacity += 3 * Integer.BYTES;
         if (storePoints) {
-            capacity += 3 * Integer.BYTES;
-
             if (unknownSet != null) {
                 capacity += dimension * Double.BYTES * unknownSet.size();
             }
@@ -96,6 +95,8 @@ public class DomainSimplex implements DomainType {
     }
 
     public static DomainSimplex toDomain(byte[] bytes, int dimension, boolean storedPoints) {
+        storedPoints = true;
+
         ByteBuffer buffer = ByteBuffer.wrap(bytes);
 
         double[] coefficients = new double[dimension + 1];

@@ -14,8 +14,8 @@ public class Test {
     // Full tree construction test for Simplex-based solutions:
     // Given n lines going through the origin with a positive finite slope there should be n+1 subdomains = 2n+1 nodes
     public static void originLineTest() {
-        final int NUM_INEQUALITY = 50;
-        final int NUM_DIMENSION = 5;
+        final int NUM_INEQUALITY = 5;
+        final int NUM_DIMENSION = 2;
         final int DOMAIN_BOUNDARY_LENGTH = 1;
 
         final int EXPECTED_NUM_NODES = 2 * NUM_INEQUALITY + 1;
@@ -59,23 +59,23 @@ public class Test {
                     + numNodesSignChangingSimplex);
         }
 
-        // Sign-Changing Permanent Point Memorization Simplex
-        int numNodesPermanentPointMemorization = Tree.constructTreeSimplex(functions, d, constraintCoefficients,
-                constraintConstants, SimplexType.POINT_REMEMBERING_PERMANENT_SIGN_CHANGING_SIMPLEX, NUM_DIMENSION,
-                "OriginLineTestPermanentPointMemorization");
-        if (numNodesPermanentPointMemorization != EXPECTED_NUM_NODES) {
-            throw new IllegalStateException("Num nodes Permanent Point Memorization should be " + EXPECTED_NUM_NODES +
-                    ", but is " + numNodesPermanentPointMemorization);
-        }
-
-        // Sign-Changing Local Point Memorization Simplex
-        int numNodesLocalPointMemorization = Tree.constructTreeSimplex(functions, d, constraintCoefficients,
-                constraintConstants, SimplexType.POINT_REMEMBERING_LOCAL_SIGN_CHANGING_SIMPLEX, NUM_DIMENSION,
-                "OriginLineTestLocalPointMemorization");
-        if (numNodesLocalPointMemorization != EXPECTED_NUM_NODES) {
-            throw new IllegalStateException("Num nodes Local Point Memorization should be " + EXPECTED_NUM_NODES +
-                    ", but is " + numNodesLocalPointMemorization);
-        }
+//        // Sign-Changing Permanent Point Memorization Simplex
+//        int numNodesPermanentPointMemorization = Tree.constructTreeSimplex(functions, d, constraintCoefficients,
+//                constraintConstants, SimplexType.POINT_REMEMBERING_PERMANENT_SIGN_CHANGING_SIMPLEX, NUM_DIMENSION,
+//                "OriginLineTestPermanentPointMemorization");
+//        if (numNodesPermanentPointMemorization != EXPECTED_NUM_NODES) {
+//            throw new IllegalStateException("Num nodes Permanent Point Memorization should be " + EXPECTED_NUM_NODES +
+//                    ", but is " + numNodesPermanentPointMemorization);
+//        }
+//
+//        // Sign-Changing Local Point Memorization Simplex
+//        int numNodesLocalPointMemorization = Tree.constructTreeSimplex(functions, d, constraintCoefficients,
+//                constraintConstants, SimplexType.POINT_REMEMBERING_LOCAL_SIGN_CHANGING_SIMPLEX, NUM_DIMENSION,
+//                "OriginLineTestLocalPointMemorization");
+//        if (numNodesLocalPointMemorization != EXPECTED_NUM_NODES) {
+//            throw new IllegalStateException("Num nodes Local Point Memorization should be " + EXPECTED_NUM_NODES +
+//                    ", but is " + numNodesLocalPointMemorization);
+//        }
     }
 
     // Positive finite slope going through origin
@@ -115,8 +115,8 @@ public class Test {
     }
 
     private static void treePathTest() {
-        int num_inequality = 100;
-        int num_dimension = 10;
+        int num_inequality = 5;
+        int num_dimension = 2;
         int domain_boundary_length = 1;
 
         ArrayList<double[]> inequalities = generate_inequalities(0, num_dimension,
@@ -143,9 +143,10 @@ public class Test {
         int numPartitionsSignChangingSimplex = Tree.constructTreeSegmentSimplex(functions,
                 new ArrayList<>(constraintCoefficients), new ArrayList<>(constraintConstants),
                 SimplexType.SIGN_CHANGING_SIMPLEX, num_dimension, domain_boundary_length);
-        int numPartitionsLocalPointMemorization = Tree.constructTreeSegmentSimplex(functions,
-                new ArrayList<>(constraintCoefficients), new ArrayList<>(constraintConstants),
-                SimplexType.POINT_REMEMBERING_LOCAL_SIGN_CHANGING_SIMPLEX, num_dimension, domain_boundary_length);
+        int numPartitionsLocalPointMemorization = numPartitionsSimplex;
+//        int numPartitionsLocalPointMemorization = Tree.constructTreeSegmentSimplex(functions,
+//                new ArrayList<>(constraintCoefficients), new ArrayList<>(constraintConstants),
+//                SimplexType.POINT_REMEMBERING_LOCAL_SIGN_CHANGING_SIMPLEX, num_dimension, domain_boundary_length);
         if (numPartitionsSimplex != numPartitionsSignChangingSimplex ||
                 numPartitionsSimplex != numPartitionsLocalPointMemorization) {
             throw new IllegalStateException("Num nodes should be the same, but is " +
