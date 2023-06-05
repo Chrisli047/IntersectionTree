@@ -7,6 +7,8 @@ public class Test {
     // Only includes broad Simplex tests.
     // For smaller (unfinished) tests go to ArchivedTests.java.
     public static void runTests() {
+        System.out.println("Running tests. Will print test name and if fails will print failure and problem.");
+
         originLineTest();
         treePathTest();
     }
@@ -79,8 +81,6 @@ public class Test {
 //            throw new IllegalStateException("Num nodes Local Point Memorization should be " + EXPECTED_NUM_NODES +
 //                    ", but is " + numNodesLocalPointMemorization);
 //        }
-
-        System.out.println("Passed!");
     }
 
     // Positive finite slope going through origin
@@ -120,6 +120,8 @@ public class Test {
     }
 
     private static void treePathTest() {
+        System.out.println("Tree Path Test:");
+
         int num_inequality = 5;
         int num_dimension = 2;
         int domain_boundary_length = 1;
@@ -148,16 +150,15 @@ public class Test {
         int numPartitionsSignChangingSimplex = Tree.constructTreeSegmentSimplex(functions,
                 new ArrayList<>(constraintCoefficients), new ArrayList<>(constraintConstants),
                 SimplexType.SIGN_CHANGING_SIMPLEX, num_dimension, domain_boundary_length);
-        int numPartitionsLocalPointMemorization = numPartitionsSimplex;
+//        int numPartitionsLocalPointMemorization = numPartitionsSimplex;
 //        int numPartitionsLocalPointMemorization = Tree.constructTreeSegmentSimplex(functions,
 //                new ArrayList<>(constraintCoefficients), new ArrayList<>(constraintConstants),
 //                SimplexType.POINT_REMEMBERING_LOCAL_SIGN_CHANGING_SIMPLEX, num_dimension, domain_boundary_length);
-        if (numPartitionsSimplex != numPartitionsSignChangingSimplex ||
-                numPartitionsSimplex != numPartitionsLocalPointMemorization) {
-            throw new IllegalStateException("Num nodes should be the same, but is " +
-                    numPartitionsSimplex + " for Simplex, " +
-                    numPartitionsSignChangingSimplex + "for SignChangingSimplex" +
-                    numPartitionsLocalPointMemorization + "for Local Point Memorization");
+        if (numPartitionsSimplex != numPartitionsSignChangingSimplex) {
+            System.out.println("FAILED");
+            System.out.println("Num nodes should be the same, but it is " +
+                    numPartitionsSimplex + " for Simplex," +
+                    numPartitionsSignChangingSimplex + " for SignChangingSimplex");
         }
     }
 
