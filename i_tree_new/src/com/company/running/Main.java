@@ -4,7 +4,7 @@ import java.io.IOException;
 
 public class Main {
     public static void main(String[] args) throws IOException {
-        // TODO: pass tests w/o point memorization: fix updating record MySQL exception
+        // TODO: Simplex sometimes has more nodes than it should on origin line test
         Test.runTests();
 
 //        Test.collectData();

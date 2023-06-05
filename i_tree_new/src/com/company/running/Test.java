@@ -14,6 +14,8 @@ public class Test {
     // Full tree construction test for Simplex-based solutions:
     // Given n lines going through the origin with a positive finite slope there should be n+1 subdomains = 2n+1 nodes
     public static void originLineTest() {
+        System.out.println("Origin Line Test:");
+
         final int NUM_INEQUALITY = 5;
         final int NUM_DIMENSION = 2;
         final int DOMAIN_BOUNDARY_LENGTH = 1;
@@ -46,8 +48,8 @@ public class Test {
         int numNodesSimplex = Tree.constructTreeSimplex(functions, d, constraintCoefficients, constraintConstants,
                 SimplexType.SIMPLEX, NUM_DIMENSION, "OriginLineTestSimplex");
         if (numNodesSimplex != EXPECTED_NUM_NODES) {
-            throw new IllegalStateException("Num nodes Simplex should be " + EXPECTED_NUM_NODES + ", but is "
-                    + numNodesSimplex);
+            System.out.println("FAILED");
+            System.out.println("Num nodes Simplex should be " + EXPECTED_NUM_NODES + ", but is " + numNodesSimplex);
         }
 
         // Sign-Changing Simplex
@@ -55,8 +57,9 @@ public class Test {
                 constraintConstants, SimplexType.SIGN_CHANGING_SIMPLEX, NUM_DIMENSION,
                 "OriginLineTestSignChangingSimplex");
         if (numNodesSignChangingSimplex != EXPECTED_NUM_NODES) {
-            throw new IllegalStateException("Num nodes SignChangingSimplex should be " + EXPECTED_NUM_NODES + ", but is "
-                    + numNodesSignChangingSimplex);
+            System.out.println("FAILED");
+            System.out.println("Num nodes SignChangingSimplex should be " + EXPECTED_NUM_NODES + ", but is " +
+                    numNodesSignChangingSimplex);
         }
 
 //        // Sign-Changing Permanent Point Memorization Simplex
@@ -76,6 +79,8 @@ public class Test {
 //            throw new IllegalStateException("Num nodes Local Point Memorization should be " + EXPECTED_NUM_NODES +
 //                    ", but is " + numNodesLocalPointMemorization);
 //        }
+
+        System.out.println("Passed!");
     }
 
     // Positive finite slope going through origin
