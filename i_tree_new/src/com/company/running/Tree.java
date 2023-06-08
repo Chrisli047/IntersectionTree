@@ -119,9 +119,9 @@ public class Tree {
                 HashSet<double[]> maxSet = parentDomain.maxSet;
                 HashSet<double[]> minSet = parentDomain.minSet;
 
-                DomainSimplex leftDomain = new DomainSimplex(intersection, true, maxSet, null,
+                DomainSimplex leftDomain = new DomainSimplex(parentWrapper[0].f, true, maxSet, null,
                         null);
-                DomainSimplex rightDomain = new DomainSimplex(intersection, false, minSet, null,
+                DomainSimplex rightDomain = new DomainSimplex(parentWrapper[0].f, false, minSet, null,
                         null);
 
                 NodeRecord leftNode = new NodeRecord(leftDomain, intersection,
@@ -298,6 +298,8 @@ public class Tree {
                                            ArrayList<Double> constraintConstants,
                                            SimplexType simplexType,
                                            int dimension, String tableName) {
+        // TODO: Constraint Usage Failure: should use ancestor domain constraints + parent function (?*-1), actually doesn't
+        // TODO: Missing Leaf Nodes: should have functionless (parent last function domain constraint) leaf nodes, actually doesn't
         AtomicInteger numNodes = new AtomicInteger(0); // num nodes in tree for testing
         AtomicInteger intersectionIndex = new AtomicInteger(0); // identifies current intersection
         boolean storePoints = false;
@@ -325,10 +327,12 @@ public class Tree {
         if (rootPartitionFunction == null) {
             return numNodes.get();
         }
+
         // TODO: Constraints should update sooner. We are checking intersection2 partitions original domain, not left and rights
         NodeRecord root = new NodeRecord(domain, rootPartitionFunction, intersectionIndex.get(), -1, -1, -1);
         root.ID = root.insertToMySql(dimension, tableName, storePoints);
         numNodes.incrementAndGet();
+
         // TODO: does root have a right node? When we go right, do we build a node or assume it is already there? If assume, fix root right
         ArrayList<Integer> ancestorIDs = new ArrayList<>();
         NodeRecord[] parentWrapper = new NodeRecord[]{root};

@@ -4,7 +4,7 @@ import java.io.IOException;
 
 public class Main {
     public static void main(String[] args) throws IOException {
-        // TODO: Simplex sometimes has more nodes than it should on origin line test
+        // TODO: fix originLineTest
         Test.runTests();
 
 //        Test.collectData();
