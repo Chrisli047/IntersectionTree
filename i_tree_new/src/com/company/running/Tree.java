@@ -113,51 +113,67 @@ public class Tree {
                                       AtomicInteger numNodes) {
         for (; intersectionIndex.get() < intersections.length; intersectionIndex.incrementAndGet()) {
             Function intersection = intersections[intersectionIndex.get()];
+
+            DomainSimplex parentDomain = ((DomainSimplex) parentWrapper[0].d);
+            HashSet<double[]> maxSet = parentDomain.maxSet;
+            DomainSimplex leftDomain = new DomainSimplex(parentWrapper[0].f, true, maxSet, null,
+                    null);
+
+            constraintCoefficients.add(leftDomain.constraintCoefficients);
+            constraintConstants.add(leftDomain.constraintConstant);
+
             if (constructTreePartitionDomain(simplexType, parentWrapper[0], constraintCoefficients, constraintConstants,
                     intersection, dimension, tableName)) {
-                DomainSimplex parentDomain = ((DomainSimplex) parentWrapper[0].d);
-                HashSet<double[]> maxSet = parentDomain.maxSet;
-                HashSet<double[]> minSet = parentDomain.minSet;
-
-                DomainSimplex leftDomain = new DomainSimplex(parentWrapper[0].f, true, maxSet, null,
-                        null);
-                DomainSimplex rightDomain = new DomainSimplex(parentWrapper[0].f, false, minSet, null,
-                        null);
-
                 NodeRecord leftNode = new NodeRecord(leftDomain, intersection,
-                        intersectionIndex.get() + 1, parentWrapper[0].ID, -1, -1);
-                NodeRecord rightNode = new NodeRecord(rightDomain, intersection,
                         intersectionIndex.get() + 1, parentWrapper[0].ID, -1, -1);
 
                 leftNode.ID = leftNode.insertToMySql(dimension, tableName, false);
                 numNodes.incrementAndGet();
-                rightNode.ID = rightNode.insertToMySql(dimension, tableName, false);
-                numNodes.incrementAndGet();
 
                 parentWrapper[0].leftID = leftNode.ID;
-                parentWrapper[0].rightID = rightNode.ID;
-                NodeRecord.updateRecord(parentWrapper[0].ID, leftNode.ID, rightNode.ID, parentWrapper[0].d, true,
+                NodeRecord.updateRecord(parentWrapper[0].ID, leftNode.ID, parentWrapper[0].rightID, parentWrapper[0].d, true,
                         dimension, tableName, false);
 
                 parentWrapper[0] = leftNode;
                 ancestorIDs.add(parentWrapper[0].ID);
-                constraintCoefficients.add(parentDomain.constraintCoefficients);
-                constraintConstants.add(parentDomain.constraintConstant);
             }
         }
     }
 
     // Build right node
-    private static void stepRight(ArrayList<Integer> ancestorIDs, NodeRecord[] parentWrapper,
-                                  AtomicInteger intersectionIndex, ArrayList<double[]> constraintCoefficients,
-                                  ArrayList<Double> constraintConstants, int dimension, String tableName) {
-        intersectionIndex.incrementAndGet();
-        parentWrapper[0] = NodeRecord.getRecordById(parentWrapper[0].rightID, true, dimension, tableName,
-                false);
-        ancestorIDs.add(parentWrapper[0].ID);
-        DomainSimplex parentDomain = (DomainSimplex) parentWrapper[0].d;
-        constraintCoefficients.add(parentDomain.constraintCoefficients);
-        constraintConstants.add(parentDomain.constraintConstant);
+    private static void buildRightStep(Function[] intersections, ArrayList<Integer> ancestorIDs, NodeRecord[] parentWrapper,
+                                       AtomicInteger intersectionIndex, ArrayList<double[]> constraintCoefficients,
+                                       ArrayList<Double> constraintConstants, int dimension, String tableName, SimplexType simplexType,
+                                       AtomicInteger numNodes) {
+        for (; intersectionIndex.get() < intersections.length; intersectionIndex.incrementAndGet()) {
+            Function intersection = intersections[intersectionIndex.get()];
+
+            DomainSimplex parentDomain = ((DomainSimplex) parentWrapper[0].d);
+            HashSet<double[]> minSet = parentDomain.minSet;
+            DomainSimplex rightDomain = new DomainSimplex(parentWrapper[0].f, false, minSet, null,
+                    null);
+
+            constraintCoefficients.add(rightDomain.constraintCoefficients);
+            constraintConstants.add(rightDomain.constraintConstant);
+
+            if (constructTreePartitionDomain(simplexType, parentWrapper[0], constraintCoefficients, constraintConstants,
+                    intersection, dimension, tableName)) {
+                NodeRecord rightNode = new NodeRecord(rightDomain, intersection,
+                        intersectionIndex.get() + 1, parentWrapper[0].ID, -1, -1);
+
+                rightNode.ID = rightNode.insertToMySql(dimension, tableName, false);
+                numNodes.incrementAndGet();
+
+                parentWrapper[0].rightID = rightNode.ID;
+                NodeRecord.updateRecord(parentWrapper[0].ID, parentWrapper[0].leftID, rightNode.ID, parentWrapper[0].d, true,
+                        dimension, tableName, false);
+
+                parentWrapper[0] = rightNode;
+                ancestorIDs.add(parentWrapper[0].ID);
+
+                return;
+            }
+        }
     }
 
     // Step back to parent
@@ -298,8 +314,7 @@ public class Tree {
                                            ArrayList<Double> constraintConstants,
                                            SimplexType simplexType,
                                            int dimension, String tableName) {
-        // TODO: Constraint Usage Failure: should use ancestor domain constraints + parent function (?*-1), actually doesn't
-        // TODO: Missing Leaf Nodes: should have functionless (parent last function domain constraint) leaf nodes, actually doesn't
+        // TODO: PRIO: should we test num branch nodes or num leaf nodes? We are doing the former, are we doing it right?
         AtomicInteger numNodes = new AtomicInteger(0); // num nodes in tree for testing
         AtomicInteger intersectionIndex = new AtomicInteger(0); // identifies current intersection
         boolean storePoints = false;
@@ -357,8 +372,8 @@ public class Tree {
             if (done) {
                 break;
             }
-            stepRight(ancestorIDs, parentWrapper, intersectionIndex, constraintCoefficients,
-                    constraintConstants, dimension, tableName);
+            buildRightStep(intersections, ancestorIDs, parentWrapper, intersectionIndex, constraintCoefficients,
+                    constraintConstants, dimension, tableName, simplexType, numNodes);
         }
 
         return numNodes.get();
