@@ -9,8 +9,75 @@ public class Test {
     public static void runTests() {
         System.out.println("Running tests. Will print test name and if fails will print failure and problem.");
 
+        miniOriginLineTest();
         originLineTest();
         treePathTest();
+    }
+
+    // Full tree construction test for Simplex-based solutions:
+    // Given n lines going through the origin with a positive finite slope there should be n+1 subdomains = 2n+1 nodes
+    public static void miniOriginLineTest() {
+        System.out.println("Mini Origin Line Test:");
+
+        final int EXPECTED_NUM_NODES = 3;
+
+        ArrayList<double[]> domainBoundaryInequalities = generateDomainBoundary(2, 1);
+        Function[] functions = new Function[3];
+        functions[0] = new Function(new double[]{0.5, -1, 0});
+        functions[1] = new Function(new double[]{1, -1, 0});
+        functions[2] = new Function(new double[]{2, -1, 0});
+
+        // Modifications for Simplex:
+        double[] function_values = new double[3];
+        function_values[function_values.length - 1] = 1;
+        Function function = new Function(function_values);
+        DomainSimplex d = new DomainSimplex(function, true, null, null, null);
+        ArrayList<double[]> constraintCoefficients = new ArrayList<>();
+        // Separate constraint constants
+        ArrayList<Double> constraintConstants = new ArrayList<>();
+        for (double[] inequality : domainBoundaryInequalities) {
+            // ignore constant at the end
+            double[] slackenedEquation = new double[inequality.length - 1];
+            System.arraycopy(inequality, 0, slackenedEquation, 0, inequality.length - 1);
+            constraintConstants.add(inequality[inequality.length - 1]);
+            constraintCoefficients.add(slackenedEquation);
+        }
+
+        // Simplex
+        int numNodesSimplex = Tree.constructTreeSimplex(functions, d, constraintCoefficients, constraintConstants,
+                SimplexType.SIMPLEX, 2, "MiniOriginLineTestSimplex");
+        if (numNodesSimplex != EXPECTED_NUM_NODES) {
+            System.out.println("FAILED");
+            System.out.println("Num nodes Simplex should be " + EXPECTED_NUM_NODES + ", but is " + numNodesSimplex);
+        }
+
+        // Sign-Changing Simplex
+        int numNodesSignChangingSimplex = Tree.constructTreeSimplex(functions, d, constraintCoefficients,
+                constraintConstants, SimplexType.SIGN_CHANGING_SIMPLEX, 2,
+                "MiniOriginLineTestSignChangingSimplex");
+        if (numNodesSignChangingSimplex != EXPECTED_NUM_NODES) {
+            System.out.println("FAILED");
+            System.out.println("Num nodes SignChangingSimplex should be " + EXPECTED_NUM_NODES + ", but is " +
+                    numNodesSignChangingSimplex);
+        }
+
+//        // Sign-Changing Permanent Point Memorization Simplex
+//        int numNodesPermanentPointMemorization = Tree.constructTreeSimplex(functions, d, constraintCoefficients,
+//                constraintConstants, SimplexType.POINT_REMEMBERING_PERMANENT_SIGN_CHANGING_SIMPLEX, NUM_DIMENSION,
+//                "OriginLineTestPermanentPointMemorization");
+//        if (numNodesPermanentPointMemorization != EXPECTED_NUM_NODES) {
+//            throw new IllegalStateException("Num nodes Permanent Point Memorization should be " + EXPECTED_NUM_NODES +
+//                    ", but is " + numNodesPermanentPointMemorization);
+//        }
+//
+//        // Sign-Changing Local Point Memorization Simplex
+//        int numNodesLocalPointMemorization = Tree.constructTreeSimplex(functions, d, constraintCoefficients,
+//                constraintConstants, SimplexType.POINT_REMEMBERING_LOCAL_SIGN_CHANGING_SIMPLEX, NUM_DIMENSION,
+//                "OriginLineTestLocalPointMemorization");
+//        if (numNodesLocalPointMemorization != EXPECTED_NUM_NODES) {
+//            throw new IllegalStateException("Num nodes Local Point Memorization should be " + EXPECTED_NUM_NODES +
+//                    ", but is " + numNodesLocalPointMemorization);
+//        }
     }
 
     // Full tree construction test for Simplex-based solutions:
