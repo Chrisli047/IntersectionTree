@@ -358,34 +358,39 @@ public class Tree {
         NodeRecord[] parentWrapper = new NodeRecord[]{root};
         ancestorIDs.add(parentWrapper[0].ID);
 
-        boolean done = false;
         while (true) {
             buildLeftFull(intersections, ancestorIDs, parentWrapper, intersectionIndex, constraintCoefficients,
                     constraintConstants, simplexType, dimension, tableName, numNodes);
+            intersectionIndex.set(parentWrapper[0].intersectionIndex);
+
             NodeRecord lastNode = parentWrapper[0];
-            stepBack(ancestorIDs, parentWrapper, intersectionIndex, constraintCoefficients, constraintConstants, dimension,
-                    tableName);
-            while (parentWrapper[0].rightID == lastNode.ID) {
-                if (parentWrapper[0].ID == root.ID) {
-                    done = true;
-                    break;
-                }
-                lastNode = parentWrapper[0];
-                stepBack(ancestorIDs, parentWrapper, intersectionIndex, constraintCoefficients, constraintConstants, dimension,
-                        tableName);
-            }
-            if (done) {
-                break;
-            }
             buildRightStep(intersections, ancestorIDs, parentWrapper, intersectionIndex, constraintCoefficients,
                     constraintConstants, dimension, tableName, simplexType, numNodes);
+            NodeRecord currentNode = parentWrapper[0];
 
-            if (parentWrapper[0].ID == root.ID) {
-                break;
+            while (lastNode.ID == currentNode.ID) {
+                if (parentWrapper[0].ID == root.ID) {
+                    return numNodes.get();
+                }
+
+                stepBack(ancestorIDs, parentWrapper, intersectionIndex, constraintCoefficients, constraintConstants, dimension,
+                        tableName);
+                while (parentWrapper[0].rightID == currentNode.ID) {
+                    if (parentWrapper[0].ID == root.ID) {
+                        return numNodes.get();
+                    }
+
+                    currentNode = parentWrapper[0];
+                    stepBack(ancestorIDs, parentWrapper, intersectionIndex, constraintCoefficients, constraintConstants, dimension,
+                            tableName);
+                }
+
+                lastNode = parentWrapper[0];
+                buildRightStep(intersections, ancestorIDs, parentWrapper, intersectionIndex, constraintCoefficients,
+                        constraintConstants, dimension, tableName, simplexType, numNodes);
+                currentNode = parentWrapper[0];
             }
         }
-
-        return numNodes.get();
     }
 
     // Constructs path down tree

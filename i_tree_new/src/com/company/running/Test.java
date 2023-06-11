@@ -9,6 +9,10 @@ public class Test {
     public static void runTests() {
         System.out.println("Running tests. Will print test name and if fails will print failure and problem.");
 
+        // TODO: make some more non random more complex (intersecting lines) tests: (test tree is right : right intersection tree layout)
+        //  left tree (root is rightmost)
+        //  right tree (root is leftmost)
+        //  mixed tree
         miniOriginLineTest1();
         miniOriginLineTest2();
         originLineTest();
@@ -150,14 +154,13 @@ public class Test {
     // Full tree construction test for Simplex-based solutions:
     // Given n lines going through the origin with a positive finite slope there should be n+1 subdomains = 2n+1 nodes
     public static void originLineTest() {
-        // TODO: PRIO: should we test num branch nodes or num leaf nodes? We are doing the former, are we doing it right?
         System.out.println("Origin Line Test:");
 
         final int NUM_INEQUALITY = 5;
         final int NUM_DIMENSION = 2;
         final int DOMAIN_BOUNDARY_LENGTH = 1;
 
-        final int EXPECTED_NUM_NODES = 2 * NUM_INEQUALITY + 1;
+        final int EXPECTED_NUM_NODES = NUM_INEQUALITY;
 
         ArrayList<double[]> domainBoundaryInequalities = generateDomainBoundary(NUM_DIMENSION, DOMAIN_BOUNDARY_LENGTH);
         Function[] functions = new Function[NUM_INEQUALITY];
