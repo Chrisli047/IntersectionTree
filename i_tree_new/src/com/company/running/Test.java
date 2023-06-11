@@ -18,7 +18,6 @@ public class Test {
     // Full tree construction test for Simplex-based solutions:
     // Given n lines going through the origin with a positive finite slope there should be n+1 subdomains = 2n+1 nodes
     public static void miniOriginLineTest1() {
-        // TODO: PRIO: if can't build right from root, we should be done. Instead we attempt step back.
         System.out.println("Mini Origin Line Test 1:");
 
         final int EXPECTED_NUM_NODES = 3;

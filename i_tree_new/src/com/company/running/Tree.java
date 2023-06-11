@@ -379,6 +379,10 @@ public class Tree {
             }
             buildRightStep(intersections, ancestorIDs, parentWrapper, intersectionIndex, constraintCoefficients,
                     constraintConstants, dimension, tableName, simplexType, numNodes);
+
+            if (parentWrapper[0].ID == root.ID) {
+                break;
+            }
         }
 
         return numNodes.get();
