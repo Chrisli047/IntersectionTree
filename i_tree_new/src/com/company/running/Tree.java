@@ -136,6 +136,9 @@ public class Tree {
 
                 parentWrapper[0] = leftNode;
                 ancestorIDs.add(parentWrapper[0].ID);
+            } else {
+                constraintCoefficients.remove(constraintCoefficients.size() - 1);
+                constraintConstants.remove(constraintConstants.size() - 1);
             }
         }
     }
@@ -172,6 +175,9 @@ public class Tree {
                 ancestorIDs.add(parentWrapper[0].ID);
 
                 return;
+            } else {
+                constraintCoefficients.remove(constraintCoefficients.size() - 1);
+                constraintConstants.remove(constraintConstants.size() - 1);
             }
         }
     }
@@ -314,7 +320,6 @@ public class Tree {
                                            ArrayList<Double> constraintConstants,
                                            SimplexType simplexType,
                                            int dimension, String tableName) {
-        // TODO: PRIO: should we test num branch nodes or num leaf nodes? We are doing the former, are we doing it right?
         AtomicInteger numNodes = new AtomicInteger(0); // num nodes in tree for testing
         AtomicInteger intersectionIndex = new AtomicInteger(0); // identifies current intersection
         boolean storePoints = false;
