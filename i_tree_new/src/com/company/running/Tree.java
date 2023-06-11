@@ -310,7 +310,8 @@ public class Tree {
             // TODO: same as permanent memorization, but all points stored in array (for get and for put)
         }
         return DomainSimplex.ifPartitionsDomain(constraintCoefficients, constraintConstants, function,
-                simplexType, dimension, maxSet, minSet, maxFound, minFound); // TODO: do maxSet and minSet persist after return?
+                // TODO: do maxSet and minSet persist after return?
+                simplexType, dimension, maxSet, minSet, maxFound, minFound);
     }
 
     // Pass constraintCoefficients and constraintConstants with initial domain
@@ -348,12 +349,10 @@ public class Tree {
             return numNodes.get();
         }
 
-        // TODO: Constraints should update sooner. We are checking intersection2 partitions original domain, not left and rights
         NodeRecord root = new NodeRecord(domain, rootPartitionFunction, intersectionIndex.get(), -1, -1, -1);
         root.ID = root.insertToMySql(dimension, tableName, storePoints);
         numNodes.incrementAndGet();
 
-        // TODO: does root have a right node? When we go right, do we build a node or assume it is already there? If assume, fix root right
         ArrayList<Integer> ancestorIDs = new ArrayList<>();
         NodeRecord[] parentWrapper = new NodeRecord[]{root};
         ancestorIDs.add(parentWrapper[0].ID);
