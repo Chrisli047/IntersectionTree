@@ -1,12 +1,13 @@
 package com.company.running;
 
 import java.io.*;
+import java.sql.SQLException;
 import java.util.ArrayList;
 
 public class Test {
     // Only includes broad Simplex tests.
     // For smaller (unfinished) tests go to ArchivedTests.java.
-    public static void runTests() {
+    public static void runTests() throws SQLException {
         System.out.println("Running tests. Will print test name and if fails will print failure and problem.");
 
         // TODO: make some more non random more complex (intersecting lines) tests: (test tree is right : right intersection tree layout)
@@ -21,7 +22,7 @@ public class Test {
 
     // Full tree construction test for Simplex-based solutions:
     // Given n lines going through the origin with a positive finite slope there should be n+1 subdomains = 2n+1 nodes
-    public static void miniOriginLineTest1() {
+    public static void miniOriginLineTest1() throws SQLException {
         System.out.println("Mini Origin Line Test 1:");
 
         final int EXPECTED_NUM_NODES = 3;
@@ -87,7 +88,7 @@ public class Test {
 
     // Full tree construction test for Simplex-based solutions:
     // Given n lines going through the origin with a positive finite slope there should be n+1 subdomains = 2n+1 nodes
-    public static void miniOriginLineTest2() {
+    public static void miniOriginLineTest2() throws SQLException {
         System.out.println("Mini Origin Line Test 2:");
 
         final int EXPECTED_NUM_NODES = 3;
@@ -153,7 +154,7 @@ public class Test {
 
     // Full tree construction test for Simplex-based solutions:
     // Given n lines going through the origin with a positive finite slope there should be n+1 subdomains = 2n+1 nodes
-    public static void originLineTest() {
+    public static void originLineTest() throws SQLException {
         System.out.println("Origin Line Test:");
 
         final int NUM_INEQUALITY = 5;
@@ -313,7 +314,7 @@ public class Test {
     final static int unique_runs = 10;
     final static int repeat_runs = 10;
 
-    public static void collectData() throws IOException {
+    public static void collectData() throws IOException, SQLException {
         //  TODO: Data Gathering for 2 Point Memorization Versions
         int[] table_counter = new int[]{0};
         collect_data_individual_feasibility_checks();
@@ -379,7 +380,7 @@ public class Test {
     }
 
     public static void collect_data_tree_construction(int[] table_counter)
-            throws IOException {
+            throws IOException, SQLException {
         BufferedWriter writer = new BufferedWriter(new FileWriter("tree_construction.txt"));
 
         writer.write("Variable #Inequalities\n");
@@ -562,7 +563,7 @@ public class Test {
 
     private static void time_tree_construction(int num_dimension, int num_inequality, int domain_boundary_length,
                                                BufferedWriter writer, int[] table_counter)
-            throws IOException {
+            throws IOException, SQLException {
             long average_time_simplex = 0;
             long average_time_sign_changing_simplex = 0;
             long average_time_parametric_equation = 0;
