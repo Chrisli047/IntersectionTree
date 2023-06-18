@@ -4,7 +4,7 @@ import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.List;
 
-public class Domain implements DomainType {
+public class Domain implements NodeData {
     Segment[] segment;
     Point[] point;
 
@@ -35,7 +35,7 @@ public class Domain implements DomainType {
         return bytes;
     }
 
-    public static Domain toDomain(byte[] bytes, int dimension, boolean ignoreForSimplex) {
+    public static Domain toData(byte[] bytes, int dimension, boolean ignoreForSimplex) {
         ByteBuffer buffer = ByteBuffer.wrap(bytes);
 
         int numOfPoint = buffer.getInt();

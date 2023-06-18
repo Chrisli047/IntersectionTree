@@ -1,50 +1,65 @@
 package com.company.running;
 import java.sql.*;
 
-import static com.company.running.MYSQLConstants.*;
+import static com.company.running.Constants.*;
+
+// TODO: change set 1: standardize input and store things like intersection index and store points in domain (rename for clarity)
+//  * remove domain from domain simplex and use parent function instead (?*-1)
+//  * migrate intersectionIndex, storePoints, etc. to unique for simplex types
+// TODO: change set 2: do not expose anything other than necessary constructors (as few as possible) and single group setter
+//  doc comment public
+// TODO: change set 3: misc refactoring changes
 
 /**
- * I-Tree node stored in MySQL
+ * I-Tree node stored in MySQL.
  */
 public class TreeNode {
+    // TODO: getters for these, single setter function
     public int ID;
     public int parentID;
     public int leftID;
     public int rightID;
-    public DomainType domainType;
+    public NodeData nodeData;
     public Function function;
     // TODO: intersection index should be a quality of simplex domain
     public int intersectionIndex;
 
-    public TreeNode(DomainType domainType, Function function) {
-        this.domainType = domainType;
+    // TODO: combine constructors: use parentID, keep intersectionIndex in domainType
+    public TreeNode(NodeData nodeData, Function function) {
+        this.nodeData = nodeData;
         this.function = function;
     }
 
-    public TreeNode(int parentID, DomainType domainType, Function function, int intersectionIndex) {
+    public TreeNode(int parentID, NodeData nodeData, Function function, int intersectionIndex) {
         this.parentID = parentID;
-        this.domainType = domainType;
+        this.nodeData = nodeData;
         this.function = function;
         this.intersectionIndex = intersectionIndex;
     }
 
-    private TreeNode(int ID, int parentID, int leftID, int rightID, DomainType domainType, Function function, int intersectionIndex) {
+    /**
+     * Create existing TreeNode from MySQL.
+     */
+    private TreeNode(int ID, int parentID, int leftID, int rightID, NodeData nodeData, Function function, int intersectionIndex) {
         this.ID = ID;
         this.parentID = parentID;
         this.leftID = leftID;
         this.rightID = rightID;
-        this.domainType = domainType;
+        this.nodeData = nodeData;
         this.function = function;
         this.intersectionIndex = intersectionIndex;
     }
 
-    public static void createTable(String table_name) throws SQLException {
+    /**
+     * Sets up MySQL table. Must be called prior to creating or using TreeNodes.
+     */
+    public static void setupMySQL(String tableName) throws SQLException {
         Connection connection = DriverManager.getConnection(MYSQL_URL, MYSQL_USER, MYSQL_PASSWORD);
         Statement statement = connection.createStatement();
         String sql = "use i_tree";
         statement.executeUpdate(sql);
 
-        String createTable = "CREATE TABLE " + table_name + " (" +
+        String createTable = "CREATE TABLE " + tableName + " (" +
                 "ID INT PRIMARY KEY AUTO_INCREMENT," +
                 "ParentID INT," +
                 "LeftID INT," +
@@ -58,21 +73,23 @@ public class TreeNode {
     }
 
     // TODO: storePoints should be a feature of domainType (same for getRecordByID and getRecordByID and updateRecord)
-    public int insertToMySql(int dimension, String table_name, boolean storePoints) throws SQLException {
+    // TODO: this should be done in constructor privately
+    public int insertToMySql(int dimension, String tableName, boolean storePoints) throws SQLException {
         Connection connection = DriverManager.getConnection(MYSQL_URL, MYSQL_USER, MYSQL_PASSWORD);
         connection.setAutoCommit(false);
         Statement statement = connection.createStatement();
         String sql = "use i_tree";
         statement.executeUpdate(sql);
 
-        String insertSql = "INSERT INTO " + table_name +
+        String insertSql = "INSERT INTO " + tableName +
                 " (ParentID, LeftID, RightID, Domain, LinearFunction, IntersectionIndex) VALUES (?, ?, ?, ?, ?, ?)";
         PreparedStatement preparedStatement = connection.prepareStatement(insertSql, Statement.RETURN_GENERATED_KEYS);
 
+        // TODO: should use our values for these not hardcoded -1, but ensure those values are indeed -1
         preparedStatement.setInt(1, -1);
         preparedStatement.setInt(2, -1);
         preparedStatement.setInt(3, -1);
-        preparedStatement.setBytes(4, domainType.toByte(dimension, storePoints));
+        preparedStatement.setBytes(4, nodeData.toByte(dimension, storePoints));
         preparedStatement.setBytes(5, function.toByte(dimension));
         preparedStatement.setInt(6, intersectionIndex);
 
@@ -91,14 +108,14 @@ public class TreeNode {
 
     // TODO: don't be static
     // TODO: don't pass simplex boolean
-    public static TreeNode getRecordByID(int ID, boolean simplex, int dimension, String table_name, boolean storedPoints)
+    public static TreeNode getRecordByID(int ID, boolean simplex, int dimension, String tableName, boolean storedPoints)
             throws SQLException {
         Connection connection = DriverManager.getConnection(MYSQL_URL, MYSQL_USER, MYSQL_PASSWORD);
         Statement statement = connection.createStatement();
         String sql = "use i_tree";
         statement.executeUpdate(sql);
 
-        String selectSql = "SELECT * FROM " + table_name + " WHERE ID = ?";
+        String selectSql = "SELECT * FROM " + tableName + " WHERE ID = ?";
         PreparedStatement preparedStatement = connection.prepareStatement(selectSql);
         preparedStatement.setInt(1, ID);
 
@@ -108,35 +125,31 @@ public class TreeNode {
         int parentID = resultSet.getInt("ParentID");
         int leftID = resultSet.getInt("LeftID");
         int rightID = resultSet.getInt("RightID");
-
         byte[] domainBytes = resultSet.getBytes("Domain");
         // TODO: use domainType so all cases are the same
-        DomainType domain = simplex ? DomainSimplex.toDomain(domainBytes, dimension, storedPoints) :
-                Domain.toDomain(domainBytes, dimension, storedPoints);
-
+        NodeData domain = simplex ? DomainSimplex.toData(domainBytes, dimension, storedPoints) :
+                Domain.toData(domainBytes, dimension, storedPoints);
         byte[] functionBytes = resultSet.getBytes("LinearFunction");
         Function function = Function.toFunction(functionBytes);
-
         int intersectionIndex = resultSet.getInt("IntersectionIndex");
-
-        TreeNode treeNode = new TreeNode(ID, parentID, leftID, rightID, domain, function, intersectionIndex);
 
         preparedStatement.close();
         connection.close();
 
-        return treeNode;
+        return new TreeNode(ID, parentID, leftID, rightID, domain, function, intersectionIndex);
     }
 
     // TODO: don't be static
-    public static void updateRecord(int recordID, int newLeftID, int newRightID, DomainType newDomain,
-                                    int dimension, String table_name, boolean storedPoints)
+    // TODO: changing any features of TreeNode should be done in group and call this function privately
+    public static void updateRecord(int recordID, int newLeftID, int newRightID, NodeData newDomain,
+                                    int dimension, String tableName, boolean storedPoints)
             throws SQLException {
         Connection connection = DriverManager.getConnection(MYSQL_URL, MYSQL_USER, MYSQL_PASSWORD);
         Statement statement = connection.createStatement();
         String sql = "use i_tree";
         statement.executeUpdate(sql);
 
-        String updateSql = "UPDATE " + table_name + " SET LeftID = ?, RightID = ?, DOMAIN = ? WHERE ID = ?";
+        String updateSql = "UPDATE " + tableName + " SET LeftID = ?, RightID = ?, DOMAIN = ? WHERE ID = ?";
         PreparedStatement preparedStatement = connection.prepareStatement(updateSql);
 
         preparedStatement.setInt(1, newLeftID);

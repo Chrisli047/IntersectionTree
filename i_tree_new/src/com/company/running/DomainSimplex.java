@@ -4,22 +4,12 @@ import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.HashSet;
 
-public class DomainSimplex implements DomainType {
-    double[] constraintCoefficients;
-    double constraintConstant;
+public class DomainSimplex implements NodeData {
     HashSet<double[]> unknownSet;
     HashSet<double[]> maxSet;
     HashSet<double[]> minSet;
 
-    public DomainSimplex(Function function, boolean lessThan, HashSet<double[]> unknownSet, HashSet<double[]> maxSet,
-                         HashSet<double[]> minSet) {
-        this.constraintCoefficients = functionToConstraintCoefficients(function);
-        this.constraintConstant = function.coefficients[function.coefficients.length-1];
-        if (!lessThan) {
-            for (int i = 0; i < constraintCoefficients.length; i++) {
-                constraintCoefficients[i] *= -1;
-            }
-        }
+    public DomainSimplex(HashSet<double[]> unknownSet, HashSet<double[]> maxSet, HashSet<double[]> minSet) {
         this.unknownSet = unknownSet;
         this.maxSet = maxSet;
         this.minSet = minSet;
@@ -33,9 +23,7 @@ public class DomainSimplex implements DomainType {
     }
 
     public byte[] toByte(int dimension, boolean storePoints) {
-        int capacity = constraintCoefficients.length * Double.BYTES + Double.BYTES;
-
-        capacity += 3 * Integer.BYTES;
+        int capacity = 3 * Integer.BYTES;
         if (storePoints) {
             if (unknownSet != null) {
                 capacity += dimension * Double.BYTES * unknownSet.size();
@@ -51,12 +39,6 @@ public class DomainSimplex implements DomainType {
         }
 
         ByteBuffer buffer = ByteBuffer.allocate(capacity);
-
-        for (double c : constraintCoefficients) {
-            buffer.putDouble(c);
-        }
-
-        buffer.putDouble(constraintConstant);
 
         if (unknownSet != null) {
             buffer.putInt(unknownSet.size());
@@ -94,17 +76,10 @@ public class DomainSimplex implements DomainType {
         return buffer.array();
     }
 
-    public static DomainSimplex toDomain(byte[] bytes, int dimension, boolean storedPoints) {
+    public static DomainSimplex toData(byte[] bytes, int dimension, boolean storedPoints) {
         storedPoints = true;
 
         ByteBuffer buffer = ByteBuffer.wrap(bytes);
-
-        double[] coefficients = new double[dimension + 1];
-        for (int i = 0; i < dimension; i++) {
-            coefficients[i] = buffer.getDouble();
-        }
-        coefficients[coefficients.length - 1] = buffer.getInt();
-        Function function = new Function(coefficients);
 
         HashSet<double[]> unknownSet = null;
         HashSet<double[]> maxSet = null;
@@ -140,7 +115,7 @@ public class DomainSimplex implements DomainType {
         }
 
         // lessThan has already been accounted for when initially created and then encoded
-        return new DomainSimplex(function, true, unknownSet, maxSet, minSet);
+        return new DomainSimplex(unknownSet, maxSet, minSet);
     }
 
     public static boolean ifPartitionsDomain(ArrayList<double[]> allConstraintCoefficients,
@@ -221,16 +196,5 @@ public class DomainSimplex implements DomainType {
         boolean maxGood = maxFound || (max.value() > objectiveFunctionConstant);
         boolean minGood = minFound || (-min.value() < objectiveFunctionConstant);
         return maxGood && minGood;
-    }
-
-
-    public void printDomain() {
-        System.out.println("Print domain: ");
-        System.out.println("Constraint Coefficients: ");
-        for (double c : this.constraintCoefficients) {
-            System.out.println(c);
-        }
-        System.out.println("Constraint Constant: " + this.constraintConstant);
-        System.out.println();
     }
 }

@@ -34,10 +34,7 @@ public class Test {
         functions[2] = new Function(new double[]{2, -1, 0});
 
         // Modifications for Simplex:
-        double[] function_values = new double[3];
-        function_values[function_values.length - 1] = 1;
-        Function function = new Function(function_values);
-        DomainSimplex d = new DomainSimplex(function, true, null, null, null);
+        DomainSimplex d = new DomainSimplex(null, null, null);
         ArrayList<double[]> constraintCoefficients = new ArrayList<>();
         // Separate constraint constants
         ArrayList<Double> constraintConstants = new ArrayList<>();
@@ -100,10 +97,7 @@ public class Test {
         functions[2] = new Function(new double[]{2, -1, 0});
 
         // Modifications for Simplex:
-        double[] function_values = new double[3];
-        function_values[function_values.length - 1] = 1;
-        Function function = new Function(function_values);
-        DomainSimplex d = new DomainSimplex(function, true, null, null, null);
+        DomainSimplex d = new DomainSimplex(null, null, null);
         ArrayList<double[]> constraintCoefficients = new ArrayList<>();
         // Separate constraint constants
         ArrayList<Double> constraintConstants = new ArrayList<>();
@@ -170,10 +164,7 @@ public class Test {
         }
 
         // Modifications for Simplex:
-        double[] function_values = new double[NUM_DIMENSION + 1];
-        function_values[function_values.length - 1] = 1;
-        Function function = new Function(function_values);
-        DomainSimplex d = new DomainSimplex(function, true, null, null, null);
+        DomainSimplex d = new DomainSimplex(null, null, null);
         ArrayList<double[]> constraintCoefficients = new ArrayList<>();
         // Separate constraint constants
         ArrayList<Double> constraintConstants = new ArrayList<>();
@@ -597,10 +588,7 @@ public class Test {
 //            }
 
                 // Modifications for Simplex:
-                double[] function_values = new double[num_dimension + 1];
-                function_values[function_values.length - 1] = 1;
-                Function function = new Function(function_values);
-                DomainSimplex d = new DomainSimplex(function, true, null, null, null);
+                DomainSimplex d = new DomainSimplex(null, null, null);
                 ArrayList<double[]> constraintCoefficients = new ArrayList<>();
                 // Separate constraint constants
                 ArrayList<Double> constraintConstants = new ArrayList<>();

@@ -1,17 +1,14 @@
 package com.company.running;
 
 import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.LinkedList;
-import java.util.Queue;
+import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
 
 public class Tree {
 
     public static void constructTree(Function[] intersections, Domain domain, int dimension, String table_name) throws SQLException {
         // create a table IntersectionTree in MySQL
-        TreeNode.createTable(table_name);
+        TreeNode.setupMySQL(table_name);
 
         // Construct the root node with the domain, store as the first record
         Function rootPartitionFunction = null;
@@ -53,7 +50,7 @@ public class Tree {
 //                NodeRecord N = new NodeRecord(fetchedRecord);
 
                 // check if I partition N.domain
-                if (fetchedRecord == null || !Domain.ifPartitionsDomain((Domain) fetchedRecord.domainType,
+                if (fetchedRecord == null || !Domain.ifPartitionsDomain((Domain) fetchedRecord.nodeData,
                         intersection.coefficients)) {
                     // if no, exit
                     continue;
@@ -66,7 +63,7 @@ public class Tree {
                         fetchedRecord.function = intersection;
 
                         // partition the domain
-                        Domain[] partitionedDomain = Partition.partitionDomain((Domain) fetchedRecord.domainType, intersection);
+                        Domain[] partitionedDomain = Partition.partitionDomain((Domain) fetchedRecord.nodeData, intersection);
 
                         // create two child nodes leftNode and rightNode
                         TreeNode leftNode = new TreeNode(partitionedDomain[0], intersection);
@@ -85,7 +82,7 @@ public class Tree {
 
                         // update N.leftID and N.rightID with the IDs
                         // update N to the table;
-                        TreeNode.updateRecord(fetchedRecord.ID, leftID, rightID, fetchedRecord.domainType,
+                        TreeNode.updateRecord(fetchedRecord.ID, leftID, rightID, fetchedRecord.nodeData,
                                 dimension, table_name,
                                 false);
                     }
@@ -115,13 +112,13 @@ public class Tree {
         for (; intersectionIndex.get() < intersections.length; intersectionIndex.incrementAndGet()) {
             Function intersection = intersections[intersectionIndex.get()];
 
-            DomainSimplex parentDomain = ((DomainSimplex) parentWrapper[0].domainType);
+            DomainSimplex parentDomain = ((DomainSimplex) parentWrapper[0].nodeData);
             HashSet<double[]> maxSet = parentDomain.maxSet;
-            DomainSimplex leftDomain = new DomainSimplex(parentWrapper[0].function, true, maxSet, null,
-                    null);
+            DomainSimplex leftDomain = new DomainSimplex(maxSet, null, null);
 
-            constraintCoefficients.add(leftDomain.constraintCoefficients);
-            constraintConstants.add(leftDomain.constraintConstant);
+            double[] parentFunction = parentWrapper[0].function.coefficients;
+            constraintCoefficients.add(Arrays.copyOfRange(parentFunction, 0, parentFunction.length - 1));
+            constraintConstants.add(parentFunction[parentFunction.length - 1]);
 
             if (constructTreePartitionDomain(simplexType, parentWrapper[0], constraintCoefficients, constraintConstants,
                     intersection, dimension, tableName)) {
@@ -132,7 +129,7 @@ public class Tree {
                 numNodes.incrementAndGet();
 
                 parentWrapper[0].leftID = leftNode.ID;
-                TreeNode.updateRecord(parentWrapper[0].ID, leftNode.ID, parentWrapper[0].rightID, parentWrapper[0].domainType,
+                TreeNode.updateRecord(parentWrapper[0].ID, leftNode.ID, parentWrapper[0].rightID, parentWrapper[0].nodeData,
                         dimension, tableName, false);
 
                 parentWrapper[0] = leftNode;
@@ -152,13 +149,16 @@ public class Tree {
         for (; intersectionIndex.get() < intersections.length; intersectionIndex.incrementAndGet()) {
             Function intersection = intersections[intersectionIndex.get()];
 
-            DomainSimplex parentDomain = ((DomainSimplex) parentWrapper[0].domainType);
+            DomainSimplex parentDomain = ((DomainSimplex) parentWrapper[0].nodeData);
             HashSet<double[]> minSet = parentDomain.minSet;
-            DomainSimplex rightDomain = new DomainSimplex(parentWrapper[0].function, false, minSet, null,
-                    null);
+            DomainSimplex rightDomain = new DomainSimplex(minSet, null, null);
 
-            constraintCoefficients.add(rightDomain.constraintCoefficients);
-            constraintConstants.add(rightDomain.constraintConstant);
+            double[] parentFunction = parentWrapper[0].function.coefficients.clone();
+            for (int i = 0; i < parentFunction.length; i++) {
+                parentFunction[i] *= -1;
+            }
+            constraintCoefficients.add(Arrays.copyOfRange(parentFunction, 0, parentFunction.length - 1));
+            constraintConstants.add(parentFunction[parentFunction.length - 1]);
 
             if (constructTreePartitionDomain(simplexType, parentWrapper[0], constraintCoefficients, constraintConstants,
                     intersection, dimension, tableName)) {
@@ -169,7 +169,7 @@ public class Tree {
                 numNodes.incrementAndGet();
 
                 parentWrapper[0].rightID = rightNode.ID;
-                TreeNode.updateRecord(parentWrapper[0].ID, parentWrapper[0].leftID, rightNode.ID, parentWrapper[0].domainType,
+                TreeNode.updateRecord(parentWrapper[0].ID, parentWrapper[0].leftID, rightNode.ID, parentWrapper[0].nodeData,
                         dimension, tableName, false);
 
                 parentWrapper[0] = rightNode;
@@ -198,14 +198,15 @@ public class Tree {
     // Returns true if node inequality accepts point
     // Not aware of ancestor node inequalities
     private static boolean nodeAcceptsPoint(TreeNode node, double[] point) {
-        DomainSimplex domain = (DomainSimplex) node.domainType;
+        DomainSimplex domain = (DomainSimplex) node.nodeData;
 
-        double pointValue = 0;
-        for (int i = 0; i < domain.constraintCoefficients.length; i++) {
-            pointValue += point[i] * domain.constraintCoefficients[i];
-        }
-
-        return pointValue < domain.constraintConstant;
+//        double pointValue = 0;
+//        for (int i = 0; i < domain.constraintCoefficients.length; i++) {
+//            pointValue += point[i] * domain.constraintCoefficients[i];
+//        }
+//
+//        return pointValue < domain.constraintConstant;
+        return false;
     }
 
     // Trickle points down from last node toward first node
@@ -218,8 +219,8 @@ public class Tree {
         // Not updated immediately to reduce number of database calls
         ArrayList<double[]>[] rightChildPoints = new ArrayList[nodes.size()];
 
-        for (double[] point : ((DomainSimplex) lastNode.domainType).unknownSet) {
-            ((DomainSimplex) lastNode.domainType).unknownSet.remove(point);
+        for (double[] point : ((DomainSimplex) lastNode.nodeData).unknownSet) {
+            ((DomainSimplex) lastNode.nodeData).unknownSet.remove(point);
 
             // Trickle point down toward leaf node
             boolean trickledToBottom = true;
@@ -260,7 +261,7 @@ public class Tree {
         }
 
         // lastNode.d.unknownSet has likely been shrunk
-        TreeNode.updateRecord(lastNode.ID, lastNode.leftID, lastNode.rightID, lastNode.domainType, dimension,
+        TreeNode.updateRecord(lastNode.ID, lastNode.leftID, lastNode.rightID, lastNode.nodeData, dimension,
                 tableName, true);
 
         // add all remembered points to the right children of the respective nodes
@@ -269,8 +270,8 @@ public class Tree {
             if (pointSet != null) {
                 int parentNodeID = nodes.get(i).ID;
                 TreeNode rightChild = TreeNode.getRecordByID(parentNodeID, true, dimension, tableName, true);
-                ((DomainSimplex) rightChild.domainType).unknownSet.addAll(pointSet);
-                TreeNode.updateRecord(rightChild.ID, rightChild.leftID, rightChild.rightID, rightChild.domainType, dimension,
+                ((DomainSimplex) rightChild.nodeData).unknownSet.addAll(pointSet);
+                TreeNode.updateRecord(rightChild.ID, rightChild.leftID, rightChild.rightID, rightChild.nodeData, dimension,
                         tableName, true);
             }
         }
@@ -333,7 +334,7 @@ public class Tree {
             domain.minSet = new HashSet<>();
         }
 
-        TreeNode.createTable(tableName);
+        TreeNode.setupMySQL(tableName);
         Function rootPartitionFunction = null;
         for (; intersectionIndex.get() < intersections.length; intersectionIndex.incrementAndGet()) {
             Function function = intersections[intersectionIndex.get()];
