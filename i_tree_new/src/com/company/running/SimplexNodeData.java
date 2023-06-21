@@ -4,12 +4,17 @@ import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.HashSet;
 
-public class DomainSimplex implements NodeData {
-    HashSet<double[]> unknownSet;
-    HashSet<double[]> maxSet;
-    HashSet<double[]> minSet;
+// TODO: unique classes for different solutions: no need to store ex. sets in non point memorizing solutions
 
-    public DomainSimplex(HashSet<double[]> unknownSet, HashSet<double[]> maxSet, HashSet<double[]> minSet) {
+public class SimplexNodeData implements NodeData {
+    public int intersectionIndex;
+    public HashSet<double[]> unknownSet;
+    public HashSet<double[]> maxSet;
+    public HashSet<double[]> minSet;
+
+    public SimplexNodeData(int intersectionIndex, HashSet<double[]> unknownSet, HashSet<double[]> maxSet,
+                           HashSet<double[]> minSet) {
+        this.intersectionIndex = intersectionIndex;
         this.unknownSet = unknownSet;
         this.maxSet = maxSet;
         this.minSet = minSet;
@@ -23,7 +28,7 @@ public class DomainSimplex implements NodeData {
     }
 
     public byte[] toByte(int dimension, boolean storePoints) {
-        int capacity = 3 * Integer.BYTES;
+        int capacity = 4 * Integer.BYTES;
         if (storePoints) {
             if (unknownSet != null) {
                 capacity += dimension * Double.BYTES * unknownSet.size();
@@ -39,6 +44,8 @@ public class DomainSimplex implements NodeData {
         }
 
         ByteBuffer buffer = ByteBuffer.allocate(capacity);
+
+        buffer.putInt(intersectionIndex);
 
         if (unknownSet != null) {
             buffer.putInt(unknownSet.size());
@@ -76,7 +83,7 @@ public class DomainSimplex implements NodeData {
         return buffer.array();
     }
 
-    public static DomainSimplex toData(byte[] bytes, int dimension, boolean storedPoints) {
+    public static SimplexNodeData toData(byte[] bytes, int dimension, boolean storedPoints) {
         storedPoints = true;
 
         ByteBuffer buffer = ByteBuffer.wrap(bytes);
@@ -84,6 +91,8 @@ public class DomainSimplex implements NodeData {
         HashSet<double[]> unknownSet = null;
         HashSet<double[]> maxSet = null;
         HashSet<double[]> minSet = null;
+
+        int intersectionIndex = buffer.getInt();
 
         if (storedPoints) {
             int unknownSetSize = buffer.getInt();
@@ -115,7 +124,7 @@ public class DomainSimplex implements NodeData {
         }
 
         // lessThan has already been accounted for when initially created and then encoded
-        return new DomainSimplex(unknownSet, maxSet, minSet);
+        return new SimplexNodeData(intersectionIndex, unknownSet, maxSet, minSet);
     }
 
     public static boolean ifPartitionsDomain(ArrayList<double[]> allConstraintCoefficients,

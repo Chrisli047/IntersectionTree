@@ -6,14 +6,14 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 public class Tree {
 
-    public static void constructTree(Function[] intersections, Domain domain, int dimension, String table_name) throws SQLException {
+    public static void constructTree(Function[] intersections, ParametricNodeData domain, int dimension, String table_name) throws SQLException {
         // create a table IntersectionTree in MySQL
         TreeNode.setupMySQL(table_name);
 
         // Construct the root node with the domain, store as the first record
         Function rootPartitionFunction = null;
         for (Function f: intersections) {
-            if (Domain.ifPartitionsDomain(domain, f.coefficients)) {
+            if (ParametricNodeData.ifPartitionsDomain(domain, f.coefficients)) {
                 rootPartitionFunction = f;
 //                System.out.println("yes");
                 break;
@@ -50,7 +50,7 @@ public class Tree {
 //                NodeRecord N = new NodeRecord(fetchedRecord);
 
                 // check if I partition N.domain
-                if (fetchedRecord == null || !Domain.ifPartitionsDomain((Domain) fetchedRecord.nodeData,
+                if (fetchedRecord == null || !ParametricNodeData.ifPartitionsDomain((ParametricNodeData) fetchedRecord.nodeData,
                         intersection.coefficients)) {
                     // if no, exit
                     continue;
@@ -63,7 +63,7 @@ public class Tree {
                         fetchedRecord.function = intersection;
 
                         // partition the domain
-                        Domain[] partitionedDomain = Partition.partitionDomain((Domain) fetchedRecord.nodeData, intersection);
+                        ParametricNodeData[] partitionedDomain = Partition.partitionDomain((ParametricNodeData) fetchedRecord.nodeData, intersection);
 
                         // create two child nodes leftNode and rightNode
                         TreeNode leftNode = new TreeNode(partitionedDomain[0], intersection);
@@ -112,9 +112,9 @@ public class Tree {
         for (; intersectionIndex.get() < intersections.length; intersectionIndex.incrementAndGet()) {
             Function intersection = intersections[intersectionIndex.get()];
 
-            DomainSimplex parentDomain = ((DomainSimplex) parentWrapper[0].nodeData);
+            SimplexNodeData parentDomain = ((SimplexNodeData) parentWrapper[0].nodeData);
             HashSet<double[]> maxSet = parentDomain.maxSet;
-            DomainSimplex leftDomain = new DomainSimplex(maxSet, null, null);
+            SimplexNodeData leftDomain = new SimplexNodeData(intersectionIndex.get() + 1, maxSet, null, null);
 
             double[] parentFunction = parentWrapper[0].function.coefficients;
             constraintCoefficients.add(Arrays.copyOfRange(parentFunction, 0, parentFunction.length - 1));
@@ -122,8 +122,7 @@ public class Tree {
 
             if (constructTreePartitionDomain(simplexType, parentWrapper[0], constraintCoefficients, constraintConstants,
                     intersection, dimension, tableName)) {
-                TreeNode leftNode = new TreeNode(parentWrapper[0].ID, leftDomain, intersection,
-                        intersectionIndex.get() + 1);
+                TreeNode leftNode = new TreeNode(parentWrapper[0].ID, leftDomain, intersection);
 
                 leftNode.ID = leftNode.insertToMySql(dimension, tableName, false);
                 numNodes.incrementAndGet();
@@ -149,9 +148,9 @@ public class Tree {
         for (; intersectionIndex.get() < intersections.length; intersectionIndex.incrementAndGet()) {
             Function intersection = intersections[intersectionIndex.get()];
 
-            DomainSimplex parentDomain = ((DomainSimplex) parentWrapper[0].nodeData);
+            SimplexNodeData parentDomain = ((SimplexNodeData) parentWrapper[0].nodeData);
             HashSet<double[]> minSet = parentDomain.minSet;
-            DomainSimplex rightDomain = new DomainSimplex(minSet, null, null);
+            SimplexNodeData rightDomain = new SimplexNodeData(intersectionIndex.get() + 1, minSet, null, null);
 
             double[] parentFunction = parentWrapper[0].function.coefficients.clone();
             for (int i = 0; i < parentFunction.length; i++) {
@@ -162,8 +161,7 @@ public class Tree {
 
             if (constructTreePartitionDomain(simplexType, parentWrapper[0], constraintCoefficients, constraintConstants,
                     intersection, dimension, tableName)) {
-                TreeNode rightNode = new TreeNode(parentWrapper[0].ID, rightDomain, intersection,
-                        intersectionIndex.get() + 1);
+                TreeNode rightNode = new TreeNode(parentWrapper[0].ID, rightDomain, intersection);
 
                 rightNode.ID = rightNode.insertToMySql(dimension, tableName, false);
                 numNodes.incrementAndGet();
@@ -190,7 +188,7 @@ public class Tree {
         ancestorIDs.remove(ancestorIDs.size() - 1);
         parentWrapper[0] = TreeNode.getRecordByID(ancestorIDs.get(ancestorIDs.size() - 1), true, dimension,
                 tableName, false);
-        intersectionIndex.set(parentWrapper[0].intersectionIndex);
+        intersectionIndex.set(((SimplexNodeData) parentWrapper[0].nodeData).intersectionIndex);
         constraintCoefficients.remove(constraintCoefficients.size() - 1);
         constraintConstants.remove(constraintConstants.size() - 1);
     }
@@ -198,7 +196,7 @@ public class Tree {
     // Returns true if node inequality accepts point
     // Not aware of ancestor node inequalities
     private static boolean nodeAcceptsPoint(TreeNode node, double[] point) {
-        DomainSimplex domain = (DomainSimplex) node.nodeData;
+        SimplexNodeData domain = (SimplexNodeData) node.nodeData;
 
 //        double pointValue = 0;
 //        for (int i = 0; i < domain.constraintCoefficients.length; i++) {
@@ -219,8 +217,8 @@ public class Tree {
         // Not updated immediately to reduce number of database calls
         ArrayList<double[]>[] rightChildPoints = new ArrayList[nodes.size()];
 
-        for (double[] point : ((DomainSimplex) lastNode.nodeData).unknownSet) {
-            ((DomainSimplex) lastNode.nodeData).unknownSet.remove(point);
+        for (double[] point : ((SimplexNodeData) lastNode.nodeData).unknownSet) {
+            ((SimplexNodeData) lastNode.nodeData).unknownSet.remove(point);
 
             // Trickle point down toward leaf node
             boolean trickledToBottom = true;
@@ -270,7 +268,7 @@ public class Tree {
             if (pointSet != null) {
                 int parentNodeID = nodes.get(i).ID;
                 TreeNode rightChild = TreeNode.getRecordByID(parentNodeID, true, dimension, tableName, true);
-                ((DomainSimplex) rightChild.nodeData).unknownSet.addAll(pointSet);
+                ((SimplexNodeData) rightChild.nodeData).unknownSet.addAll(pointSet);
                 TreeNode.updateRecord(rightChild.ID, rightChild.leftID, rightChild.rightID, rightChild.nodeData, dimension,
                         tableName, true);
             }
@@ -311,14 +309,14 @@ public class Tree {
         } else if (simplexType == SimplexType.POINT_REMEMBERING_LOCAL_SIGN_CHANGING_SIMPLEX) {
             // TODO: same as permanent memorization, but all points stored in array (for get and for put)
         }
-        return DomainSimplex.ifPartitionsDomain(constraintCoefficients, constraintConstants, function,
+        return SimplexNodeData.ifPartitionsDomain(constraintCoefficients, constraintConstants, function,
                 // TODO: do maxSet and minSet persist after return?
                 simplexType, dimension, maxSet, minSet, maxFound, minFound);
     }
 
     // Pass constraintCoefficients and constraintConstants with initial domain
     public static int constructTreeSimplex(Function[] intersections,
-                                           DomainSimplex domain,
+                                           SimplexNodeData domain,
                                            ArrayList<double[]> constraintCoefficients,
                                            ArrayList<Double> constraintConstants,
                                            SimplexType simplexType,
@@ -339,10 +337,10 @@ public class Tree {
         for (; intersectionIndex.get() < intersections.length; intersectionIndex.incrementAndGet()) {
             Function function = intersections[intersectionIndex.get()];
 
-            if (DomainSimplex.ifPartitionsDomain(constraintCoefficients, constraintConstants, function, simplexType,
+            if (SimplexNodeData.ifPartitionsDomain(constraintCoefficients, constraintConstants, function, simplexType,
                     dimension, domain.maxSet, domain.minSet, false, false)) {
                 rootPartitionFunction = function;
-                intersectionIndex.incrementAndGet();
+                domain.intersectionIndex = intersectionIndex.incrementAndGet();
                 break;
             }
         }
@@ -351,7 +349,7 @@ public class Tree {
             return numNodes.get();
         }
 
-        TreeNode root = new TreeNode(-1, domain, rootPartitionFunction, intersectionIndex.get());
+        TreeNode root = new TreeNode(-1, domain, rootPartitionFunction);
         root.ID = root.insertToMySql(dimension, tableName, storePoints);
         numNodes.incrementAndGet();
 
@@ -362,7 +360,7 @@ public class Tree {
         while (true) {
             buildLeftFull(intersections, ancestorIDs, parentWrapper, intersectionIndex, constraintCoefficients,
                     constraintConstants, simplexType, dimension, tableName, numNodes);
-            intersectionIndex.set(parentWrapper[0].intersectionIndex);
+            intersectionIndex.set(((SimplexNodeData) parentWrapper[0].nodeData).intersectionIndex);
 
             TreeNode lastNode = parentWrapper[0];
             buildRightStep(intersections, ancestorIDs, parentWrapper, intersectionIndex, constraintCoefficients,
@@ -404,7 +402,7 @@ public class Tree {
         // TODO: local point memorization: same as full tree but cascade forgets
         int numPartitions = 0;
         for (Function intersection : intersections) {
-            if (DomainSimplex.ifPartitionsDomain(allConstraintCoefficients, allConstraintConstants, intersection,
+            if (SimplexNodeData.ifPartitionsDomain(allConstraintCoefficients, allConstraintConstants, intersection,
                     simplexType, dimension, null, null, false, false)) {
                 numPartitions++;
                 double[] coefficients = new double[intersection.coefficients.length - 1];

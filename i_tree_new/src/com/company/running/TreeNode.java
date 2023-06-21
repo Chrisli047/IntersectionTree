@@ -2,10 +2,7 @@ package com.company.running;
 import java.sql.*;
 
 import static com.company.running.Constants.*;
-
-// TODO: change set 1: standardize input and store things like intersection index and store points in domain (rename for clarity)
-//  * remove domain from domain simplex and use parent function instead (?*-1)
-//  * migrate intersectionIndex, storePoints, etc. to unique for simplex types
+    
 // TODO: change set 2: do not expose anything other than necessary constructors (as few as possible) and single group setter
 //  doc comment public
 // TODO: change set 3: misc refactoring changes
@@ -21,8 +18,6 @@ public class TreeNode {
     public int rightID;
     public NodeData nodeData;
     public Function function;
-    // TODO: intersection index should be a quality of simplex domain
-    public int intersectionIndex;
 
     // TODO: combine constructors: use parentID, keep intersectionIndex in domainType
     public TreeNode(NodeData nodeData, Function function) {
@@ -30,24 +25,22 @@ public class TreeNode {
         this.function = function;
     }
 
-    public TreeNode(int parentID, NodeData nodeData, Function function, int intersectionIndex) {
+    public TreeNode(int parentID, NodeData nodeData, Function function) {
         this.parentID = parentID;
         this.nodeData = nodeData;
         this.function = function;
-        this.intersectionIndex = intersectionIndex;
     }
 
     /**
      * Create existing TreeNode from MySQL.
      */
-    private TreeNode(int ID, int parentID, int leftID, int rightID, NodeData nodeData, Function function, int intersectionIndex) {
+    private TreeNode(int ID, int parentID, int leftID, int rightID, NodeData nodeData, Function function) {
         this.ID = ID;
         this.parentID = parentID;
         this.leftID = leftID;
         this.rightID = rightID;
         this.nodeData = nodeData;
         this.function = function;
-        this.intersectionIndex = intersectionIndex;
     }
 
     /**
@@ -82,7 +75,7 @@ public class TreeNode {
         statement.executeUpdate(sql);
 
         String insertSql = "INSERT INTO " + tableName +
-                " (ParentID, LeftID, RightID, Domain, LinearFunction, IntersectionIndex) VALUES (?, ?, ?, ?, ?, ?)";
+                " (ParentID, LeftID, RightID, Domain, LinearFunction) VALUES (?, ?, ?, ?, ?)";
         PreparedStatement preparedStatement = connection.prepareStatement(insertSql, Statement.RETURN_GENERATED_KEYS);
 
         // TODO: should use our values for these not hardcoded -1, but ensure those values are indeed -1
@@ -91,7 +84,6 @@ public class TreeNode {
         preparedStatement.setInt(3, -1);
         preparedStatement.setBytes(4, nodeData.toByte(dimension, storePoints));
         preparedStatement.setBytes(5, function.toByte(dimension));
-        preparedStatement.setInt(6, intersectionIndex);
 
         preparedStatement.executeUpdate();
 
@@ -127,16 +119,15 @@ public class TreeNode {
         int rightID = resultSet.getInt("RightID");
         byte[] domainBytes = resultSet.getBytes("Domain");
         // TODO: use domainType so all cases are the same
-        NodeData domain = simplex ? DomainSimplex.toData(domainBytes, dimension, storedPoints) :
-                Domain.toData(domainBytes, dimension, storedPoints);
+        NodeData domain = simplex ? SimplexNodeData.toData(domainBytes, dimension, storedPoints) :
+                ParametricNodeData.toData(domainBytes, dimension, storedPoints);
         byte[] functionBytes = resultSet.getBytes("LinearFunction");
         Function function = Function.toFunction(functionBytes);
-        int intersectionIndex = resultSet.getInt("IntersectionIndex");
 
         preparedStatement.close();
         connection.close();
 
-        return new TreeNode(ID, parentID, leftID, rightID, domain, function, intersectionIndex);
+        return new TreeNode(ID, parentID, leftID, rightID, domain, function);
     }
 
     // TODO: don't be static

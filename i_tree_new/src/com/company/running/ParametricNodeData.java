@@ -4,11 +4,11 @@ import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.List;
 
-public class Domain implements NodeData {
+public class ParametricNodeData implements NodeData {
     Segment[] segment;
     Point[] point;
 
-    public Domain(Point[] point, Segment[] segment) {
+    public ParametricNodeData(Point[] point, Segment[] segment) {
         this.point = point;
         this.segment = segment;
     }
@@ -35,7 +35,7 @@ public class Domain implements NodeData {
         return bytes;
     }
 
-    public static Domain toData(byte[] bytes, int dimension, boolean ignoreForSimplex) {
+    public static ParametricNodeData toData(byte[] bytes, int dimension, boolean ignoreForSimplex) {
         ByteBuffer buffer = ByteBuffer.wrap(bytes);
 
         int numOfPoint = buffer.getInt();
@@ -58,7 +58,7 @@ public class Domain implements NodeData {
             sArray[i] = s;
         }
 
-        Domain d = new Domain(pArray, sArray);
+        ParametricNodeData d = new ParametricNodeData(pArray, sArray);
         return d;
     }
 
@@ -112,7 +112,7 @@ public class Domain implements NodeData {
         return boundaryLines;
     }
 
-    public static boolean ifPartitionsDomain(Domain d, double[] c) {
+    public static boolean ifPartitionsDomain(ParametricNodeData d, double[] c) {
         if (d.point[0].point.length != c.length - 1) {
             System.out.println(d.point[0].point.length);
             System.out.println(c.length - 1);

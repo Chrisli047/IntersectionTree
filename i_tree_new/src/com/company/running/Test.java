@@ -14,6 +14,8 @@ public class Test {
         //  left tree (root is rightmost)
         //  right tree (root is leftmost)
         //  mixed tree
+        //  some function don't partition initial domain, including first function
+        //  no functions partition initial domain
         miniOriginLineTest1();
         miniOriginLineTest2();
         originLineTest();
@@ -34,7 +36,7 @@ public class Test {
         functions[2] = new Function(new double[]{2, -1, 0});
 
         // Modifications for Simplex:
-        DomainSimplex d = new DomainSimplex(null, null, null);
+        SimplexNodeData d = new SimplexNodeData(-1, null, null, null);
         ArrayList<double[]> constraintCoefficients = new ArrayList<>();
         // Separate constraint constants
         ArrayList<Double> constraintConstants = new ArrayList<>();
@@ -97,7 +99,7 @@ public class Test {
         functions[2] = new Function(new double[]{2, -1, 0});
 
         // Modifications for Simplex:
-        DomainSimplex d = new DomainSimplex(null, null, null);
+        SimplexNodeData d = new SimplexNodeData(-1, null, null, null);
         ArrayList<double[]> constraintCoefficients = new ArrayList<>();
         // Separate constraint constants
         ArrayList<Double> constraintConstants = new ArrayList<>();
@@ -164,7 +166,7 @@ public class Test {
         }
 
         // Modifications for Simplex:
-        DomainSimplex d = new DomainSimplex(null, null, null);
+        SimplexNodeData d = new SimplexNodeData(-1, null, null, null);
         ArrayList<double[]> constraintCoefficients = new ArrayList<>();
         // Separate constraint constants
         ArrayList<Double> constraintConstants = new ArrayList<>();
@@ -448,7 +450,7 @@ public class Test {
             average_time_repeat = 0;
             for (int j = 0; j < repeat_runs; j++) {
                 start_time = System.nanoTime();
-                DomainSimplex.ifPartitionsDomain(new ArrayList<>(constraintCoefficients),
+                SimplexNodeData.ifPartitionsDomain(new ArrayList<>(constraintCoefficients),
                         new ArrayList<>(constraintConstants), function,
                         SimplexType.SIMPLEX, num_dimension, null, null, false, false);
                 stop_time = System.nanoTime();
@@ -460,7 +462,7 @@ public class Test {
             average_time_repeat = 0;
             for (int j = 0; j < repeat_runs; j++) {
                 start_time = System.nanoTime();
-                DomainSimplex.ifPartitionsDomain(new ArrayList<>(constraintCoefficients),
+                SimplexNodeData.ifPartitionsDomain(new ArrayList<>(constraintCoefficients),
                         new ArrayList<>(constraintConstants), function,
                         SimplexType.SIGN_CHANGING_SIMPLEX, num_dimension, null, null, false, false);
                 stop_time = System.nanoTime();
@@ -588,7 +590,7 @@ public class Test {
 //            }
 
                 // Modifications for Simplex:
-                DomainSimplex d = new DomainSimplex(null, null, null);
+                SimplexNodeData d = new SimplexNodeData(-1, null, null, null);
                 ArrayList<double[]> constraintCoefficients = new ArrayList<>();
                 // Separate constraint constants
                 ArrayList<Double> constraintConstants = new ArrayList<>();
