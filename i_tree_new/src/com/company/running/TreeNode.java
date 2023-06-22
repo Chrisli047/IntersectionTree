@@ -2,9 +2,9 @@ package com.company.running;
 import java.sql.*;
 
 import static com.company.running.Constants.*;
-    
+
 // TODO: change set 2: do not expose anything other than necessary constructors (as few as possible) and single group setter
-//  doc comment public
+//  * doc comment public
 // TODO: change set 3: misc refactoring changes
 
 /**
