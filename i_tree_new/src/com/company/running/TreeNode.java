@@ -4,7 +4,6 @@ import java.sql.*;
 
 import static com.company.running.MySQL.*;
 
-// TODO: review file
 // TODO: add doc comments
 
 /**
@@ -12,14 +11,15 @@ import static com.company.running.MySQL.*;
  */
 public class TreeNode {
     private final int ID;
-    public int getID() {return ID;}
     private final int parentID;
     private int leftID;
     private int rightID;
-    public int getRightID() {return rightID;}
     private final NodeData nodeData;
-    public NodeData getNodeData() {return nodeData;}
     private final Function function;
+
+    public int getID() {return ID;}
+    public int getRightID() {return rightID;}
+    public NodeData getNodeData() {return nodeData;}
     public Function getFunction() {return function;}
 
     // Always couple this with updating parent's left/right unless this is the root
@@ -41,6 +41,22 @@ public class TreeNode {
         this.rightID = rightID;
         this.nodeData = nodeData;
         this.function = function;
+    }
+
+    public TreeNode getParentNode() throws SQLException {
+        return getRecordByID(parentID);
+    }
+
+    public void addLeftChild(int leftID) throws SQLException {
+        this.leftID = leftID;
+
+        updateMySQLNode();
+    }
+
+    public void addRightChild(int rightID) throws SQLException {
+        this.rightID = rightID;
+
+        updateMySQLNode();
     }
 
     private int insertToMySql() throws SQLException {
@@ -73,12 +89,7 @@ public class TreeNode {
         return newID;
     }
 
-    public TreeNode getParentNode(boolean simplex) throws SQLException {
-        return getRecordByID(parentID);
-    }
-
-    private TreeNode getRecordByID(int ID)
-            throws SQLException {
+    private TreeNode getRecordByID(int ID) throws SQLException {
         Connection connection = DriverManager.getConnection(MYSQL_URL, MYSQL_USER, MYSQL_PASSWORD);
         Statement statement = connection.createStatement();
         String sql = "use i_tree";
@@ -94,27 +105,13 @@ public class TreeNode {
         int parentID = resultSet.getInt("ParentID");
         int leftID = resultSet.getInt("LeftID");
         int rightID = resultSet.getInt("RightID");
-        byte[] domainBytes = resultSet.getBytes("Domain");
-        NodeData domain = nodeData.toData(domainBytes);
-        byte[] functionBytes = resultSet.getBytes("LinearFunction");
-        Function function = Function.toFunction(functionBytes);
+        NodeData domain = nodeData.toData(resultSet.getBytes("Domain"));
+        Function function = Function.toFunction(resultSet.getBytes("LinearFunction"));
 
         preparedStatement.close();
         connection.close();
 
         return new TreeNode(ID, parentID, leftID, rightID, domain, function);
-    }
-
-    public void addLeftChild(int leftID) throws SQLException {
-        this.leftID = leftID;
-
-        updateMySQLNode();
-    }
-
-    public void addRightChild(int rightID) throws SQLException {
-        this.rightID = rightID;
-
-        updateMySQLNode();
     }
 
     private void updateMySQLNode() throws SQLException {

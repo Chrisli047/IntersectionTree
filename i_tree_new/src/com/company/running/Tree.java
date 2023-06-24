@@ -179,7 +179,7 @@ public class Tree {
                                  AtomicInteger intersectionIndex, ArrayList<double[]> constraintCoefficients,
                                  ArrayList<Double> constraintConstants, int dimension, String tableName) throws SQLException {
         ancestorIDs.remove(ancestorIDs.size() - 1);
-        parentWrapper[0] = parentWrapper[0].getParentNode(true);
+        parentWrapper[0] = parentWrapper[0].getParentNode();
         intersectionIndex.set(((SimplexNodeData) parentWrapper[0].getNodeData()).intersectionIndex);
         constraintCoefficients.remove(constraintCoefficients.size() - 1);
         constraintConstants.remove(constraintConstants.size() - 1);
