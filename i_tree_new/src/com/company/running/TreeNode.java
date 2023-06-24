@@ -2,7 +2,7 @@ package com.company.running;
 
 import java.sql.*;
 
-import static com.company.running.Constants.*;
+import static com.company.running.MySQL.*;
 
 // TODO: review file
 // TODO: add doc comments
@@ -43,33 +43,6 @@ public class TreeNode {
         this.function = function;
     }
 
-    private static String tableName;
-
-    // TODO: move to separate MySQL file alongside MySQL constants
-    /**
-     * Sets up MySQL table. Must be called prior to creating or using TreeNodes.
-     */
-    public static void setupMySQL(String tableName) throws SQLException {
-        Connection connection = DriverManager.getConnection(MYSQL_URL, MYSQL_USER, MYSQL_PASSWORD);
-        Statement statement = connection.createStatement();
-        String sql = "use i_tree";
-        statement.executeUpdate(sql);
-
-        String createTable = "CREATE TABLE " + tableName + " (" +
-                "ID INT PRIMARY KEY AUTO_INCREMENT," +
-                "ParentID INT," +
-                "LeftID INT," +
-                "RightID INT," +
-                "Domain BLOB," +
-                "LinearFunction BLOB," +
-                "IntersectionIndex INT)";
-        statement.executeUpdate(createTable);
-
-        TreeNode.tableName = tableName;
-
-        connection.close();
-    }
-
     private int insertToMySql() throws SQLException {
         Connection connection = DriverManager.getConnection(MYSQL_URL, MYSQL_USER, MYSQL_PASSWORD);
         connection.setAutoCommit(false);
@@ -77,7 +50,7 @@ public class TreeNode {
         String sql = "use i_tree";
         statement.executeUpdate(sql);
 
-        String insertSql = "INSERT INTO " + tableName +
+        String insertSql = "INSERT INTO " + TABLE_NAME +
                 " (ParentID, LeftID, RightID, Domain, LinearFunction) VALUES (?, ?, ?, ?, ?)";
         PreparedStatement preparedStatement = connection.prepareStatement(insertSql, Statement.RETURN_GENERATED_KEYS);
 
@@ -111,7 +84,7 @@ public class TreeNode {
         String sql = "use i_tree";
         statement.executeUpdate(sql);
 
-        String selectSql = "SELECT * FROM " + tableName + " WHERE ID = ?";
+        String selectSql = "SELECT * FROM " + TABLE_NAME + " WHERE ID = ?";
         PreparedStatement preparedStatement = connection.prepareStatement(selectSql);
         preparedStatement.setInt(1, ID);
 
@@ -150,7 +123,7 @@ public class TreeNode {
         String sql = "use i_tree";
         statement.executeUpdate(sql);
 
-        String updateSql = "UPDATE " + tableName + " SET LeftID = ?, RightID = ?, DOMAIN = ? WHERE ID = ?";
+        String updateSql = "UPDATE " + TABLE_NAME + " SET LeftID = ?, RightID = ?, DOMAIN = ? WHERE ID = ?";
         PreparedStatement preparedStatement = connection.prepareStatement(updateSql);
 
         preparedStatement.setInt(1, leftID);

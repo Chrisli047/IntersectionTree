@@ -322,7 +322,7 @@ public class Tree {
             domain.minSet = new HashSet<>();
         }
 
-        TreeNode.setupMySQL(tableName);
+        MySQL.setupMySQL(tableName);
         Function rootPartitionFunction = null;
         for (; intersectionIndex.get() < intersections.length; intersectionIndex.incrementAndGet()) {
             Function function = intersections[intersectionIndex.get()];
