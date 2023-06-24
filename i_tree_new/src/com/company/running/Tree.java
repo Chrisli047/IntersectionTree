@@ -6,102 +6,102 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 public class Tree {
 
-    public static void constructTree(Function[] intersections, ParametricNodeData domain, int dimension, String table_name) throws SQLException {
-        // create a table IntersectionTree in MySQL
-        TreeNode.setupMySQL(table_name);
-
-        // Construct the root node with the domain, store as the first record
-        Function rootPartitionFunction = null;
-        for (Function f: intersections) {
-            if (ParametricNodeData.ifPartitionsDomain(domain, f.coefficients)) {
-                rootPartitionFunction = f;
-//                System.out.println("yes");
-                break;
-            } else {
-//                System.out.println("no");
-                continue;
-            }
-        }
-
-        // none of the functions partition the domain
-        if (rootPartitionFunction == null) {
-            return;
-        }
-
-        TreeNode treeNode = new TreeNode(domain, rootPartitionFunction);
-        treeNode.insertToMySql(dimension, table_name, false);
-
-        // compute the intersections, Function intersection[]
-
-//         for each intersection I, do the followings
-        for (Function intersection : intersections) {
-            // get record 0 from the TABLE
-            TreeNode record = TreeNode.getRecordByID(1, false, dimension, table_name, false);
-
-            // put the record in a queue Q
-            Queue<TreeNode> Q = new LinkedList<TreeNode>();
-            Q.add(record);
-
-            while (!Q.isEmpty()) {
-                // fetch a record from the queue
-                TreeNode fetchedRecord = Q.poll();
-
-                // construct a NodeRecord N with the record
-//                NodeRecord N = new NodeRecord(fetchedRecord);
-
-                // check if I partition N.domain
-                if (fetchedRecord == null || !ParametricNodeData.ifPartitionsDomain((ParametricNodeData) fetchedRecord.nodeData,
-                        intersection.coefficients)) {
-                    // if no, exit
-                    continue;
-                } else {
-                    // if yes, two scenarios:
-
-                    // case 1: N is a subdomain node (i.e., leftID/rightID = -1)
-                    if (fetchedRecord.leftID == -1 && fetchedRecord.rightID == -1) {
-                        // store the intersection to N
-                        fetchedRecord.function = intersection;
-
-                        // partition the domain
-                        ParametricNodeData[] partitionedDomain = Partition.partitionDomain((ParametricNodeData) fetchedRecord.nodeData, intersection, dimension);
-
-                        // create two child nodes leftNode and rightNode
-                        TreeNode leftNode = new TreeNode(partitionedDomain[0], intersection);
-                        TreeNode rightNode = new TreeNode(partitionedDomain[1], intersection);
+//    public static void constructTree(Function[] intersections, ParametricNodeData domain, int dimension, String table_name) throws SQLException {
+//        // create a table IntersectionTree in MySQL
+//        TreeNode.setupMySQL(table_name);
 //
-//                        // set the values for both nodes (e.g., domain)
-//                        leftNode.domain = I.leftDomain(N.domain);
-//                        rightNode.domain = I.rightDomain(N.domain);
-
-                        // store the two child nodes to the table
-                        // get the IDs for the two nodes
-                        int leftID = leftNode.insertToMySql(dimension, table_name, false);
-                        int rightID = rightNode.insertToMySql(dimension, table_name, false);
-
-//                        System.out.println(leftID + " " + rightID);
-
-                        // update N.leftID and N.rightID with the IDs
-                        // update N to the table;
-                        TreeNode.updateRecord(fetchedRecord.ID, leftID, rightID, fetchedRecord.nodeData,
-                                dimension, table_name,
-                                false);
-                    }
-                    // case 2: N is NOT a subdomain node
-                    else {
-                        // retrieve N.left and N.right from the table`
-                        TreeNode leftRecord = TreeNode.getRecordByID(fetchedRecord.leftID, false, dimension,
-                                table_name, false);
-                        TreeNode rightRecord = TreeNode.getRecordByID(fetchedRecord.rightID, false,
-                                dimension, table_name, false);
-
-                        // insert the two records in Q
-                        Q.add(leftRecord);
-                        Q.add(rightRecord);
-                    }
-                }
-            }
-        }
-    }
+//        // Construct the root node with the domain, store as the first record
+//        Function rootPartitionFunction = null;
+//        for (Function f: intersections) {
+//            if (ParametricNodeData.ifPartitionsDomain(domain, f.coefficients)) {
+//                rootPartitionFunction = f;
+////                System.out.println("yes");
+//                break;
+//            } else {
+////                System.out.println("no");
+//                continue;
+//            }
+//        }
+//
+//        // none of the functions partition the domain
+//        if (rootPartitionFunction == null) {
+//            return;
+//        }
+//
+//        TreeNode treeNode = new TreeNode(domain, rootPartitionFunction);
+//        treeNode.insertToMySql(dimension, table_name, false);
+//
+//        // compute the intersections, Function intersection[]
+//
+////         for each intersection I, do the followings
+//        for (Function intersection : intersections) {
+//            // get record 0 from the TABLE
+//            TreeNode record = TreeNode.getRecordByID(1, false, dimension, table_name, false);
+//
+//            // put the record in a queue Q
+//            Queue<TreeNode> Q = new LinkedList<TreeNode>();
+//            Q.add(record);
+//
+//            while (!Q.isEmpty()) {
+//                // fetch a record from the queue
+//                TreeNode fetchedRecord = Q.poll();
+//
+//                // construct a NodeRecord N with the record
+////                NodeRecord N = new NodeRecord(fetchedRecord);
+//
+//                // check if I partition N.domain
+//                if (fetchedRecord == null || !ParametricNodeData.ifPartitionsDomain((ParametricNodeData) fetchedRecord.getNodeData(),
+//                        intersection.coefficients)) {
+//                    // if no, exit
+//                    continue;
+//                } else {
+//                    // if yes, two scenarios:
+//
+//                    // case 1: N is a subdomain node (i.e., leftID/rightID = -1)
+//                    if (fetchedRecord.getLeftID() == -1 && fetchedRecord.getRightID() == -1) {
+//                        // store the intersection to N
+//                        fetchedRecord.function = intersection;
+//
+//                        // partition the domain
+//                        ParametricNodeData[] partitionedDomain = Partition.partitionDomain((ParametricNodeData) fetchedRecord.getNodeData(), intersection, dimension);
+//
+//                        // create two child nodes leftNode and rightNode
+//                        TreeNode leftNode = new TreeNode(partitionedDomain[0], intersection);
+//                        TreeNode rightNode = new TreeNode(partitionedDomain[1], intersection);
+////
+////                        // set the values for both nodes (e.g., domain)
+////                        leftNode.domain = I.leftDomain(N.domain);
+////                        rightNode.domain = I.rightDomain(N.domain);
+//
+//                        // store the two child nodes to the table
+//                        // get the IDs for the two nodes
+//                        int leftID = leftNode.insertToMySql(dimension, table_name, false);
+//                        int rightID = rightNode.insertToMySql(dimension, table_name, false);
+//
+////                        System.out.println(leftID + " " + rightID);
+//
+//                        // update N.leftID and N.rightID with the IDs
+//                        // update N to the table;
+//                        TreeNode.updateMySQLNode(fetchedRecord.getID(), leftID, rightID, fetchedRecord.getNodeData(),
+//                                dimension, table_name,
+//                                false);
+//                    }
+//                    // case 2: N is NOT a subdomain node
+//                    else {
+//                        // retrieve N.left and N.right from the table`
+//                        TreeNode leftRecord = TreeNode.getRecordByID(fetchedRecord.getLeftID(), false, dimension,
+//                                table_name, false);
+//                        TreeNode rightRecord = TreeNode.getRecordByID(fetchedRecord.getRightID(), false,
+//                                dimension, table_name, false);
+//
+//                        // insert the two records in Q
+//                        Q.add(leftRecord);
+//                        Q.add(rightRecord);
+//                    }
+//                }
+//            }
+//        }
+//    }
 
     // Build leftmost part of subtree from node
     private static void buildLeftFull(Function[] intersections, ArrayList<Integer> ancestorIDs,
@@ -112,27 +112,27 @@ public class Tree {
         for (; intersectionIndex.get() < intersections.length; intersectionIndex.incrementAndGet()) {
             Function intersection = intersections[intersectionIndex.get()];
 
-            SimplexNodeData parentDomain = ((SimplexNodeData) parentWrapper[0].nodeData);
+            SimplexNodeData parentDomain = ((SimplexNodeData) parentWrapper[0].getNodeData());
             HashSet<double[]> maxSet = parentDomain.maxSet;
             SimplexNodeData leftDomain = new SimplexNodeData(intersectionIndex.get() + 1, maxSet, null, null, dimension);
 
-            double[] parentFunction = parentWrapper[0].function.coefficients;
+            double[] parentFunction = parentWrapper[0].getFunction().coefficients;
             constraintCoefficients.add(Arrays.copyOfRange(parentFunction, 0, parentFunction.length - 1));
             constraintConstants.add(parentFunction[parentFunction.length - 1]);
 
             if (constructTreePartitionDomain(simplexType, parentWrapper[0], constraintCoefficients, constraintConstants,
                     intersection, dimension, tableName)) {
-                TreeNode leftNode = new TreeNode(parentWrapper[0].ID, leftDomain, intersection);
+                TreeNode leftNode = new TreeNode(parentWrapper[0].getID(), leftDomain, intersection);
 
                 leftNode.ID = leftNode.insertToMySql(dimension, tableName, false);
                 numNodes.incrementAndGet();
 
-                parentWrapper[0].leftID = leftNode.ID;
-                TreeNode.updateRecord(parentWrapper[0].ID, leftNode.ID, parentWrapper[0].rightID, parentWrapper[0].nodeData,
+                parentWrapper[0].leftID = leftNode.getID();
+                TreeNode.updateMySQLNode(parentWrapper[0].getID(), leftNode.getLeftID(), parentWrapper[0].getRightID(), parentWrapper[0].getNodeData(),
                         dimension, tableName, false);
 
                 parentWrapper[0] = leftNode;
-                ancestorIDs.add(parentWrapper[0].ID);
+                ancestorIDs.add(parentWrapper[0].getID());
             } else {
                 constraintCoefficients.remove(constraintCoefficients.size() - 1);
                 constraintConstants.remove(constraintConstants.size() - 1);
@@ -148,11 +148,11 @@ public class Tree {
         for (; intersectionIndex.get() < intersections.length; intersectionIndex.incrementAndGet()) {
             Function intersection = intersections[intersectionIndex.get()];
 
-            SimplexNodeData parentDomain = ((SimplexNodeData) parentWrapper[0].nodeData);
+            SimplexNodeData parentDomain = ((SimplexNodeData) parentWrapper[0].getNodeData());
             HashSet<double[]> minSet = parentDomain.minSet;
             SimplexNodeData rightDomain = new SimplexNodeData(intersectionIndex.get() + 1, minSet, null, null, dimension);
 
-            double[] parentFunction = parentWrapper[0].function.coefficients.clone();
+            double[] parentFunction = parentWrapper[0].getFunction().coefficients.clone();
             for (int i = 0; i < parentFunction.length; i++) {
                 parentFunction[i] *= -1;
             }
@@ -161,17 +161,17 @@ public class Tree {
 
             if (constructTreePartitionDomain(simplexType, parentWrapper[0], constraintCoefficients, constraintConstants,
                     intersection, dimension, tableName)) {
-                TreeNode rightNode = new TreeNode(parentWrapper[0].ID, rightDomain, intersection);
+                TreeNode rightNode = new TreeNode(parentWrapper[0].getID(), rightDomain, intersection);
 
                 rightNode.ID = rightNode.insertToMySql(dimension, tableName, false);
                 numNodes.incrementAndGet();
 
-                parentWrapper[0].rightID = rightNode.ID;
-                TreeNode.updateRecord(parentWrapper[0].ID, parentWrapper[0].leftID, rightNode.ID, parentWrapper[0].nodeData,
+                parentWrapper[0].rightID = rightNode.getID();
+                TreeNode.updateMySQLNode(parentWrapper[0].getID(), parentWrapper[0].getLeftID(), rightNode.getID(), parentWrapper[0].getNodeData(),
                         dimension, tableName, false);
 
                 parentWrapper[0] = rightNode;
-                ancestorIDs.add(parentWrapper[0].ID);
+                ancestorIDs.add(parentWrapper[0].getID());
 
                 return;
             } else {
@@ -188,7 +188,7 @@ public class Tree {
         ancestorIDs.remove(ancestorIDs.size() - 1);
         parentWrapper[0] = TreeNode.getRecordByID(ancestorIDs.get(ancestorIDs.size() - 1), true, dimension,
                 tableName, false);
-        intersectionIndex.set(((SimplexNodeData) parentWrapper[0].nodeData).intersectionIndex);
+        intersectionIndex.set(((SimplexNodeData) parentWrapper[0].getNodeData()).intersectionIndex);
         constraintCoefficients.remove(constraintCoefficients.size() - 1);
         constraintConstants.remove(constraintConstants.size() - 1);
     }
@@ -196,7 +196,7 @@ public class Tree {
     // Returns true if node inequality accepts point
     // Not aware of ancestor node inequalities
     private static boolean nodeAcceptsPoint(TreeNode node, double[] point) {
-        SimplexNodeData domain = (SimplexNodeData) node.nodeData;
+        SimplexNodeData domain = (SimplexNodeData) node.getNodeData();
 
 //        double pointValue = 0;
 //        for (int i = 0; i < domain.constraintCoefficients.length; i++) {
@@ -217,15 +217,15 @@ public class Tree {
         // Not updated immediately to reduce number of database calls
         ArrayList<double[]>[] rightChildPoints = new ArrayList[nodes.size()];
 
-        for (double[] point : ((SimplexNodeData) lastNode.nodeData).unknownSet) {
-            ((SimplexNodeData) lastNode.nodeData).unknownSet.remove(point);
+        for (double[] point : ((SimplexNodeData) lastNode.getNodeData()).unknownSet) {
+            ((SimplexNodeData) lastNode.getNodeData()).unknownSet.remove(point);
 
             // Trickle point down toward leaf node
             boolean trickledToBottom = true;
             for (int i = nodes.size() - 1; i > 0; i--) {
                 TreeNode node = nodes.get(i);
                 TreeNode childNode = nodes.get(i - 1);
-                boolean rightChild = node.rightID == childNode.ID;
+                boolean rightChild = node.getRightID() == childNode.getID();
 
                 // Halt trickle down if wrong direction
                 if (!(nodeAcceptsPoint(childNode, point) && rightChild)) {
@@ -259,17 +259,17 @@ public class Tree {
         }
 
         // lastNode.d.unknownSet has likely been shrunk
-        TreeNode.updateRecord(lastNode.ID, lastNode.leftID, lastNode.rightID, lastNode.nodeData, dimension,
+        TreeNode.updateMySQLNode(lastNode.getID(), lastNode.getLeftID(), lastNode.getRightID(), lastNode.getNodeData(), dimension,
                 tableName, true);
 
         // add all remembered points to the right children of the respective nodes
         for (int i = 0; i < rightChildPoints.length; i++) {
             ArrayList<double[]> pointSet = rightChildPoints[i];
             if (pointSet != null) {
-                int parentNodeID = nodes.get(i).ID;
+                int parentNodeID = nodes.get(i).getID();
                 TreeNode rightChild = TreeNode.getRecordByID(parentNodeID, true, dimension, tableName, true);
-                ((SimplexNodeData) rightChild.nodeData).unknownSet.addAll(pointSet);
-                TreeNode.updateRecord(rightChild.ID, rightChild.leftID, rightChild.rightID, rightChild.nodeData, dimension,
+                ((SimplexNodeData) rightChild.getNodeData()).unknownSet.addAll(pointSet);
+                TreeNode.updateMySQLNode(rightChild.getID(), rightChild.getLeftID(), rightChild.getRightID(), rightChild.getNodeData(), dimension,
                         tableName, true);
             }
         }
@@ -299,11 +299,11 @@ public class Tree {
                     return true;
                 }
 
-                if (node.parentID == -1) {
+                if (node.getParentID() == -1) {
                     break;
                 }
 
-                node = TreeNode.getRecordByID(node.parentID, true, dimension, tableName, true);
+                node = TreeNode.getRecordByID(node.getParentID(), true, dimension, tableName, true);
                 nodes.add(node);
             }
         } else if (simplexType == SimplexType.POINT_REMEMBERING_LOCAL_SIGN_CHANGING_SIMPLEX) {
@@ -355,27 +355,27 @@ public class Tree {
 
         ArrayList<Integer> ancestorIDs = new ArrayList<>();
         TreeNode[] parentWrapper = new TreeNode[]{root};
-        ancestorIDs.add(parentWrapper[0].ID);
+        ancestorIDs.add(parentWrapper[0].getID());
 
         while (true) {
             buildLeftFull(intersections, ancestorIDs, parentWrapper, intersectionIndex, constraintCoefficients,
                     constraintConstants, simplexType, dimension, tableName, numNodes);
-            intersectionIndex.set(((SimplexNodeData) parentWrapper[0].nodeData).intersectionIndex);
+            intersectionIndex.set(((SimplexNodeData) parentWrapper[0].getNodeData()).intersectionIndex);
 
             TreeNode lastNode = parentWrapper[0];
             buildRightStep(intersections, ancestorIDs, parentWrapper, intersectionIndex, constraintCoefficients,
                     constraintConstants, dimension, tableName, simplexType, numNodes);
             TreeNode currentNode = parentWrapper[0];
 
-            while (lastNode.ID == currentNode.ID) {
-                if (parentWrapper[0].ID == root.ID) {
+            while (lastNode.getID() == currentNode.getID()) {
+                if (parentWrapper[0].getID() == root.getID()) {
                     return numNodes.get();
                 }
 
                 stepBack(ancestorIDs, parentWrapper, intersectionIndex, constraintCoefficients, constraintConstants, dimension,
                         tableName);
-                while (parentWrapper[0].rightID == currentNode.ID) {
-                    if (parentWrapper[0].ID == root.ID) {
+                while (parentWrapper[0].getRightID() == currentNode.getID()) {
+                    if (parentWrapper[0].getID() == root.getID()) {
                         return numNodes.get();
                     }
 

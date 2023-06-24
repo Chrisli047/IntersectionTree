@@ -12,13 +12,18 @@ import static com.company.running.Constants.*;
  * I-Tree node stored in MySQL.
  */
 public class TreeNode {
-    // TODO: getters for these, single setter function
-    public int ID;
-    public int parentID;
-    public int leftID;
-    public int rightID;
-    public NodeData nodeData;
-    public Function function;
+    private int ID;
+    public int getID() {return ID;}
+    private int parentID;
+    public int getParentID() {return parentID;}
+    private int leftID;
+    public int getLeftID() {return leftID;}
+    private int rightID;
+    public int getRightID() {return rightID;}
+    private NodeData nodeData;
+    public NodeData getNodeData() {return nodeData;}
+    private Function function;
+    public Function getFunction() {return function;}
 
     // TODO: combine constructors: use parentID, keep intersectionIndex in domainType
     public TreeNode(NodeData nodeData, Function function) {
@@ -44,6 +49,9 @@ public class TreeNode {
         this.function = function;
     }
 
+    // TODO: move to separate MySQL file alongside MySQL constants
+    private static String tableName;
+
     /**
      * Sets up MySQL table. Must be called prior to creating or using TreeNodes.
      */
@@ -62,6 +70,8 @@ public class TreeNode {
                 "LinearFunction BLOB," +
                 "IntersectionIndex INT)";
         statement.executeUpdate(createTable);
+
+        TreeNode.tableName = tableName;
 
         connection.close();
     }
@@ -130,11 +140,15 @@ public class TreeNode {
         return new TreeNode(ID, parentID, leftID, rightID, domain, function);
     }
 
-    // TODO: don't be static
-    // TODO: changing any features of TreeNode should be done in group and call this function privately
-    public static void updateRecord(int recordID, int newLeftID, int newRightID, NodeData newDomain,
-                                    int dimension, String tableName, boolean storedPoints)
-            throws SQLException {
+    public void updateNode(int newLeftID, int newRightID, NodeData newNodeData) throws SQLException {
+        leftID = newLeftID;
+        rightID = newRightID;
+        nodeData = newNodeData;
+
+        updateMySQLNode();
+    }
+
+    private void updateMySQLNode() throws SQLException {
         Connection connection = DriverManager.getConnection(MYSQL_URL, MYSQL_USER, MYSQL_PASSWORD);
         Statement statement = connection.createStatement();
         String sql = "use i_tree";
@@ -143,10 +157,10 @@ public class TreeNode {
         String updateSql = "UPDATE " + tableName + " SET LeftID = ?, RightID = ?, DOMAIN = ? WHERE ID = ?";
         PreparedStatement preparedStatement = connection.prepareStatement(updateSql);
 
-        preparedStatement.setInt(1, newLeftID);
-        preparedStatement.setInt(2, newRightID);
-        preparedStatement.setBytes(3, newDomain.toByte());
-        preparedStatement.setInt(4, recordID);
+        preparedStatement.setInt(1, leftID);
+        preparedStatement.setInt(2, rightID);
+        preparedStatement.setBytes(3, nodeData.toByte());
+        preparedStatement.setInt(4, ID);
 
         preparedStatement.executeUpdate();
         preparedStatement.close();
