@@ -4,6 +4,7 @@ import java.sql.SQLException;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
 
+// TODO: TECH DEBT REFACTOR
 public class Tree {
 
 //    public static void constructTree(Function[] intersections, ParametricNodeData domain, int dimension, String table_name) throws SQLException {

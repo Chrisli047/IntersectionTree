@@ -3,6 +3,7 @@ package com.company.running;
 import java.nio.ByteBuffer;
 import java.util.Arrays;
 
+// TODO: TECH DEBT REFACTOR
 public class Point {
 
     double[] point;

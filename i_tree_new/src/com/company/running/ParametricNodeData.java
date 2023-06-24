@@ -4,6 +4,7 @@ import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.List;
 
+// TODO: TECH DEBT REFACTOR
 public class ParametricNodeData implements NodeData {
     Segment[] segment;
     Point[] point;

@@ -2,6 +2,7 @@ package com.company.running;
 
 import java.nio.ByteBuffer;
 
+// TODO: TECH DEBT REFACTOR
 public class Segment {
     int startPointID;
     int endPointID;

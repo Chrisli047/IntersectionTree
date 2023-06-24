@@ -6,6 +6,7 @@ import java.util.HashSet;
 
 // TODO: unique classes for different solutions: no need to store ex. sets in non point memorizing solutions
 
+// TODO: TECH DEBT REFACTOR
 public class SimplexNodeData implements NodeData {
     public int intersectionIndex;
     public HashSet<double[]> unknownSet;
