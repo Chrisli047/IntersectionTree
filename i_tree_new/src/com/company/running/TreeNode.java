@@ -4,8 +4,6 @@ import java.sql.*;
 
 import static com.company.running.MySQL.*;
 
-// TODO: add doc comments
-
 /**
  * I-Tree node stored in MySQL.
  */
@@ -22,7 +20,9 @@ public class TreeNode {
     public NodeData getNodeData() {return nodeData;}
     public Function getFunction() {return function;}
 
-    // Always couple this with updating parent's left/right unless this is the root
+    /**
+     * Always couple this with updating the parent node's respective child ID unless this is the root node.
+     */
     public TreeNode(int parentID, NodeData nodeData, Function function) throws SQLException {
         this.parentID = parentID;
         this.nodeData = nodeData;
