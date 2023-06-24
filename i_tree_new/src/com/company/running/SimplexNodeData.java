@@ -93,7 +93,7 @@ public class SimplexNodeData implements NodeData {
         return buffer.array();
     }
 
-    public static SimplexNodeData toData(byte[] bytes) {
+    public SimplexNodeData toData(byte[] bytes) {
         boolean storedPoints = true;
 
         ByteBuffer buffer = ByteBuffer.wrap(bytes);

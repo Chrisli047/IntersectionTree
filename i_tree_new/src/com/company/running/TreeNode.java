@@ -4,22 +4,20 @@ import java.sql.*;
 
 import static com.company.running.Constants.*;
 
-// TODO: change set 2: do not expose anything other than necessary constructors (as few as possible) and single group setter
-//  * doc comment public
+// TODO: review file
+// TODO: add doc comments
 
 /**
  * I-Tree node stored in MySQL.
  */
 public class TreeNode {
-    // TODO: can we unexpose some of these attributes?
     private final int ID;
     public int getID() {return ID;}
     private final int parentID;
     private int leftID;
-    public int getLeftID() {return leftID;}
     private int rightID;
     public int getRightID() {return rightID;}
-    private NodeData nodeData;
+    private final NodeData nodeData;
     public NodeData getNodeData() {return nodeData;}
     private final Function function;
     public Function getFunction() {return function;}
@@ -103,11 +101,10 @@ public class TreeNode {
     }
 
     public TreeNode getParentNode(boolean simplex) throws SQLException {
-        return getRecordByID(parentID, simplex);
+        return getRecordByID(parentID);
     }
 
-    // TODO: don't pass simplex boolean
-    private TreeNode getRecordByID(int ID, boolean simplex)
+    private TreeNode getRecordByID(int ID)
             throws SQLException {
         Connection connection = DriverManager.getConnection(MYSQL_URL, MYSQL_USER, MYSQL_PASSWORD);
         Statement statement = connection.createStatement();
@@ -125,8 +122,7 @@ public class TreeNode {
         int leftID = resultSet.getInt("LeftID");
         int rightID = resultSet.getInt("RightID");
         byte[] domainBytes = resultSet.getBytes("Domain");
-        // TODO: use domainType so all cases are the same
-        NodeData domain = simplex ? SimplexNodeData.toData(domainBytes) : ParametricNodeData.toData(domainBytes);
+        NodeData domain = nodeData.toData(domainBytes);
         byte[] functionBytes = resultSet.getBytes("LinearFunction");
         Function function = Function.toFunction(functionBytes);
 

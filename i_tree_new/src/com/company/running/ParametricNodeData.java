@@ -43,7 +43,7 @@ public class ParametricNodeData implements NodeData {
         return bytes;
     }
 
-    public static ParametricNodeData toData(byte[] bytes) {
+    public ParametricNodeData toData(byte[] bytes) {
         ByteBuffer buffer = ByteBuffer.wrap(bytes);
 
         int dimension = buffer.getInt();

@@ -7,7 +7,5 @@ public interface NodeData {
     int getDimension();
     byte[] toByte();
 
-    static NodeData toData(byte[] bytes) {
-        return null;
-    }
+    NodeData toData(byte[] bytes);
 }
