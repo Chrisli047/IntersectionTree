@@ -3,6 +3,7 @@ import java.sql.*;
 
 import static com.company.running.Constants.*;
 
+// TODO: Change readme to instruct users to use files (add to project structure -> modules in IntelliJ) in setup_files to run code
 // TODO: change set 2: do not expose anything other than necessary constructors (as few as possible) and single group setter
 //  * doc comment public
 // TODO: change set 3: misc refactoring changes
@@ -82,8 +83,8 @@ public class TreeNode {
         preparedStatement.setInt(1, -1);
         preparedStatement.setInt(2, -1);
         preparedStatement.setInt(3, -1);
-        preparedStatement.setBytes(4, nodeData.toByte(dimension, storePoints));
-        preparedStatement.setBytes(5, function.toByte(dimension));
+        preparedStatement.setBytes(4, nodeData.toByte());
+        preparedStatement.setBytes(5, function.toByte(nodeData.getDimension()));
 
         preparedStatement.executeUpdate();
 
@@ -119,8 +120,7 @@ public class TreeNode {
         int rightID = resultSet.getInt("RightID");
         byte[] domainBytes = resultSet.getBytes("Domain");
         // TODO: use domainType so all cases are the same
-        NodeData domain = simplex ? SimplexNodeData.toData(domainBytes, dimension, storedPoints) :
-                ParametricNodeData.toData(domainBytes, dimension, storedPoints);
+        NodeData domain = simplex ? SimplexNodeData.toData(domainBytes) : ParametricNodeData.toData(domainBytes);
         byte[] functionBytes = resultSet.getBytes("LinearFunction");
         Function function = Function.toFunction(functionBytes);
 
@@ -145,7 +145,7 @@ public class TreeNode {
 
         preparedStatement.setInt(1, newLeftID);
         preparedStatement.setInt(2, newRightID);
-        preparedStatement.setBytes(3, newDomain.toByte(dimension, storedPoints));
+        preparedStatement.setBytes(3, newDomain.toByte());
         preparedStatement.setInt(4, recordID);
 
         preparedStatement.executeUpdate();

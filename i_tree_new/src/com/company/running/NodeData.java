@@ -4,9 +4,10 @@ package com.company.running;
  * Data stored in TreeNode used for its construction, but not needed after that.
  */
 public interface NodeData {
-    byte[] toByte(int dimension, boolean storePoints);
+    int getDimension();
+    byte[] toByte();
 
-    static NodeData toData(byte[] bytes, int dimension, boolean storedPoints) {
+    static NodeData toData(byte[] bytes) {
         return null;
     }
 }

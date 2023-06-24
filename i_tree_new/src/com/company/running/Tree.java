@@ -63,7 +63,7 @@ public class Tree {
                         fetchedRecord.function = intersection;
 
                         // partition the domain
-                        ParametricNodeData[] partitionedDomain = Partition.partitionDomain((ParametricNodeData) fetchedRecord.nodeData, intersection);
+                        ParametricNodeData[] partitionedDomain = Partition.partitionDomain((ParametricNodeData) fetchedRecord.nodeData, intersection, dimension);
 
                         // create two child nodes leftNode and rightNode
                         TreeNode leftNode = new TreeNode(partitionedDomain[0], intersection);
@@ -114,7 +114,7 @@ public class Tree {
 
             SimplexNodeData parentDomain = ((SimplexNodeData) parentWrapper[0].nodeData);
             HashSet<double[]> maxSet = parentDomain.maxSet;
-            SimplexNodeData leftDomain = new SimplexNodeData(intersectionIndex.get() + 1, maxSet, null, null);
+            SimplexNodeData leftDomain = new SimplexNodeData(intersectionIndex.get() + 1, maxSet, null, null, dimension);
 
             double[] parentFunction = parentWrapper[0].function.coefficients;
             constraintCoefficients.add(Arrays.copyOfRange(parentFunction, 0, parentFunction.length - 1));
@@ -150,7 +150,7 @@ public class Tree {
 
             SimplexNodeData parentDomain = ((SimplexNodeData) parentWrapper[0].nodeData);
             HashSet<double[]> minSet = parentDomain.minSet;
-            SimplexNodeData rightDomain = new SimplexNodeData(intersectionIndex.get() + 1, minSet, null, null);
+            SimplexNodeData rightDomain = new SimplexNodeData(intersectionIndex.get() + 1, minSet, null, null, dimension);
 
             double[] parentFunction = parentWrapper[0].function.coefficients.clone();
             for (int i = 0; i < parentFunction.length; i++) {

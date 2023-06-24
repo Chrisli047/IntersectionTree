@@ -29,14 +29,16 @@ public class Test {
 
         final int EXPECTED_NUM_NODES = 3;
 
-        ArrayList<double[]> domainBoundaryInequalities = generateDomainBoundary(2, 1);
+        final int DIMENSION = 2;
+
+        ArrayList<double[]> domainBoundaryInequalities = generateDomainBoundary(DIMENSION, 1);
         Function[] functions = new Function[3];
         functions[0] = new Function(new double[]{0.5, -1, 0});
         functions[1] = new Function(new double[]{1, -1, 0});
         functions[2] = new Function(new double[]{2, -1, 0});
 
         // Modifications for Simplex:
-        SimplexNodeData d = new SimplexNodeData(-1, null, null, null);
+        SimplexNodeData d = new SimplexNodeData(-1, null, null, null, DIMENSION);
         ArrayList<double[]> constraintCoefficients = new ArrayList<>();
         // Separate constraint constants
         ArrayList<Double> constraintConstants = new ArrayList<>();
@@ -91,15 +93,16 @@ public class Test {
         System.out.println("Mini Origin Line Test 2:");
 
         final int EXPECTED_NUM_NODES = 3;
+        final int DIMENSION = 2;
 
-        ArrayList<double[]> domainBoundaryInequalities = generateDomainBoundary(2, 1);
+        ArrayList<double[]> domainBoundaryInequalities = generateDomainBoundary(DIMENSION, 1);
         Function[] functions = new Function[3];
         functions[0] = new Function(new double[]{1, -1, 0});
         functions[1] = new Function(new double[]{0.5, -1, 0});
         functions[2] = new Function(new double[]{2, -1, 0});
 
         // Modifications for Simplex:
-        SimplexNodeData d = new SimplexNodeData(-1, null, null, null);
+        SimplexNodeData d = new SimplexNodeData(-1, null, null, null, DIMENSION);
         ArrayList<double[]> constraintCoefficients = new ArrayList<>();
         // Separate constraint constants
         ArrayList<Double> constraintConstants = new ArrayList<>();
@@ -166,7 +169,7 @@ public class Test {
         }
 
         // Modifications for Simplex:
-        SimplexNodeData d = new SimplexNodeData(-1, null, null, null);
+        SimplexNodeData d = new SimplexNodeData(-1, null, null, null, NUM_DIMENSION);
         ArrayList<double[]> constraintCoefficients = new ArrayList<>();
         // Separate constraint constants
         ArrayList<Double> constraintConstants = new ArrayList<>();
@@ -590,7 +593,7 @@ public class Test {
 //            }
 
                 // Modifications for Simplex:
-                SimplexNodeData d = new SimplexNodeData(-1, null, null, null);
+                SimplexNodeData d = new SimplexNodeData(-1, null, null, null, num_dimension);
                 ArrayList<double[]> constraintCoefficients = new ArrayList<>();
                 // Separate constraint constants
                 ArrayList<Double> constraintConstants = new ArrayList<>();

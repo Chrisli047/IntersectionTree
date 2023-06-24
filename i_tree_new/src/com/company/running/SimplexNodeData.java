@@ -11,13 +11,19 @@ public class SimplexNodeData implements NodeData {
     public HashSet<double[]> unknownSet;
     public HashSet<double[]> maxSet;
     public HashSet<double[]> minSet;
+    public int dimension;
 
     public SimplexNodeData(int intersectionIndex, HashSet<double[]> unknownSet, HashSet<double[]> maxSet,
-                           HashSet<double[]> minSet) {
+                           HashSet<double[]> minSet, int dimension) {
         this.intersectionIndex = intersectionIndex;
         this.unknownSet = unknownSet;
         this.maxSet = maxSet;
         this.minSet = minSet;
+        this.dimension = dimension;
+    }
+
+    public int getDimension() {
+        return dimension;
     }
 
     private static double[] functionToConstraintCoefficients(Function function) {
@@ -27,8 +33,10 @@ public class SimplexNodeData implements NodeData {
         return constraintCoefficients;
     }
 
-    public byte[] toByte(int dimension, boolean storePoints) {
-        int capacity = 4 * Integer.BYTES;
+    public byte[] toByte() {
+        boolean storePoints = true;
+
+        int capacity = 5 * Integer.BYTES;
         if (storePoints) {
             if (unknownSet != null) {
                 capacity += dimension * Double.BYTES * unknownSet.size();
@@ -44,6 +52,8 @@ public class SimplexNodeData implements NodeData {
         }
 
         ByteBuffer buffer = ByteBuffer.allocate(capacity);
+
+        buffer.putInt(dimension);
 
         buffer.putInt(intersectionIndex);
 
@@ -83,14 +93,16 @@ public class SimplexNodeData implements NodeData {
         return buffer.array();
     }
 
-    public static SimplexNodeData toData(byte[] bytes, int dimension, boolean storedPoints) {
-        storedPoints = true;
+    public static SimplexNodeData toData(byte[] bytes) {
+        boolean storedPoints = true;
 
         ByteBuffer buffer = ByteBuffer.wrap(bytes);
 
         HashSet<double[]> unknownSet = null;
         HashSet<double[]> maxSet = null;
         HashSet<double[]> minSet = null;
+
+        int dimension = buffer.getInt();
 
         int intersectionIndex = buffer.getInt();
 
@@ -124,7 +136,7 @@ public class SimplexNodeData implements NodeData {
         }
 
         // lessThan has already been accounted for when initially created and then encoded
-        return new SimplexNodeData(intersectionIndex, unknownSet, maxSet, minSet);
+        return new SimplexNodeData(intersectionIndex, unknownSet, maxSet, minSet, dimension);
     }
 
     public static boolean ifPartitionsDomain(ArrayList<double[]> allConstraintCoefficients,

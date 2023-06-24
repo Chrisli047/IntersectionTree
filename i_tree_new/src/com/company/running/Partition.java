@@ -6,7 +6,7 @@ import java.util.List;
 
 public class Partition {
 
-    public static ParametricNodeData[] partitionDomain(ParametricNodeData d, Function f) {
+    public static ParametricNodeData[] partitionDomain(ParametricNodeData d, Function f, int dimension) {
 
         List<Point> leftPoints = new ArrayList<>();
         List<Point> rightPoints = new ArrayList<>();
@@ -124,8 +124,8 @@ public class Partition {
             rightSegmentArray[i] = rightSegments.get(i);
         }
 
-        ParametricNodeData leftDomain = new ParametricNodeData(leftPointsArray, leftSegmentArray);
-        ParametricNodeData rightDomain = new ParametricNodeData(rightPointsArray, rightSegmentArray);
+        ParametricNodeData leftDomain = new ParametricNodeData(leftPointsArray, leftSegmentArray, dimension);
+        ParametricNodeData rightDomain = new ParametricNodeData(rightPointsArray, rightSegmentArray, dimension);
 
         return new ParametricNodeData[] {leftDomain, rightDomain};
     }

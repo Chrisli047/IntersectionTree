@@ -7,16 +7,24 @@ import java.util.List;
 public class ParametricNodeData implements NodeData {
     Segment[] segment;
     Point[] point;
+    public int dimension;
 
-    public ParametricNodeData(Point[] point, Segment[] segment) {
+    public ParametricNodeData(Point[] point, Segment[] segment, int dimension) {
         this.point = point;
         this.segment = segment;
+        this.dimension = dimension;
     }
 
-    public byte[] toByte(int dimension, boolean ignoreForSimplex) {
-        ByteBuffer buffer = ByteBuffer.allocate(
+    public int getDimension() {
+        return dimension;
+    }
+
+    public byte[] toByte() {
+        ByteBuffer buffer = ByteBuffer.allocate( Integer.BYTES +
                 4 + point.length * dimension * Double.BYTES
                         + 4 + segment.length * 2 * Integer.BYTES);
+
+        buffer.putInt(dimension);
 
         buffer.putInt(point.length);
         for (Point p : point) {
@@ -35,8 +43,10 @@ public class ParametricNodeData implements NodeData {
         return bytes;
     }
 
-    public static ParametricNodeData toData(byte[] bytes, int dimension, boolean ignoreForSimplex) {
+    public static ParametricNodeData toData(byte[] bytes) {
         ByteBuffer buffer = ByteBuffer.wrap(bytes);
+
+        int dimension = buffer.getInt();
 
         int numOfPoint = buffer.getInt();
         System.out.println("The number of points is: " + numOfPoint);
@@ -58,7 +68,7 @@ public class ParametricNodeData implements NodeData {
             sArray[i] = s;
         }
 
-        ParametricNodeData d = new ParametricNodeData(pArray, sArray);
+        ParametricNodeData d = new ParametricNodeData(pArray, sArray, dimension);
         return d;
     }
 
