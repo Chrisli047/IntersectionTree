@@ -6,12 +6,12 @@ import static com.company.running.Constants.*;
 // TODO: Change readme to instruct users to use files (add to project structure -> modules in IntelliJ) in setup_files to run code
 // TODO: change set 2: do not expose anything other than necessary constructors (as few as possible) and single group setter
 //  * doc comment public
-// TODO: change set 3: misc refactoring changes
 
 /**
  * I-Tree node stored in MySQL.
  */
 public class TreeNode {
+    // TODO: can we unexpose some of these attributes?
     private int ID;
     public int getID() {return ID;}
     private int parentID;
@@ -25,16 +25,12 @@ public class TreeNode {
     private Function function;
     public Function getFunction() {return function;}
 
-    // TODO: combine constructors: use parentID, keep intersectionIndex in domainType
-    public TreeNode(NodeData nodeData, Function function) {
-        this.nodeData = nodeData;
-        this.function = function;
-    }
-
-    public TreeNode(int parentID, NodeData nodeData, Function function) {
+    public TreeNode(int parentID, NodeData nodeData, Function function) throws SQLException {
         this.parentID = parentID;
         this.nodeData = nodeData;
         this.function = function;
+
+        this.ID = insertToMySql();
     }
 
     /**
@@ -49,9 +45,9 @@ public class TreeNode {
         this.function = function;
     }
 
-    // TODO: move to separate MySQL file alongside MySQL constants
     private static String tableName;
 
+    // TODO: move to separate MySQL file alongside MySQL constants
     /**
      * Sets up MySQL table. Must be called prior to creating or using TreeNodes.
      */
@@ -76,9 +72,7 @@ public class TreeNode {
         connection.close();
     }
 
-    // TODO: storePoints should be a feature of domainType (same for getRecordByID and getRecordByID and updateRecord)
-    // TODO: this should be done in constructor privately
-    public int insertToMySql(int dimension, String tableName, boolean storePoints) throws SQLException {
+    private int insertToMySql() throws SQLException {
         Connection connection = DriverManager.getConnection(MYSQL_URL, MYSQL_USER, MYSQL_PASSWORD);
         connection.setAutoCommit(false);
         Statement statement = connection.createStatement();
@@ -89,10 +83,9 @@ public class TreeNode {
                 " (ParentID, LeftID, RightID, Domain, LinearFunction) VALUES (?, ?, ?, ?, ?)";
         PreparedStatement preparedStatement = connection.prepareStatement(insertSql, Statement.RETURN_GENERATED_KEYS);
 
-        // TODO: should use our values for these not hardcoded -1, but ensure those values are indeed -1
-        preparedStatement.setInt(1, -1);
-        preparedStatement.setInt(2, -1);
-        preparedStatement.setInt(3, -1);
+        preparedStatement.setInt(1, parentID);
+        preparedStatement.setInt(2, leftID);
+        preparedStatement.setInt(3, rightID);
         preparedStatement.setBytes(4, nodeData.toByte());
         preparedStatement.setBytes(5, function.toByte(nodeData.getDimension()));
 
@@ -109,9 +102,12 @@ public class TreeNode {
         return newID;
     }
 
-    // TODO: don't be static
+    public TreeNode getParentNode(boolean simplex) throws SQLException {
+        return getRecordByID(parentID, simplex);
+    }
+
     // TODO: don't pass simplex boolean
-    public static TreeNode getRecordByID(int ID, boolean simplex, int dimension, String tableName, boolean storedPoints)
+    private TreeNode getRecordByID(int ID, boolean simplex)
             throws SQLException {
         Connection connection = DriverManager.getConnection(MYSQL_URL, MYSQL_USER, MYSQL_PASSWORD);
         Statement statement = connection.createStatement();

@@ -123,13 +123,9 @@ public class Tree {
             if (constructTreePartitionDomain(simplexType, parentWrapper[0], constraintCoefficients, constraintConstants,
                     intersection, dimension, tableName)) {
                 TreeNode leftNode = new TreeNode(parentWrapper[0].getID(), leftDomain, intersection);
-
-                leftNode.ID = leftNode.insertToMySql(dimension, tableName, false);
                 numNodes.incrementAndGet();
 
-                parentWrapper[0].leftID = leftNode.getID();
-                TreeNode.updateMySQLNode(parentWrapper[0].getID(), leftNode.getLeftID(), parentWrapper[0].getRightID(), parentWrapper[0].getNodeData(),
-                        dimension, tableName, false);
+                parentWrapper[0].updateNode(leftNode.getID(), parentWrapper[0].getRightID(), parentWrapper[0].getNodeData());
 
                 parentWrapper[0] = leftNode;
                 ancestorIDs.add(parentWrapper[0].getID());
@@ -162,13 +158,9 @@ public class Tree {
             if (constructTreePartitionDomain(simplexType, parentWrapper[0], constraintCoefficients, constraintConstants,
                     intersection, dimension, tableName)) {
                 TreeNode rightNode = new TreeNode(parentWrapper[0].getID(), rightDomain, intersection);
-
-                rightNode.ID = rightNode.insertToMySql(dimension, tableName, false);
                 numNodes.incrementAndGet();
 
-                parentWrapper[0].rightID = rightNode.getID();
-                TreeNode.updateMySQLNode(parentWrapper[0].getID(), parentWrapper[0].getLeftID(), rightNode.getID(), parentWrapper[0].getNodeData(),
-                        dimension, tableName, false);
+                parentWrapper[0].updateNode(parentWrapper[0].getLeftID(), rightNode.getID(), parentWrapper[0].getNodeData());
 
                 parentWrapper[0] = rightNode;
                 ancestorIDs.add(parentWrapper[0].getID());
@@ -186,8 +178,7 @@ public class Tree {
                                  AtomicInteger intersectionIndex, ArrayList<double[]> constraintCoefficients,
                                  ArrayList<Double> constraintConstants, int dimension, String tableName) throws SQLException {
         ancestorIDs.remove(ancestorIDs.size() - 1);
-        parentWrapper[0] = TreeNode.getRecordByID(ancestorIDs.get(ancestorIDs.size() - 1), true, dimension,
-                tableName, false);
+        parentWrapper[0] = parentWrapper[0].getParentNode(true);
         intersectionIndex.set(((SimplexNodeData) parentWrapper[0].getNodeData()).intersectionIndex);
         constraintCoefficients.remove(constraintCoefficients.size() - 1);
         constraintConstants.remove(constraintConstants.size() - 1);
@@ -259,18 +250,17 @@ public class Tree {
         }
 
         // lastNode.d.unknownSet has likely been shrunk
-        TreeNode.updateMySQLNode(lastNode.getID(), lastNode.getLeftID(), lastNode.getRightID(), lastNode.getNodeData(), dimension,
-                tableName, true);
+        lastNode.updateNode(lastNode.getLeftID(), lastNode.getRightID(), lastNode.getNodeData());
 
         // add all remembered points to the right children of the respective nodes
         for (int i = 0; i < rightChildPoints.length; i++) {
             ArrayList<double[]> pointSet = rightChildPoints[i];
             if (pointSet != null) {
                 int parentNodeID = nodes.get(i).getID();
-                TreeNode rightChild = TreeNode.getRecordByID(parentNodeID, true, dimension, tableName, true);
-                ((SimplexNodeData) rightChild.getNodeData()).unknownSet.addAll(pointSet);
-                TreeNode.updateMySQLNode(rightChild.getID(), rightChild.getLeftID(), rightChild.getRightID(), rightChild.getNodeData(), dimension,
-                        tableName, true);
+//                TreeNode rightChild = TreeNode.getRecordByID(parentNodeID, true, dimension, tableName, true);
+//                ((SimplexNodeData) rightChild.getNodeData()).unknownSet.addAll(pointSet);
+//                TreeNode.updateMySQLNode(rightChild.getID(), rightChild.getLeftID(), rightChild.getRightID(), rightChild.getNodeData(), dimension,
+//                        tableName, true);
             }
         }
     }
@@ -303,7 +293,7 @@ public class Tree {
                     break;
                 }
 
-                node = TreeNode.getRecordByID(node.getParentID(), true, dimension, tableName, true);
+//                node = TreeNode.getRecordByID(node.getParentID(), true, dimension, tableName, true);
                 nodes.add(node);
             }
         } else if (simplexType == SimplexType.POINT_REMEMBERING_LOCAL_SIGN_CHANGING_SIMPLEX) {
@@ -350,7 +340,6 @@ public class Tree {
         }
 
         TreeNode root = new TreeNode(-1, domain, rootPartitionFunction);
-        root.ID = root.insertToMySql(dimension, tableName, storePoints);
         numNodes.incrementAndGet();
 
         ArrayList<Integer> ancestorIDs = new ArrayList<>();
