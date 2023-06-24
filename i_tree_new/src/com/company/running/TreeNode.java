@@ -1,9 +1,9 @@
 package com.company.running;
+
 import java.sql.*;
 
 import static com.company.running.Constants.*;
 
-// TODO: Change readme to instruct users to use files (add to project structure -> modules in IntelliJ) in setup_files to run code
 // TODO: change set 2: do not expose anything other than necessary constructors (as few as possible) and single group setter
 //  * doc comment public
 
@@ -12,19 +12,19 @@ import static com.company.running.Constants.*;
  */
 public class TreeNode {
     // TODO: can we unexpose some of these attributes?
-    private int ID;
+    private final int ID;
     public int getID() {return ID;}
-    private int parentID;
-    public int getParentID() {return parentID;}
+    private final int parentID;
     private int leftID;
     public int getLeftID() {return leftID;}
     private int rightID;
     public int getRightID() {return rightID;}
     private NodeData nodeData;
     public NodeData getNodeData() {return nodeData;}
-    private Function function;
+    private final Function function;
     public Function getFunction() {return function;}
 
+    // Always couple this with updating parent's left/right unless this is the root
     public TreeNode(int parentID, NodeData nodeData, Function function) throws SQLException {
         this.parentID = parentID;
         this.nodeData = nodeData;
@@ -136,10 +136,14 @@ public class TreeNode {
         return new TreeNode(ID, parentID, leftID, rightID, domain, function);
     }
 
-    public void updateNode(int newLeftID, int newRightID, NodeData newNodeData) throws SQLException {
-        leftID = newLeftID;
-        rightID = newRightID;
-        nodeData = newNodeData;
+    public void addLeftChild(int leftID) throws SQLException {
+        this.leftID = leftID;
+
+        updateMySQLNode();
+    }
+
+    public void addRightChild(int rightID) throws SQLException {
+        this.rightID = rightID;
 
         updateMySQLNode();
     }

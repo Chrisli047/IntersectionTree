@@ -125,7 +125,7 @@ public class Tree {
                 TreeNode leftNode = new TreeNode(parentWrapper[0].getID(), leftDomain, intersection);
                 numNodes.incrementAndGet();
 
-                parentWrapper[0].updateNode(leftNode.getID(), parentWrapper[0].getRightID(), parentWrapper[0].getNodeData());
+                parentWrapper[0].addLeftChild(leftNode.getID());
 
                 parentWrapper[0] = leftNode;
                 ancestorIDs.add(parentWrapper[0].getID());
@@ -160,7 +160,7 @@ public class Tree {
                 TreeNode rightNode = new TreeNode(parentWrapper[0].getID(), rightDomain, intersection);
                 numNodes.incrementAndGet();
 
-                parentWrapper[0].updateNode(parentWrapper[0].getLeftID(), rightNode.getID(), parentWrapper[0].getNodeData());
+                parentWrapper[0].addRightChild(rightNode.getID());
 
                 parentWrapper[0] = rightNode;
                 ancestorIDs.add(parentWrapper[0].getID());
@@ -250,7 +250,7 @@ public class Tree {
         }
 
         // lastNode.d.unknownSet has likely been shrunk
-        lastNode.updateNode(lastNode.getLeftID(), lastNode.getRightID(), lastNode.getNodeData());
+//        lastNode.updateNode(lastNode.getLeftID(), lastNode.getRightID());
 
         // add all remembered points to the right children of the respective nodes
         for (int i = 0; i < rightChildPoints.length; i++) {
@@ -289,9 +289,9 @@ public class Tree {
                     return true;
                 }
 
-                if (node.getParentID() == -1) {
-                    break;
-                }
+//                if (node.getParentID() == -1) {
+//                    break;
+//                }
 
 //                node = TreeNode.getRecordByID(node.getParentID(), true, dimension, tableName, true);
                 nodes.add(node);
