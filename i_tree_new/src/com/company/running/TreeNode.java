@@ -74,7 +74,7 @@ public class TreeNode {
         preparedStatement.setInt(2, leftID);
         preparedStatement.setInt(3, rightID);
         preparedStatement.setBytes(4, nodeData.toByte());
-        preparedStatement.setBytes(5, function.toByte(nodeData.getDimension()));
+        preparedStatement.setBytes(5, this.function.toByte());
 
         preparedStatement.executeUpdate();
 
@@ -105,13 +105,13 @@ public class TreeNode {
         int parentID = resultSet.getInt("ParentID");
         int leftID = resultSet.getInt("LeftID");
         int rightID = resultSet.getInt("RightID");
-        NodeData domain = nodeData.toData(resultSet.getBytes("Domain"));
+        NodeData nodeData = this.nodeData.toData(resultSet.getBytes("Domain"));
         Function function = Function.toFunction(resultSet.getBytes("LinearFunction"));
 
         preparedStatement.close();
         connection.close();
 
-        return new TreeNode(ID, parentID, leftID, rightID, domain, function);
+        return new TreeNode(ID, parentID, leftID, rightID, nodeData, function);
     }
 
     private void updateMySQLNode() throws SQLException {

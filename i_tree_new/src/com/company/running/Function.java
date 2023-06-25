@@ -1,47 +1,49 @@
 package com.company.running;
 
 import java.nio.ByteBuffer;
+import java.util.Arrays;
 
 // TODO: TECH DEBT REFACTOR
+// TODO: add doc comments
 public class Function {
-    double[] coefficients;
+    private final double[] function;
 
-    public Function(double[] coefficients) {
-        this.coefficients = coefficients;
+    public Function(double[] function) {
+        this.function = function;
     }
 
-    public byte[] toByte(int dimension) {
-        ByteBuffer buffer = ByteBuffer.allocate((dimension + 1) * Double.BYTES);
+    public double[] getFunction() {
+        return function.clone();
+    }
 
-        for (double p : coefficients) {
+    public double[] getCoefficients() {
+        return Arrays.copyOf(function, function.length - 1);
+    }
+
+    public double getConstant() {
+        return function[function.length - 1];
+    }
+
+    // TODO: make serialization/deserialization static in all cases (this, nodeData)
+    public byte[] toByte() {
+        ByteBuffer buffer = ByteBuffer.allocate(function.length * Double.BYTES);
+
+        for (double p : function) {
             buffer.putDouble(p);
         }
 
-        byte[] bytes = buffer.array();
-        return bytes;
+        return buffer.array();
     }
 
     public static Function toFunction(byte[] bytes) {
         ByteBuffer buffer = ByteBuffer.wrap(bytes);
 
-        double[] doubles = new double[bytes.length / Double.BYTES];
+        double[] function = new double[bytes.length / Double.BYTES];
 
-        for (int i = 0; i < doubles.length; i++) {
-            doubles[i] = buffer.getDouble();
+        for (int i = 0; i < function.length; i++) {
+            function[i] = buffer.getDouble();
         }
 
-        Function toFunction = new Function(doubles);
-        return toFunction;
-    }
-
-
-    @Override
-    public String toString() {
-        String toString = "";
-        for (int i = 0; i < this.coefficients.length - 1; i++) {
-            toString += "c" + i + ": " + this.coefficients[i] + " ";
-        }
-        toString += "constant: " + this.coefficients[this.coefficients.length - 1];
-        return toString;
+        return new Function(function);
     }
 }

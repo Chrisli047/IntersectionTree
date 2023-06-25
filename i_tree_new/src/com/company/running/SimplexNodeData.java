@@ -27,13 +27,6 @@ public class SimplexNodeData implements NodeData {
         return dimension;
     }
 
-    private static double[] functionToConstraintCoefficients(Function function) {
-        double[] constraintCoefficients = new double[function.coefficients.length-1];
-        System.arraycopy(function.coefficients, 0, constraintCoefficients, 0,
-                function.coefficients.length - 1);
-        return constraintCoefficients;
-    }
-
     public byte[] toByte() {
         boolean storePoints = true;
 
@@ -149,8 +142,8 @@ public class SimplexNodeData implements NodeData {
                                              HashSet<double[]> minSet,
                                              boolean maxFound,
                                              boolean minFound) {
-        double[] objectiveFunctionVariableCoefficients = functionToConstraintCoefficients(function);
-        double objectiveFunctionConstant = function.coefficients[function.coefficients.length-1];
+        double[] objectiveFunctionVariableCoefficients = function.getCoefficients();
+        double objectiveFunctionConstant = function.getConstant();
 
         double[][] constraintVariableCoefficients =
                 new double[allConstraintCoefficients.size()][dimension];

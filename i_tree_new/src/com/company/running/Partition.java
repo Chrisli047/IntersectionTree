@@ -25,7 +25,7 @@ public class Partition {
                 intersectionPoints.add(intersectionPoint);
                 leftPoints.add(intersectionPoint);
                 rightPoints.add(intersectionPoint);
-                if (evaluateFunction(d.point[s.startPointID].point, f.coefficients) < 0) {
+                if (evaluateFunction(d.point[s.startPointID].point, f.getFunction()) < 0) {
                     leftSegmentsByPoint.add(new Point[] {d.point[s.startPointID], intersectionPoint});
                     rightSegmentsByPoint.add(new Point[] {d.point[s.endPointID], intersectionPoint});
                 } else {
@@ -34,7 +34,7 @@ public class Partition {
                 }
                 System.out.println(areCollinear(d.point[s.startPointID].point, d.point[s.endPointID].point, intersectionPoint.point));
             } else {
-                if (evaluateFunction(d.point[s.startPointID].point, f.coefficients) < 0) {
+                if (evaluateFunction(d.point[s.startPointID].point, f.getFunction()) < 0) {
                     leftSegmentsByPoint.add(new Point[] {d.point[s.startPointID], d.point[s.endPointID]});
                 } else {
                     rightSegmentsByPoint.add(new Point[] {d.point[s.startPointID], d.point[s.endPointID]});
@@ -45,9 +45,9 @@ public class Partition {
 
         for (Point p:
              d.point) {
-            if (evaluateFunction(p.point, f.coefficients) < 0) {
+            if (evaluateFunction(p.point, f.getFunction()) < 0) {
                 leftPoints.add(p);
-            } else if (evaluateFunction(p.point, f.coefficients) > 0) {
+            } else if (evaluateFunction(p.point, f.getFunction()) > 0) {
                 rightPoints.add(p);
             } else {
                 continue;
@@ -144,7 +144,7 @@ public class Partition {
     public static Point findIntersectionPoints(Point[] p, Segment s, Function f) {
 //        double[][] segment = {{0, 0, 0}, {5, 0, 0}}; // segment from (-1,-1) to (0,2) in 3D
 //        double[] coefficients = {1, 1, 1, 1}; // the plane x + y + z = 1
-        double[] intersection = findIntersection(p[s.startPointID].point, p[s.endPointID].point, f.coefficients);
+        double[] intersection = findIntersection(p[s.startPointID].point, p[s.endPointID].point, f.getFunction());
         if (intersection != null) {
             Point res = new Point(intersection);
             System.out.println(res);

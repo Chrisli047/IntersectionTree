@@ -117,7 +117,7 @@ public class Tree {
             HashSet<double[]> maxSet = parentDomain.maxSet;
             SimplexNodeData leftDomain = new SimplexNodeData(intersectionIndex.get() + 1, maxSet, null, null, dimension);
 
-            double[] parentFunction = parentWrapper[0].getFunction().coefficients;
+            double[] parentFunction = parentWrapper[0].getFunction().getFunction();
             constraintCoefficients.add(Arrays.copyOfRange(parentFunction, 0, parentFunction.length - 1));
             constraintConstants.add(parentFunction[parentFunction.length - 1]);
 
@@ -149,7 +149,7 @@ public class Tree {
             HashSet<double[]> minSet = parentDomain.minSet;
             SimplexNodeData rightDomain = new SimplexNodeData(intersectionIndex.get() + 1, minSet, null, null, dimension);
 
-            double[] parentFunction = parentWrapper[0].getFunction().coefficients.clone();
+            double[] parentFunction = parentWrapper[0].getFunction().getFunction();
             for (int i = 0; i < parentFunction.length; i++) {
                 parentFunction[i] *= -1;
             }
@@ -395,9 +395,8 @@ public class Tree {
             if (SimplexNodeData.ifPartitionsDomain(allConstraintCoefficients, allConstraintConstants, intersection,
                     simplexType, dimension, null, null, false, false)) {
                 numPartitions++;
-                double[] coefficients = new double[intersection.coefficients.length - 1];
-                System.arraycopy(intersection.coefficients, 0, coefficients, 0, coefficients.length);
-                double constant = intersection.coefficients[intersection.coefficients.length - 1];
+                double[] coefficients = intersection.getCoefficients();
+                double constant = intersection.getConstant();
 
                 // If inequality does not accept central point, flip it in order to maximize likelihood of future
                 // partitions.
