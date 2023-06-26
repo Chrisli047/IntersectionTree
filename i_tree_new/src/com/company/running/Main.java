@@ -5,7 +5,6 @@ import java.sql.SQLException;
 
 // TODO: TECH DEBT REFACTOR
 //  * Solution Utilities
-//    * Function
 //    * Node Data
 //  * Parametric Equation Solution
 //    * Point
