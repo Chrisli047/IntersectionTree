@@ -1,6 +1,5 @@
 package com.company.running;
 
-// TODO: TECH DEBT REFACTOR
 /**
  * Data stored in TreeNode used for its construction, but not needed after that.
  */

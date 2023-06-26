@@ -4,8 +4,6 @@ import java.io.IOException;
 import java.sql.SQLException;
 
 // TODO: TECH DEBT REFACTOR
-//  * Solution Utilities
-//    * Node Data
 //  * Parametric Equation Solution
 //    * Point
 //    * Segment
@@ -21,6 +19,7 @@ import java.sql.SQLException;
 //  * Tree
 //  * Test
 //  * Main
+//  * Misc Remaining
 public class Main {
     public static void main(String[] args) throws IOException, SQLException {
         // TODO: migrate files into folders
