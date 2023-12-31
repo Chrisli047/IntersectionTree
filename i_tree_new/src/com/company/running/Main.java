@@ -3,12 +3,20 @@ package com.company.running;
 import java.io.IOException;
 import java.sql.SQLException;
 
+
+
+
+// TODO: CURRENT:
+//   * archiving parametric solution (done)
+//   * SimplexNodeData -> NodeData, TreeNode only uses the one only type of NodeData
+
+
+
+
+
+
+
 // TODO: TECH DEBT REFACTOR
-//  * Parametric Equation Solution
-//    * Point
-//    * Segment
-//    * Partition
-//    * ParametricNodeData
 //  * Simplex Solution
 //    * SimplexMarker
 //    * SimplexType

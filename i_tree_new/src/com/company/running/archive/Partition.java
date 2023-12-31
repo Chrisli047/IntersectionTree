@@ -1,10 +1,11 @@
-package com.company.running;
+package com.company.running.archive;
+
+import com.company.running.Function;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-// TODO: TECH DEBT REFACTOR
 public class Partition {
 
     public static ParametricNodeData[] partitionDomain(ParametricNodeData d, Function f, int dimension) {
