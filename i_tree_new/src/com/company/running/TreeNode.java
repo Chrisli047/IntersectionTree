@@ -1,7 +1,5 @@
 package com.company.running;
 
-import com.company.running.archive.NodeData;
-
 import java.sql.*;
 
 import static com.company.running.MySQL.*;
