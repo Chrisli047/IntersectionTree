@@ -4,19 +4,12 @@ import java.io.*;
 import java.sql.SQLException;
 import java.util.ArrayList;
 
-// TODO: TECH DEBT REFACTOR
 public class Test {
     // Only includes broad Simplex tests.
     // For smaller (unfinished) tests go to ArchivedTests.java.
     public static void runTests() throws SQLException {
         System.out.println("Running tests. Will print test name and if fails will print failure and problem.");
 
-        // TODO: make some more non random more complex (intersecting lines) tests: (test tree is right : right intersection tree layout)
-        //  left tree (root is rightmost)
-        //  right tree (root is leftmost)
-        //  mixed tree
-        //  some function don't partition initial domain, including first function
-        //  no functions partition initial domain
         miniOriginLineTest1();
         miniOriginLineTest2();
         originLineTest();
@@ -312,7 +305,6 @@ public class Test {
     final static int repeat_runs = 10;
 
     public static void collectData() throws IOException, SQLException {
-        //  TODO: Data Gathering for 2 Point Memorization Versions
         int[] table_counter = new int[]{0};
         collect_data_individual_feasibility_checks();
         collect_data_tree_path(table_counter);
@@ -715,7 +707,6 @@ public class Test {
     }
 
     public static void parseDataFiles() {
-        // TODO: parse data files for new data file format with 2 point memorization techniques included
         try {
             File individual_inequality_naive = new File("Data_Individual_Partition_Variable_Inequalities_Simplex.txt");
             individual_inequality_naive.delete();

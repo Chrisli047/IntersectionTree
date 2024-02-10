@@ -41,7 +41,6 @@ public class Function {
         return function[function.length - 1];
     }
 
-    // TODO: static vs instance serialization/deserialization question after is MySQL necessary answer
     public byte[] toByte() {
         ByteBuffer buffer = ByteBuffer.allocate(function.length * Double.BYTES);
 

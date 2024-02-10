@@ -1,6 +1,5 @@
 package com.company.running;
 
-// TODO: TECH DEBT REFACTOR
 public enum SimplexType {
 
     SIMPLEX,

@@ -4,7 +4,6 @@ import java.sql.SQLException;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
 
-// TODO: TECH DEBT REFACTOR
 public class Tree {
 
 //    public static void constructTree(Function[] intersections, ParametricNodeData domain, int dimension, String table_name) throws SQLException {
@@ -298,10 +297,10 @@ public class Tree {
                 nodes.add(node);
             }
         } else if (simplexType == SimplexType.POINT_REMEMBERING_LOCAL_SIGN_CHANGING_SIMPLEX) {
-            // TODO: same as permanent memorization, but all points stored in array (for get and for put)
+            // same as permanent memorization, but all points stored in array (for get and for put)
         }
         return NodeData.ifPartitionsDomain(constraintCoefficients, constraintConstants, function,
-                // TODO: do maxSet and minSet persist after return?
+                // do maxSet and minSet persist after return?
                 simplexType, dimension, maxSet, minSet, maxFound, minFound);
     }
 
@@ -389,7 +388,7 @@ public class Tree {
                                                    SimplexType simplexType,
                                                    int dimension,
                                                    int boundary_length) {
-        // TODO: local point memorization: same as full tree but cascade forgets
+        // local point memorization: same as full tree but cascade forgets
         int numPartitions = 0;
         for (Function intersection : intersections) {
             if (NodeData.ifPartitionsDomain(allConstraintCoefficients, allConstraintConstants, intersection,

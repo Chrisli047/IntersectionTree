@@ -4,7 +4,6 @@ package com.company.running;
 
 import java.util.HashSet;
 
-// TODO: TECH DEBT REFACTOR
 public class TwoPhaseSignChangingPointMemorizingSimplex implements SimplexMarker {
     private static final double EPSILON = 1.0E-8;
 
