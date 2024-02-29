@@ -8,6 +8,7 @@ import static com.company.running.MySQL.*;
  * I-Tree node stored in MySQL.
  */
 public class TreeNode {
+    private final String tableName;
     private final int ID;
     private final int parentID;
     private int leftID;
@@ -23,7 +24,9 @@ public class TreeNode {
     /**
      * Always couple this with updating the parent node's respective child ID unless this is the root node.
      */
-    public TreeNode(int parentID, NodeData nodeData, Function function) throws SQLException {
+    public TreeNode(String tableName, int parentID, NodeData nodeData, Function function) throws SQLException {
+        this.tableName = tableName;
+
         this.parentID = parentID;
         this.nodeData = nodeData;
         this.function = function;
@@ -34,7 +37,8 @@ public class TreeNode {
     /**
      * Create existing TreeNode from MySQL.
      */
-    private TreeNode(int ID, int parentID, int leftID, int rightID, NodeData nodeData, Function function) {
+    private TreeNode(String tableName, int ID, int parentID, int leftID, int rightID, NodeData nodeData, Function function) {
+        this.tableName = tableName;
         this.ID = ID;
         this.parentID = parentID;
         this.leftID = leftID;
@@ -60,13 +64,9 @@ public class TreeNode {
     }
 
     private int insertToMySql() throws SQLException {
-        Connection connection = DriverManager.getConnection(MYSQL_URL, MYSQL_USER, MYSQL_PASSWORD);
-        connection.setAutoCommit(false);
-        Statement statement = connection.createStatement();
-        String sql = "use i_tree";
-        statement.executeUpdate(sql);
+        Connection connection = setupConnection();
 
-        String insertSql = "INSERT INTO " + TABLE_NAME +
+        String insertSql = "INSERT INTO " + tableName +
                 " (ParentID, LeftID, RightID, Domain, LinearFunction) VALUES (?, ?, ?, ?, ?)";
         PreparedStatement preparedStatement = connection.prepareStatement(insertSql, Statement.RETURN_GENERATED_KEYS);
 
@@ -82,7 +82,6 @@ public class TreeNode {
         resultSet.next();
         int newID = resultSet.getInt(1);
 
-        connection.commit();
         preparedStatement.close();
         connection.close();
 
@@ -90,12 +89,9 @@ public class TreeNode {
     }
 
     private TreeNode getRecordByID(int ID) throws SQLException {
-        Connection connection = DriverManager.getConnection(MYSQL_URL, MYSQL_USER, MYSQL_PASSWORD);
-        Statement statement = connection.createStatement();
-        String sql = "use i_tree";
-        statement.executeUpdate(sql);
+        Connection connection = setupConnection();
 
-        String selectSql = "SELECT * FROM " + TABLE_NAME + " WHERE ID = ?";
+        String selectSql = "SELECT * FROM " + tableName + " WHERE ID = ?";
         PreparedStatement preparedStatement = connection.prepareStatement(selectSql);
         preparedStatement.setInt(1, ID);
 
@@ -111,16 +107,13 @@ public class TreeNode {
         preparedStatement.close();
         connection.close();
 
-        return new TreeNode(ID, parentID, leftID, rightID, nodeData, function);
+        return new TreeNode(tableName, ID, parentID, leftID, rightID, nodeData, function);
     }
 
     private void updateMySQLNode() throws SQLException {
-        Connection connection = DriverManager.getConnection(MYSQL_URL, MYSQL_USER, MYSQL_PASSWORD);
-        Statement statement = connection.createStatement();
-        String sql = "use i_tree";
-        statement.executeUpdate(sql);
+        Connection connection = setupConnection();
 
-        String updateSql = "UPDATE " + TABLE_NAME + " SET LeftID = ?, RightID = ?, DOMAIN = ? WHERE ID = ?";
+        String updateSql = "UPDATE " + tableName + " SET LeftID = ?, RightID = ?, DOMAIN = ? WHERE ID = ?";
         PreparedStatement preparedStatement = connection.prepareStatement(updateSql);
 
         preparedStatement.setInt(1, leftID);
@@ -129,6 +122,7 @@ public class TreeNode {
         preparedStatement.setInt(4, ID);
 
         preparedStatement.executeUpdate();
+
         preparedStatement.close();
         connection.close();
     }

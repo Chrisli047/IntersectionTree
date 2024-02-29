@@ -122,7 +122,7 @@ public class Tree {
 
             if (constructTreePartitionDomain(simplexType, parentWrapper[0], constraintCoefficients, constraintConstants,
                     intersection, dimension, tableName)) {
-                TreeNode leftNode = new TreeNode(parentWrapper[0].getID(), leftDomain, intersection);
+                TreeNode leftNode = new TreeNode(tableName, parentWrapper[0].getID(), leftDomain, intersection);
                 numNodes.incrementAndGet();
 
                 parentWrapper[0].addLeftChild(leftNode.getID());
@@ -157,7 +157,7 @@ public class Tree {
 
             if (constructTreePartitionDomain(simplexType, parentWrapper[0], constraintCoefficients, constraintConstants,
                     intersection, dimension, tableName)) {
-                TreeNode rightNode = new TreeNode(parentWrapper[0].getID(), rightDomain, intersection);
+                TreeNode rightNode = new TreeNode(tableName, parentWrapper[0].getID(), rightDomain, intersection);
                 numNodes.incrementAndGet();
 
                 parentWrapper[0].addRightChild(rightNode.getID());
@@ -322,7 +322,7 @@ public class Tree {
             domain.minSet = new HashSet<>();
         }
 
-        MySQL.setupMySQL(tableName);
+        MySQL.createMySQLTable(tableName);
         Function rootPartitionFunction = null;
         for (; intersectionIndex.get() < intersections.length; intersectionIndex.incrementAndGet()) {
             Function function = intersections[intersectionIndex.get()];
@@ -339,7 +339,7 @@ public class Tree {
             return numNodes.get();
         }
 
-        TreeNode root = new TreeNode(-1, domain, rootPartitionFunction);
+        TreeNode root = new TreeNode(tableName, -1, domain, rootPartitionFunction);
         numNodes.incrementAndGet();
 
         ArrayList<Integer> ancestorIDs = new ArrayList<>();

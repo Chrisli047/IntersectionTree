@@ -4,15 +4,11 @@ import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.HashSet;
 
-// TODO: unique classes for different solutions: no need to store ex. sets in non point memorizing solutions
-
-// TODO: TECH DEBT REFACTOR
 public class NodeData {
     public int intersectionIndex;
     public HashSet<double[]> unknownSet;
     public HashSet<double[]> maxSet;
     public HashSet<double[]> minSet;
-    // TODO: dimension is tree property, not a node property
     public int dimension;
 
     public NodeData(int intersectionIndex, HashSet<double[]> unknownSet, HashSet<double[]> maxSet,

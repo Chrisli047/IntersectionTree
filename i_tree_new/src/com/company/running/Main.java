@@ -5,9 +5,27 @@ import java.sql.SQLException;
 
 public class Main {
     public static void main(String[] args) throws IOException, SQLException {
-        Test.runTests();
+        try {
+            setup();
+            Test.runTests();
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+        } finally {
+            cleanup();
+        }
+    }
 
-//        Test.collectData();
-//        Test.parseDataFiles();
+    /**
+     * Setup MySQL.
+     */
+    private static void setup() throws SQLException {
+        MySQL.setupMySQL();
+    }
+
+    /**
+     * Cleanup MySQL.
+     */
+    private static void cleanup() throws SQLException {
+        MySQL.cleanupMySQL();
     }
 }
