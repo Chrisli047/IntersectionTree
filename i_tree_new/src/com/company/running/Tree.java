@@ -116,7 +116,7 @@ public class Tree {
             HashSet<double[]> maxSet = parentDomain.maxSet;
             NodeData leftDomain = new NodeData(intersectionIndex.get() + 1, maxSet, null, null, dimension);
 
-            double[] parentFunction = parentWrapper[0].getFunction().getFunction();
+            double[] parentFunction = parentWrapper[0].getFunction().function().clone();
             constraintCoefficients.add(Arrays.copyOfRange(parentFunction, 0, parentFunction.length - 1));
             constraintConstants.add(parentFunction[parentFunction.length - 1]);
 
@@ -148,7 +148,7 @@ public class Tree {
             HashSet<double[]> minSet = parentDomain.minSet;
             NodeData rightDomain = new NodeData(intersectionIndex.get() + 1, minSet, null, null, dimension);
 
-            double[] parentFunction = parentWrapper[0].getFunction().getFunction();
+            double[] parentFunction = parentWrapper[0].getFunction().function().clone();
             for (int i = 0; i < parentFunction.length; i++) {
                 parentFunction[i] *= -1;
             }

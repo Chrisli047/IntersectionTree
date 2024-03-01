@@ -4,28 +4,10 @@ import java.nio.ByteBuffer;
 import java.util.Arrays;
 
 /**
- * A mathematical function representing a record's score:
- * (a, b, ..., c) from (ax + by + ... = c).
- * Where x, y, ... are record variables values, thus constants here.
- * Where a, b, ..., c are record variable coefficients, thus variables here.
+ * A mathematical function representing a record's score: (a, b, ..., c) from (ax + by + ... = c).
+ * Where a, b, ..., are coefficients for variables x, y, ... and c is the lone constant.
  */
-public class Function {
-    private final double[] function;
-
-    /**
-     * Creates a function [a, b, ..., c] where a, b, ... are variable
-     * coefficients and c is the constant in (ax + by + ... = c).
-     */
-    public Function(double[] function) {
-        this.function = function;
-    }
-
-    /**
-     * @return the full function [a, b, ..., c] from (ax + by + ... = c)
-     */
-    public double[] getFunction() {
-        return function.clone();
-    }
+public record Function(double[] function) {
 
     /**
      * @return the coefficients [a, b, ...] not including c from (ax + by + ... = c)

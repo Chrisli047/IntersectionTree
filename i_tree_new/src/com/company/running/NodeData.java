@@ -2,6 +2,7 @@ package com.company.running;
 
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashSet;
 
 public class NodeData {
