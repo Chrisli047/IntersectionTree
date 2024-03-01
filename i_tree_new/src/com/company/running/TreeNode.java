@@ -26,7 +26,6 @@ public class TreeNode {
      */
     public TreeNode(String tableName, int parentID, NodeData nodeData, Function function) throws SQLException {
         this.tableName = tableName;
-
         this.parentID = parentID;
         this.nodeData = nodeData;
         this.function = function;

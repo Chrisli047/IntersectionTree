@@ -14,7 +14,7 @@ public class Function {
 
     /**
      * Creates a function [a, b, ..., c] where a, b, ... are variable
-     * coefficients and c the constant in (ax + by + ... = c).
+     * coefficients and c is the constant in (ax + by + ... = c).
      */
     public Function(double[] function) {
         this.function = function;

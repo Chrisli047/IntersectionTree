@@ -1,11 +1,9 @@
 package com.company.running;
 
 public enum SimplexType {
-
     SIMPLEX,
     SIGN_CHANGING_SIMPLEX,
     POINT_REMEMBERING_PERMANENT_SIGN_CHANGING_SIMPLEX,
     POINT_REMEMBERING_LOCAL_SIGN_CHANGING_SIMPLEX,
-
 }
 
